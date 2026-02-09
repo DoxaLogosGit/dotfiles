@@ -1,0 +1,11 @@
+[user]
+	email = jgatkinsn@gmail.com
+	name = Jay Atkinson
+[push]
+	default = simple
+[core]
+	autocrlf = false
+[init]
+	defaultBranch = main
+[credential]
+	helper = libsecret
