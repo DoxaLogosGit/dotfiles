@@ -134,6 +134,11 @@ install_symlinks() {
     mkdir -p "$HOME/.config/ghostty"
     mkdir -p "$HOME/.config/yazi"
     mkdir -p "$HOME/.config/nushell"
+    mkdir -p "$HOME/.config/htop"
+    mkdir -p "$HOME/.config/btop"
+    mkdir -p "$HOME/.config/Code/User"
+    mkdir -p "$HOME/.config/opencode"
+    mkdir -p "$HOME/.gemini"
     mkdir -p "$HOME/.claude/scripts"
     mkdir -p "$HOME/.tmux/plugins"
 
@@ -178,6 +183,25 @@ install_symlinks() {
     # Claude
     create_symlink "$DOTFILES_DIR/claude/scripts/context-bar.sh" "$HOME/.claude/scripts/context-bar.sh"
     create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
+
+    # Bash
+    create_symlink "$DOTFILES_DIR/bash/bashrc" "$HOME/.bashrc"
+    create_symlink "$DOTFILES_DIR/bash/bash_profile" "$HOME/.bash_profile"
+
+    # htop
+    create_symlink "$DOTFILES_DIR/htop/htoprc" "$HOME/.config/htop/htoprc"
+
+    # btop
+    create_symlink "$DOTFILES_DIR/btop/btop.conf" "$HOME/.config/btop/btop.conf"
+
+    # VS Code
+    create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/.config/Code/User/settings.json"
+
+    # OpenCode
+    create_symlink "$DOTFILES_DIR/opencode/opencode.json" "$HOME/.config/opencode/opencode.json"
+
+    # Gemini
+    create_symlink "$DOTFILES_DIR/gemini/settings.json" "$HOME/.gemini/settings.json"
 
     success "Symlinks created!"
 }

@@ -30,6 +30,7 @@ Or run interactively:
 
 ### Shells
 - **Fish** - Primary shell with starship prompt
+- **Bash** - Bash configuration with aliases
 - **Nushell** - Modern shell alternative
 - **Zsh** - Legacy configuration
 
@@ -41,12 +42,17 @@ Or run interactively:
 - **tmux** - Terminal multiplexer with TPM for plugins
 - **yazi** - Terminal file manager
 - **starship** - Cross-shell prompt
+- **htop** - Interactive process viewer
+- **btop** - Resource monitor
 
 ### Other Configs
 - **git** - Global git configuration
 - **ghostty** - Terminal emulator settings
 - **pylint** - Python linting configuration
 - **claude** - Claude Code CLI customizations
+- **vscode** - Visual Studio Code settings
+- **opencode** - OpenCode CLI configuration
+- **gemini** - Gemini CLI settings
 
 ## Directory Structure
 
@@ -84,6 +90,19 @@ Or run interactively:
 │   └── zshrc                     # → ~/.zshrc
 ├── python/
 │   └── pylintrc                  # → ~/.pylintrc
+├── bash/
+│   ├── bashrc                    # → ~/.bashrc
+│   └── bash_profile              # → ~/.bash_profile
+├── htop/
+│   └── htoprc                    # → ~/.config/htop/htoprc
+├── btop/
+│   └── btop.conf                 # → ~/.config/btop/btop.conf
+├── vscode/
+│   └── settings.json             # → ~/.config/Code/User/settings.json
+├── opencode/
+│   └── opencode.json             # → ~/.config/opencode/opencode.json
+├── gemini/
+│   └── settings.json             # → ~/.gemini/settings.json
 └── claude/
     ├── settings.json             # → ~/.claude/settings.json
     └── scripts/

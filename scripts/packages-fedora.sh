@@ -59,6 +59,8 @@ sudo dnf install -y fastfetch
 sudo dnf install -y dstat || true
 sudo dnf install -y progress
 sudo dnf install -y procs
+sudo dnf install -y htop
+sudo dnf install -y btop
 
 # File system utilities
 sudo dnf install -y zoxide

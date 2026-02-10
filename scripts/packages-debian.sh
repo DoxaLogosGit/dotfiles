@@ -61,6 +61,10 @@ sudo apt-get install -yy nushell || info "nushell not in repos, install manually
 # Tmux
 sudo apt-get install -yy tmux
 
+# System monitoring
+sudo apt-get install -yy htop
+sudo apt-get install -yy btop || info "btop not in repos, install manually"
+
 # Development tools
 sudo apt-get install -yy clang
 sudo apt-get install -yy rustc cargo || true

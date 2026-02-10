@@ -1,0 +1,14 @@
+{
+    "docker.extension.enableComposeLanguageServer": false,
+    "redhat.telemetry.enabled": false,
+    "claudeCode.preferredLocation": "panel",
+    "workbench.colorTheme": "Default High Contrast",
+    "playwright.reuseBrowser": true,
+    "playwright.showTrace": false,
+    "editor.fontSize": 18,
+    "editor.formatOnSave": true,
+    "chat.editor.fontSize": 1,
+    "chat.fontSize": 18,
+    "markdown.preview.fontSize": 18,
+    "editor.minimap.sectionHeaderFontSize": 12
+}
