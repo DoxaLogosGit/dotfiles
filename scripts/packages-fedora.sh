@@ -138,12 +138,12 @@ nvm use --lts
 info "Installing bun..."
 curl -fsSL https://bun.sh/install | bash
 
-# Install npm global packages
-info "Installing npm global packages..."
-npm install -g @anthropic-ai/claude-code
-npm install -g playwright
-npx playwright install --with-deps
-npm install -g @playwright/mcp
+# Install global packages via bun
+info "Installing global packages via bun..."
+bun install -g @anthropic-ai/claude-code
+bun install -g playwright
+bunx playwright install --with-deps
+bun install -g @playwright/mcp
 
 # Install TPM (Tmux Plugin Manager)
 TPM_DIR="$HOME/.tmux/plugins/tpm"
