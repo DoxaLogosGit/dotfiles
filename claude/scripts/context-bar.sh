@@ -315,9 +315,9 @@ if is_oauth_mode; then
 
         # Build and output usage line
         usage_line="${C_GRAY}Session ${session_bar} ${session_pct}%"
-        [[ -n "$session_countdown" ]] && usage_line+=" (↻${session_countdown})"
+        [[ -n "$session_countdown" ]] && usage_line+=" (🕐${session_countdown})"
         usage_line+=" | Weekly ${weekly_bar} ${weekly_pct}%"
-        [[ -n "$weekly_countdown" ]] && usage_line+=" (↻${weekly_countdown})"
+        [[ -n "$weekly_countdown" ]] && usage_line+=" (🕐${weekly_countdown})"
         usage_line+="${C_RESET}"
 
         printf '%b\n' "$usage_line"
