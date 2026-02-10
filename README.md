@@ -5,12 +5,8 @@ Personal dotfiles for setting up a new development environment.
 ## Quick Start
 
 ```bash
-# Clone the repository
-git clone git@github.com:DoxaLogosGit/dotfiles.git ~/.dotfiles
-
-# Run the installer
-cd ~/.dotfiles
-./install.sh
+# One-liner: clone and install
+git clone git@github.com:DoxaLogosGit/dotfiles.git ~/.dotfiles && ~/.dotfiles/install.sh
 ```
 
 ## Installation Options
