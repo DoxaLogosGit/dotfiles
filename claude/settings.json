@@ -1,4 +1,6 @@
 {
+  
+
   "security": {
     "auth": {
       "selectedType": "oauth-personal"
@@ -11,5 +13,10 @@
   },
   "experimental": {
     "useModelRouter": false
-  }
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/scripts/context-bar.sh"
+  },
+  "model": "sonnet"
 }
