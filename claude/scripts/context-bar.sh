@@ -8,6 +8,7 @@ COLOR="blue"
 C_RESET='\033[0m'
 C_GRAY='\033[38;5;245m'  # explicit gray for default text
 C_BAR_EMPTY='\033[38;5;238m'
+C_USAGE_LABEL='\033[38;5;173m'  # orange for usage labels (Session/Weekly)
 case "$COLOR" in
     orange)   C_ACCENT='\033[38;5;173m' ;;
     blue)     C_ACCENT='\033[38;5;74m' ;;
@@ -314,9 +315,9 @@ if is_oauth_mode; then
         weekly_bar=$(make_usage_bar $weekly_pct)
 
         # Build and output usage line
-        usage_line="${C_GRAY}Session ${session_bar} ${session_pct}%"
+        usage_line="${C_USAGE_LABEL}Session ${C_GRAY}${session_bar} ${session_pct}%"
         [[ -n "$session_countdown" ]] && usage_line+=" (🕐${session_countdown})"
-        usage_line+=" | Weekly ${weekly_bar} ${weekly_pct}%"
+        usage_line+=" ${C_GRAY}| ${C_USAGE_LABEL}Weekly ${C_GRAY}${weekly_bar} ${weekly_pct}%"
         [[ -n "$weekly_countdown" ]] && usage_line+=" (🕐${weekly_countdown})"
         usage_line+="${C_RESET}"
 
