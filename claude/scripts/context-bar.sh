@@ -94,6 +94,126 @@ if [[ -n "$cwd" && -d "$cwd" ]]; then
     fi
 fi
 
+# ============================================================================
+# USAGE TRACKING (Session & Weekly)
+# ============================================================================
+
+# Function to check if using OAuth (subscription) vs API billing
+is_oauth_mode() {
+    # If using API billing mode, these env vars would be set
+    # Check for Bedrock, direct API, or other API-based providers
+    if [[ -n "$CLAUDE_CODE_USE_BEDROCK" || -n "$AWS_BEARER_TOKEN_BEDROCK" || \
+          -n "$ANTHROPIC_API_KEY" || -n "$ANTHROPIC_BASE_URL" ]]; then
+        return 1  # API billing mode detected
+    fi
+
+    # Check if OAuth credentials exist
+    local creds_file="$HOME/.claude/.credentials.json"
+    if [[ ! -f "$creds_file" ]]; then
+        return 1
+    fi
+    local has_oauth=$(jq -r '.claudeAiOauth.accessToken // empty' < "$creds_file" 2>/dev/null)
+    [[ -n "$has_oauth" ]] && return 0 || return 1
+}
+
+# Function to get OAuth token from credentials
+get_oauth_token() {
+    local creds_file="$HOME/.claude/.credentials.json"
+    if [[ ! -f "$creds_file" ]]; then
+        return 1
+    fi
+    jq -r '.claudeAiOauth.accessToken // empty' < "$creds_file" 2>/dev/null
+}
+
+# Function to fetch usage data from API (with 30-second cache)
+fetch_usage_data() {
+    local cache_file="/tmp/claude-usage-cache.json"
+    local cache_ttl=30
+
+    # Check if cache is valid
+    if [[ -f "$cache_file" ]]; then
+        local cache_age=$(( $(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || stat -f %m "$cache_file" 2>/dev/null) ))
+        if [[ $cache_age -lt $cache_ttl ]]; then
+            cat "$cache_file"
+            return 0
+        fi
+    fi
+
+    # Fetch fresh data
+    local token=$(get_oauth_token)
+    if [[ -z "$token" ]]; then
+        return 1
+    fi
+
+    local usage_data=$(curl -s --max-time 3 \
+        -H "Authorization: Bearer $token" \
+        -H "anthropic-beta: oauth-2025-04-20" \
+        -H "Accept: application/json" \
+        "https://api.anthropic.com/api/oauth/usage" 2>/dev/null)
+
+    if [[ -n "$usage_data" ]] && echo "$usage_data" | jq -e . >/dev/null 2>&1; then
+        echo "$usage_data" > "$cache_file"
+        echo "$usage_data"
+        return 0
+    fi
+
+    return 1
+}
+
+# Function to format countdown timer
+format_countdown() {
+    local resets_at="$1"
+    if [[ -z "$resets_at" ]]; then
+        echo ""
+        return
+    fi
+
+    # Parse ISO datetime and calculate seconds until reset
+    local reset_epoch=$(date -d "$resets_at" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%S" "${resets_at%.*}" +%s 2>/dev/null)
+    if [[ -z "$reset_epoch" ]]; then
+        echo ""
+        return
+    fi
+
+    local now_epoch=$(date +%s)
+    local seconds_left=$((reset_epoch - now_epoch))
+
+    if [[ $seconds_left -le 0 ]]; then
+        echo "expired"
+        return
+    fi
+
+    local hours=$((seconds_left / 3600))
+    local mins=$(( (seconds_left % 3600) / 60 ))
+
+    if [[ $hours -gt 0 ]]; then
+        echo "${hours}h${mins}m"
+    else
+        echo "${mins}m"
+    fi
+}
+
+# Function to create usage bar
+make_usage_bar() {
+    local pct=$1
+    local width=10
+    local bar=""
+
+    for ((i=0; i<width; i++)); do
+        bar_start=$((i * 10))
+        progress=$((pct - bar_start))
+        if [[ $progress -ge 8 ]]; then
+            bar+="${C_ACCENT}█${C_RESET}"
+        elif [[ $progress -ge 3 ]]; then
+            bar+="${C_ACCENT}▄${C_RESET}"
+        else
+            bar+="${C_BAR_EMPTY}░${C_RESET}"
+        fi
+    done
+
+    echo "$bar"
+}
+
 # Get transcript path for context calculation and last message feature
 transcript_path=$(echo "$input" | jq -r '.transcript_path // empty')
 
@@ -174,6 +294,35 @@ output="${C_ACCENT}${model}${C_GRAY} | 📁${dir}"
 output+=" | ${ctx}${C_RESET}"
 
 printf '%b\n' "$output"
+
+# Display usage line (session & weekly) - only for OAuth/subscription mode
+if is_oauth_mode; then
+    usage_data=$(fetch_usage_data)
+    if [[ -n "$usage_data" ]]; then
+        # Parse session (5-hour) data
+        session_pct=$(echo "$usage_data" | jq -r '.five_hour.utilization // 0' | awk '{printf "%.0f", $1}')
+        session_reset=$(echo "$usage_data" | jq -r '.five_hour.resets_at // empty')
+        session_countdown=$(format_countdown "$session_reset")
+
+        # Parse weekly (7-day) data
+        weekly_pct=$(echo "$usage_data" | jq -r '.seven_day.utilization // 0' | awk '{printf "%.0f", $1}')
+        weekly_reset=$(echo "$usage_data" | jq -r '.seven_day.resets_at // empty')
+        weekly_countdown=$(format_countdown "$weekly_reset")
+
+        # Create bars
+        session_bar=$(make_usage_bar $session_pct)
+        weekly_bar=$(make_usage_bar $weekly_pct)
+
+        # Build and output usage line
+        usage_line="${C_GRAY}Session ${session_bar} ${session_pct}%"
+        [[ -n "$session_countdown" ]] && usage_line+=" (↻${session_countdown})"
+        usage_line+=" | Weekly ${weekly_bar} ${weekly_pct}%"
+        [[ -n "$weekly_countdown" ]] && usage_line+=" (↻${weekly_countdown})"
+        usage_line+="${C_RESET}"
+
+        printf '%b\n' "$usage_line"
+    fi
+fi
 
 # Get user's last message (text only, not tool results, skip unhelpful messages)
 if [[ -n "$transcript_path" && -f "$transcript_path" ]]; then
