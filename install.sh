@@ -152,7 +152,6 @@ install_symlinks() {
     create_symlink "$DOTFILES_DIR/nvim/init.lua" "$HOME/.config/nvim/init.lua"
     create_symlink "$DOTFILES_DIR/nvim/lazy-lock.json" "$HOME/.config/nvim/lazy-lock.json"
     create_symlink "$DOTFILES_DIR/nvim/colors" "$HOME/.config/nvim/colors"
-    create_symlink "$DOTFILES_DIR/nvim/autoload" "$HOME/.config/nvim/autoload"
 
     # Vim
     create_symlink "$DOTFILES_DIR/vim/vimrc" "$HOME/.vimrc"

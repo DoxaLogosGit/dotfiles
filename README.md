@@ -70,8 +70,7 @@ Or run interactively:
 ├── nvim/
 │   ├── init.lua                  # → ~/.config/nvim/init.lua
 │   ├── lazy-lock.json            # → ~/.config/nvim/lazy-lock.json
-│   ├── colors/                   # → ~/.config/nvim/colors/
-│   └── autoload/                 # → ~/.config/nvim/autoload/
+│   └── colors/                   # → ~/.config/nvim/colors/
 ├── vim/
 │   └── vimrc                     # → ~/.vimrc
 ├── tmux/
