@@ -202,6 +202,10 @@ install_symlinks() {
     # Gemini
     create_symlink "$DOTFILES_DIR/gemini/settings.json" "$HOME/.gemini/settings.json"
 
+    # Scripts - create ~/.local/bin if needed
+    mkdir -p "$HOME/.local/bin"
+    create_symlink "$DOTFILES_DIR/scripts/reset_last_tmux_resurrect.sh" "$HOME/.local/bin/reset_last_tmux_resurrect.sh"
+
     success "Symlinks created!"
 }
 
