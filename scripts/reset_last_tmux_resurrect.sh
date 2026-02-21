@@ -97,35 +97,38 @@ TARGET_NAME=$(basename "$LATEST_NONZERO_FILE")
 echo "✅ Selected latest non-zero file: $TARGET_NAME"
 
 # === Step 4: Check if 'last' is already pointing to this file ===
+SKIP_SYMLINK_UPDATE=false
 if [[ -L "$LINK_PATH" ]]; then
   CURRENT_TARGET=$(readlink "$LINK_PATH")
   if [[ "$CURRENT_TARGET" == "$TARGET_NAME" ]]; then
     echo "✅ 'last' already points to the correct file: $TARGET_NAME"
-    exit 0
+    SKIP_SYMLINK_UPDATE=true
   fi
 fi
 
 # === Step 5: Update the symlink ===
-echo "🔄 Updating 'last' symlink to point to: $TARGET_NAME"
+if [[ "$SKIP_SYMLINK_UPDATE" == false ]]; then
+  echo "🔄 Updating 'last' symlink to point to: $TARGET_NAME"
 
-# Remove old symlink
-rm "$LINK_PATH" 2>/dev/null || true
+  # Remove old symlink
+  rm "$LINK_PATH" 2>/dev/null || true
 
-# Create new symlink
-ln -sf "$TARGET_NAME" "$LINK_PATH"
+  # Create new symlink
+  ln -sf "$TARGET_NAME" "$LINK_PATH"
 
-# Final validation
-if [[ -L "$LINK_PATH" ]]; then
-  FINAL_TARGET=$(readlink "$LINK_PATH")
-  if [[ "$FINAL_TARGET" == "$TARGET_NAME" ]]; then
-    echo "✅ Success: 'last' now points to $TARGET_NAME"
+  # Final validation
+  if [[ -L "$LINK_PATH" ]]; then
+    FINAL_TARGET=$(readlink "$LINK_PATH")
+    if [[ "$FINAL_TARGET" == "$TARGET_NAME" ]]; then
+      echo "✅ Success: 'last' now points to $TARGET_NAME"
+    else
+      echo "❌ Failed: 'last' now points to $FINAL_TARGET (expected $TARGET_NAME)"
+      exit 1
+    fi
   else
-    echo "❌ Failed: 'last' now points to $FINAL_TARGET (expected $TARGET_NAME)"
+    echo "❌ Failed: 'last' is not a symlink after update."
     exit 1
   fi
-else
-  echo "❌ Failed: 'last' is not a symlink after update."
-  exit 1
 fi
 
 # === Step 6: Clean up old session files (keep only latest 10) ===
@@ -134,12 +137,9 @@ echo "🧹 Cleaning up old session files (keeping latest 10)..."
 # Find all non-zero session files, sorted by mtime (newest first), skip first 10, delete rest
 DELETED_COUNT=0
 while IFS= read -r file; do
-  size=$(stat -c %s "$file" 2>/dev/null || echo 0)
-  if [[ $size -gt 0 ]]; then
-    echo "   - Removing old session: $(basename "$file")"
-    rm "$file"
-    ((DELETED_COUNT++))
-  fi
+  echo "   - Removing old session: $(basename "$file")"
+  rm "$file"
+  DELETED_COUNT=$((DELETED_COUNT + 1))
 done < <(find "$RESURRECT_DIR" -type f -name "tmux_resurrect_*.txt" -printf '%T@ %p\n' | sort -rn | tail -n +11 | cut -d' ' -f2-)
 
 if [[ $DELETED_COUNT -gt 0 ]]; then
