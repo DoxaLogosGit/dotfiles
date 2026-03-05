@@ -72,7 +72,8 @@ Options:
     --packages      Install system packages
     --symlinks      Create config symlinks
     --fonts         Install nerd fonts
-    --all           Do everything (packages + symlinks + fonts)
+    --plugins       Install Claude Code plugins
+    --all           Do everything (packages + symlinks + fonts + plugins)
     --dry-run       Show what would be done without making changes
     -h, --help      Show this help message
 
@@ -180,7 +181,10 @@ install_symlinks() {
     create_symlink "$DOTFILES_DIR/python/pylintrc" "$HOME/.pylintrc"
 
     # Claude
+    mkdir -p "$HOME/.claude/scripts"
+    mkdir -p "$HOME/.claude/plugins"
     create_symlink "$DOTFILES_DIR/claude/scripts/context-bar.sh" "$HOME/.claude/scripts/context-bar.sh"
+    create_symlink "$DOTFILES_DIR/claude/scripts/setup-plugins.sh" "$HOME/.claude/scripts/setup-plugins.sh"
     create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
 
     # Bash
@@ -207,6 +211,16 @@ install_symlinks() {
     create_symlink "$DOTFILES_DIR/scripts/reset_last_tmux_resurrect.sh" "$HOME/.local/bin/reset_last_tmux_resurrect.sh"
 
     success "Symlinks created!"
+}
+
+# Install Claude plugins
+install_claude_plugins() {
+    info "Setting up Claude Code plugins..."
+    if [ "$DRY_RUN" = true ]; then
+        info "[DRY-RUN] Would run: claude/scripts/setup-plugins.sh"
+    else
+        bash "$DOTFILES_DIR/claude/scripts/setup-plugins.sh"
+    fi
 }
 
 # Install packages
@@ -246,6 +260,7 @@ main() {
     local DO_PACKAGES=false
     local DO_SYMLINKS=false
     local DO_FONTS=false
+    local DO_PLUGINS=false
     DRY_RUN=false
 
     # Parse arguments
@@ -263,10 +278,15 @@ main() {
                 DO_FONTS=true
                 shift
                 ;;
+            --plugins)
+                DO_PLUGINS=true
+                shift
+                ;;
             --all)
                 DO_PACKAGES=true
                 DO_SYMLINKS=true
                 DO_FONTS=true
+                DO_PLUGINS=true
                 shift
                 ;;
             --dry-run)
@@ -286,26 +306,28 @@ main() {
     done
 
     # If no options specified, show menu
-    if [ "$DO_PACKAGES" = false ] && [ "$DO_SYMLINKS" = false ] && [ "$DO_FONTS" = false ]; then
+    if [ "$DO_PACKAGES" = false ] && [ "$DO_SYMLINKS" = false ] && [ "$DO_FONTS" = false ] && [ "$DO_PLUGINS" = false ]; then
         echo ""
         echo "Dotfiles Installer"
         echo "=================="
         echo ""
         echo "What would you like to do?"
         echo ""
-        echo "  1) Install everything (packages + symlinks + fonts)"
+        echo "  1) Install everything (packages + symlinks + fonts + plugins)"
         echo "  2) Create symlinks only"
         echo "  3) Install packages only"
         echo "  4) Install fonts only"
-        echo "  5) Exit"
+        echo "  5) Install Claude plugins only"
+        echo "  6) Exit"
         echo ""
-        read -p "Enter choice [1-5]: " choice
+        read -p "Enter choice [1-6]: " choice
 
         case "$choice" in
             1)
                 DO_PACKAGES=true
                 DO_SYMLINKS=true
                 DO_FONTS=true
+                DO_PLUGINS=true
                 ;;
             2)
                 DO_SYMLINKS=true
@@ -317,6 +339,9 @@ main() {
                 DO_FONTS=true
                 ;;
             5)
+                DO_PLUGINS=true
+                ;;
+            6)
                 echo "Bye!"
                 exit 0
                 ;;
@@ -346,6 +371,10 @@ main() {
 
     if [ "$DO_FONTS" = true ]; then
         install_fonts
+    fi
+
+    if [ "$DO_PLUGINS" = true ]; then
+        install_claude_plugins
     fi
 
     echo ""

@@ -2,6 +2,10 @@
     "docker.extension.enableComposeLanguageServer": false,
     "redhat.telemetry.enabled": false,
     "claudeCode.preferredLocation": "panel",
+    "claudeCode.statusLine": {
+        "type": "command",
+        "command": "/home/jgatkinsn/.claude/scripts/context-bar.sh"
+    },
     "workbench.colorTheme": "Default High Contrast",
     "playwright.reuseBrowser": true,
     "playwright.showTrace": false,
@@ -10,5 +14,14 @@
     "chat.editor.fontSize": 1,
     "chat.fontSize": 18,
     "markdown.preview.fontSize": 18,
-    "editor.minimap.sectionHeaderFontSize": 12
+    "editor.minimap.sectionHeaderFontSize": 12,
+    "claudeStats.updateInterval": 60,
+    "json.schemaDownload.trustedDomains": {
+        "https://schemastore.azurewebsites.net/": true,
+        "https://raw.githubusercontent.com/": true,
+        "https://www.schemastore.org/": true,
+        "https://json.schemastore.org/": true,
+        "https://json-schema.org/": true,
+        "https://biomejs.dev": true
+    }
 }
