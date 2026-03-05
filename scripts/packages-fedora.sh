@@ -91,7 +91,9 @@ sudo pip install uv || pip3 install uv
 
 # Shells
 sudo dnf install -y fish
-sudo dnf install -y nushell || info "nushell not in repos, install manually"
+# shellcheck source=install-nushell.sh
+source "$(dirname "${BASH_SOURCE[0]}")/install-nushell.sh"
+sudo dnf install -y nushell 2>/dev/null || install_nushell
 
 # Install starship prompt
 info "Installing starship..."

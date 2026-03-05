@@ -56,7 +56,9 @@ sudo apt-get install -yy imagemagick
 
 # Shells
 sudo apt-get install -yy fish
-sudo apt-get install -yy nushell || info "nushell not in repos, install manually"
+# shellcheck source=install-nushell.sh
+source "$(dirname "${BASH_SOURCE[0]}")/install-nushell.sh"
+sudo apt-get install -yy nushell 2>/dev/null || install_nushell
 
 # Tmux
 sudo apt-get install -yy tmux
