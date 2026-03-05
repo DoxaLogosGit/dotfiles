@@ -23,5 +23,6 @@
         "https://json.schemastore.org/": true,
         "https://json-schema.org/": true,
         "https://biomejs.dev": true
-    }
+    },
+    "claudeContextBar.refreshInterval": 80
 }

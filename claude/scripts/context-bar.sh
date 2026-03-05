@@ -9,6 +9,7 @@ C_RESET='\033[0m'
 C_GRAY='\033[38;5;245m'  # explicit gray for default text
 C_BAR_EMPTY='\033[38;5;238m'
 C_USAGE_LABEL='\033[38;5;173m'  # orange for usage labels (Session/Weekly)
+C_RED='\033[38;5;160m'           # red for rate limit warning
 case "$COLOR" in
     orange)   C_ACCENT='\033[38;5;173m' ;;
     blue)     C_ACCENT='\033[38;5;74m' ;;
@@ -126,17 +127,26 @@ get_oauth_token() {
     jq -r '.claudeAiOauth.accessToken // empty' < "$creds_file" 2>/dev/null
 }
 
-# Function to fetch usage data from API (with 30-second cache)
+# Function to fetch usage data from API (with 2-minute cache)
 fetch_usage_data() {
     local cache_file="/tmp/claude-usage-cache.json"
-    local cache_ttl=30
+    local cache_ttl=120
 
-    # Check if cache is valid
+    # Check if successful cache is valid
     if [[ -f "$cache_file" ]]; then
         local cache_age=$(( $(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || stat -f %m "$cache_file" 2>/dev/null) ))
         if [[ $cache_age -lt $cache_ttl ]]; then
             cat "$cache_file"
             return 0
+        fi
+    fi
+
+    # If recently rate limited, skip the API call — keeps hit_at fixed so "since X ago" ticks up
+    local ratelimit_file="/tmp/claude-usage-ratelimit.json"
+    if [[ -f "$ratelimit_file" ]]; then
+        local rl_age=$(( $(date +%s) - $(stat -c %Y "$ratelimit_file" 2>/dev/null || stat -f %m "$ratelimit_file" 2>/dev/null) ))
+        if [[ $rl_age -lt $cache_ttl ]]; then
+            return 1
         fi
     fi
 
@@ -146,19 +156,62 @@ fetch_usage_data() {
         return 1
     fi
 
-    local usage_data=$(curl -s --max-time 3 \
+    local header_file="/tmp/claude-usage-headers.tmp"
+    local body=$(curl -s --max-time 3 -D "$header_file" \
         -H "Authorization: Bearer $token" \
         -H "anthropic-beta: oauth-2025-04-20" \
         -H "Accept: application/json" \
         "https://api.anthropic.com/api/oauth/usage" 2>/dev/null)
 
-    if [[ -n "$usage_data" ]] && echo "$usage_data" | jq -e . >/dev/null 2>&1; then
-        echo "$usage_data" > "$cache_file"
-        echo "$usage_data"
+    if [[ -n "$body" ]] && echo "$body" | jq -e 'has("five_hour")' >/dev/null 2>&1; then
+        rm -f "$header_file" "/tmp/claude-usage-ratelimit.json"
+        echo "$body" > "$cache_file"
+        echo "$body"
         return 0
     fi
 
+    # Rate limited — record when it happened and any reset hint from headers
+    if echo "$body" | jq -e '.error.type == "rate_limit_error"' >/dev/null 2>&1; then
+        local now=$(date +%s)
+        local reset_epoch="null"
+
+        local retry_after=$(grep -i "^retry-after:" "$header_file" 2>/dev/null | grep -o '[0-9]*' | head -1)
+        if [[ -n "$retry_after" && "$retry_after" -gt 0 ]]; then
+            reset_epoch=$((now + retry_after))
+        else
+            local rl_reset=$(grep -i "^x-ratelimit-reset:" "$header_file" 2>/dev/null | sed 's/[^:]*: //' | tr -d '\r\n')
+            if [[ -n "$rl_reset" ]]; then
+                if [[ "$rl_reset" =~ ^[0-9]+$ ]]; then
+                    reset_epoch="$rl_reset"
+                else
+                    reset_epoch=$(date -d "$rl_reset" +%s 2>/dev/null || echo "null")
+                fi
+            fi
+        fi
+
+        jq -n --argjson hit "$now" --argjson reset "$reset_epoch" \
+            '{"hit_at": $hit, "reset_at": $reset}' > "/tmp/claude-usage-ratelimit.json"
+    fi
+
+    rm -f "$header_file"
     return 1
+}
+
+# Function to format countdown from epoch timestamp
+format_countdown_epoch() {
+    local reset_epoch="$1"
+    if [[ -z "$reset_epoch" || "$reset_epoch" == "null" ]]; then
+        echo ""
+        return
+    fi
+    local seconds_left=$(( reset_epoch - $(date +%s) ))
+    if [[ $seconds_left -le 0 ]]; then
+        echo "expired"
+        return
+    fi
+    local hours=$((seconds_left / 3600))
+    local mins=$(( (seconds_left % 3600) / 60 ))
+    [[ $hours -gt 0 ]] && echo "${hours}h${mins}m" || echo "${mins}m"
 }
 
 # Function to format countdown timer
@@ -322,6 +375,17 @@ if is_oauth_mode; then
         usage_line+="${C_RESET}"
 
         printf '%b\n' "$usage_line"
+    elif [[ -f "/tmp/claude-usage-ratelimit.json" ]]; then
+        rl_reset=$(jq -r '.reset_at // empty' /tmp/claude-usage-ratelimit.json)
+
+        rl_line="${C_RED}⚠ Rate Limited${C_RESET}"
+        if [[ -n "$rl_reset" && "$rl_reset" != "null" ]]; then
+            countdown=$(format_countdown_epoch "$rl_reset")
+            [[ -n "$countdown" && "$countdown" != "expired" ]] && \
+                rl_line+=" ${C_GRAY}— resets in ${countdown}${C_RESET}"
+        fi
+
+        printf '%b\n' "$rl_line"
     fi
 fi
 

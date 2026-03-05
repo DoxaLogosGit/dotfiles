@@ -145,6 +145,7 @@ install_symlinks() {
 
     # Fish
     create_symlink "$DOTFILES_DIR/fish/config.fish" "$HOME/.config/fish/config.fish"
+    create_symlink "$DOTFILES_DIR/fish/fish_plugins" "$HOME/.config/fish/fish_plugins"
 
     # Starship
     create_symlink "$DOTFILES_DIR/starship/starship.toml" "$HOME/.config/starship.toml"

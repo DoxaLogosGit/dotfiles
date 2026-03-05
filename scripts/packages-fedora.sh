@@ -162,20 +162,10 @@ else
     success "TPM installed!"
 fi
 
-# Install Oh My Fish
-if [ -d "$HOME/.local/share/omf" ]; then
-    info "Oh My Fish already installed"
-else
-    info "Installing Oh My Fish..."
-    if command -v fish &> /dev/null; then
-        curl -L https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install > /tmp/omf-install.fish
-        fish /tmp/omf-install.fish --noninteractive --yes
-        rm -f /tmp/omf-install.fish
-        success "Oh My Fish installed!"
-    else
-        warning "Fish shell not found. Oh My Fish will need to be installed manually after fish is available."
-    fi
-fi
+# Install Fisher
+# shellcheck source=install-fisher.sh
+source "$(dirname "${BASH_SOURCE[0]}")/install-fisher.sh"
+install_fisher
 
 # Create required directories
 mkdir -p $HOME/.vim-tmp
