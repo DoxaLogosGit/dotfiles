@@ -67,6 +67,7 @@ done
 # === Step 2: Find the most recent non-zero file ===
 LATEST_NONZERO_FILE=""
 MAX_MTIME=0
+ZERO_BYTE_FOUND=false
 
 for file in "${SESSION_FILES[@]}"; do
   [[ ! -f "$file" ]] && continue
@@ -76,6 +77,7 @@ for file in "${SESSION_FILES[@]}"; do
   if [[ $size -eq 0 ]]; then
     echo "   🗑️  Removing zero-byte file: $file"
     rm "$file"
+    ZERO_BYTE_FOUND=true
     continue
   fi
 
@@ -146,5 +148,16 @@ if [[ $DELETED_COUNT -gt 0 ]]; then
   echo "✅ Removed $DELETED_COUNT old session file(s)"
 else
   echo "✅ No old session files to remove"
+fi
+
+# === Step 7: Launch tmux if a zero-byte file was detected and cleaned up ===
+if [[ "$ZERO_BYTE_FOUND" == true ]]; then
+  echo "⚠️  Zero-byte session file(s) were detected and removed."
+  if [[ -n "${TMUX:-}" ]]; then
+    echo "ℹ️  Already inside a tmux session. Skipping launch."
+  else
+    echo "🚀 Launching tmux to restore session..."
+    exec tmux
+  fi
 fi
 
