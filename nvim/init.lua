@@ -20,6 +20,30 @@ require("lazy").setup({
   -- File explorer
   { 'scrooloose/nerdtree' },
   { 'jlanzarotta/bufexplorer' },
+  { 'nvim-neo-tree/neo-tree.nvim',
+    branch = 'v3.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'MunifTanjim/nui.nvim',
+    },
+    config = function()
+      require('neo-tree').setup({
+        close_if_last_window = true,
+        window = {
+          width = 30,
+        },
+        filesystem = {
+          follow_current_file = {
+            enabled = true,
+          },
+          filtered_items = {
+            hide_dotfiles = false,
+            hide_gitignored = false,
+          },
+        },
+      })
+    end
+  },
 
   -- Language support
   { 'Tetralux/odin.vim' },
@@ -219,6 +243,7 @@ vim.keymap.set('n', '<C-K>', '<C-W>k', { silent = true })
 vim.keymap.set('i', '<C-K>', '<C-W>k', { silent = true })
 vim.keymap.set('n', '<C-L>', '<C-W>l', { silent = true })
 vim.keymap.set('i', '<C-L>', '<C-W>l', { silent = true })
+vim.keymap.set('n', '<leader>e', ':Neotree toggle<CR>', { silent = true })
 vim.keymap.set('n', '<leader>f', ':lua MiniFiles.open()<CR>', { silent = true })
 vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<CR>', { silent = true })
 vim.keymap.set('n', '<leader>fg', '<cmd>Telescope live_grep<CR>', { silent = true })
