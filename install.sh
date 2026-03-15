@@ -43,6 +43,9 @@ detect_os() {
     fi
 
     case "$OS" in
+        raspbian)
+            OS_TYPE="raspbian"
+            ;;
         ubuntu|debian|linuxmint|pop)
             OS_TYPE="debian"
             ;;
@@ -121,6 +124,72 @@ create_symlink() {
 
     ln -sf "$source" "$target"
     success "Linked: $target -> $source"
+}
+
+# Install symlinks (Raspbian — minimal: neovim, tmux, fish; no Claude/ghostty/vscode/opencode/gemini)
+install_symlinks_raspbian() {
+    info "Creating symlinks (Raspbian)..."
+
+    mkdir -p "$HOME/.vim-tmp"
+    mkdir -p "$HOME/.tmp"
+    mkdir -p "$HOME/.config/fish"
+    mkdir -p "$HOME/.config/nvim"
+    mkdir -p "$HOME/.config/yazi"
+    mkdir -p "$HOME/.config/nushell"
+    mkdir -p "$HOME/.config/htop"
+    mkdir -p "$HOME/.config/btop"
+    mkdir -p "$HOME/.tmux/plugins"
+    mkdir -p "$HOME/.local/bin"
+
+    # Fish
+    create_symlink "$DOTFILES_DIR/fish/config.fish" "$HOME/.config/fish/config.fish"
+    create_symlink "$DOTFILES_DIR/fish/fish_plugins" "$HOME/.config/fish/fish_plugins"
+
+    # Starship
+    create_symlink "$DOTFILES_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
+
+    # Neovim
+    create_symlink "$DOTFILES_DIR/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+    create_symlink "$DOTFILES_DIR/nvim/lazy-lock.json" "$HOME/.config/nvim/lazy-lock.json"
+    create_symlink "$DOTFILES_DIR/nvim/colors" "$HOME/.config/nvim/colors"
+
+    # Vim
+    create_symlink "$DOTFILES_DIR/vim/vimrc" "$HOME/.vimrc"
+
+    # Tmux
+    create_symlink "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
+
+    # Yazi
+    create_symlink "$DOTFILES_DIR/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
+    create_symlink "$DOTFILES_DIR/yazi/keymap.toml" "$HOME/.config/yazi/keymap.toml"
+    create_symlink "$DOTFILES_DIR/yazi/theme.toml" "$HOME/.config/yazi/theme.toml"
+
+    # Git
+    create_symlink "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
+
+    # Nushell
+    create_symlink "$DOTFILES_DIR/nushell/config.nu" "$HOME/.config/nushell/config.nu"
+
+    # Zsh (legacy)
+    create_symlink "$DOTFILES_DIR/zsh/zshrc" "$HOME/.zshrc"
+
+    # Python
+    create_symlink "$DOTFILES_DIR/python/pylintrc" "$HOME/.pylintrc"
+
+    # Bash
+    create_symlink "$DOTFILES_DIR/bash/bashrc" "$HOME/.bashrc"
+    create_symlink "$DOTFILES_DIR/bash/bash_profile" "$HOME/.bash_profile"
+
+    # htop
+    create_symlink "$DOTFILES_DIR/htop/htoprc" "$HOME/.config/htop/htoprc"
+
+    # btop
+    create_symlink "$DOTFILES_DIR/btop/btop.conf" "$HOME/.config/btop/btop.conf"
+
+    # Scripts
+    create_symlink "$DOTFILES_DIR/scripts/reset_last_tmux_resurrect.sh" "$HOME/.local/bin/reset_last_tmux_resurrect.sh"
+
+    success "Symlinks created!"
 }
 
 # Install symlinks
@@ -226,7 +295,14 @@ install_claude_plugins() {
 
 # Install packages
 install_packages() {
-    if [ "$OS_TYPE" = "debian" ]; then
+    if [ "$OS_TYPE" = "raspbian" ]; then
+        info "Installing packages for Raspbian..."
+        if [ "$DRY_RUN" = true ]; then
+            info "[DRY-RUN] Would run: scripts/packages-raspbian.sh"
+        else
+            bash "$DOTFILES_DIR/scripts/packages-raspbian.sh"
+        fi
+    elif [ "$OS_TYPE" = "debian" ]; then
         info "Installing packages for Debian/Ubuntu..."
         if [ "$DRY_RUN" = true ]; then
             info "[DRY-RUN] Would run: scripts/packages-debian.sh"
@@ -367,7 +443,11 @@ main() {
     fi
 
     if [ "$DO_SYMLINKS" = true ]; then
-        install_symlinks
+        if [ "$OS_TYPE" = "raspbian" ]; then
+            install_symlinks_raspbian
+        else
+            install_symlinks
+        fi
     fi
 
     if [ "$DO_FONTS" = true ]; then
