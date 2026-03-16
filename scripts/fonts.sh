@@ -22,9 +22,10 @@ TEMP_DIR=$(mktemp -d)
 info "Downloading Nerd Fonts from https://www.nerdfonts.com/font-downloads"
 warning "If installing on WSL, fonts need to be installed on Windows and configured in the terminal profile"
 
-cd "$TEMP_DIR"
+# Create directories
+mkdir -p "$FONTS_DIR/nerd-fonts"
+mkdir -p "$FONTCONFIG_DIR"
 
-# Download fonts
 FONT_VERSION="v3.4.0"
 FONTS=(
     "Ubuntu"
@@ -36,36 +37,24 @@ FONTS=(
     "AdwaitaMono"
 )
 
+# Download, extract, and clean up one font at a time to keep /tmp usage low
 for font in "${FONTS[@]}"; do
-    info "Downloading $font..."
-    wget -q "https://github.com/ryanoasis/nerd-fonts/releases/download/${FONT_VERSION}/${font}.zip" -O "${font}.zip"
+    info "Installing $font..."
+    wget -q "https://github.com/ryanoasis/nerd-fonts/releases/download/${FONT_VERSION}/${font}.zip" -O "$TEMP_DIR/${font}.zip"
+    unzip -o "$TEMP_DIR/${font}.zip" -d "$TEMP_DIR/extract/" > /dev/null 2>&1
+    rm -f "$TEMP_DIR/${font}.zip"
+    # Move conf files if any
+    find "$TEMP_DIR/extract/" -name "*.conf" -exec mv {} "$FONTCONFIG_DIR/" \; 2>/dev/null || true
+    # Move font files
+    find "$TEMP_DIR/extract/" -name "*.ttf" -o -name "*.otf" | xargs -I{} mv {} "$FONTS_DIR/nerd-fonts/" 2>/dev/null || true
+    rm -rf "$TEMP_DIR/extract/"
 done
-
-# Create directories
-mkdir -p "$FONTS_DIR"
-mkdir -p "$FONTCONFIG_DIR"
-
-# Extract fonts
-info "Extracting fonts..."
-mkdir -p nerd-fonts
-for font in "${FONTS[@]}"; do
-    unzip -o "${font}.zip" -d nerd-fonts/ > /dev/null 2>&1
-done
-
-# Move font config files
-if ls nerd-fonts/*.conf 1> /dev/null 2>&1; then
-    mv nerd-fonts/*.conf "$FONTCONFIG_DIR/"
-fi
-
-# Move font files
-mv nerd-fonts "$FONTS_DIR/nerd-fonts"
 
 # Update font cache
 info "Updating font cache..."
 fc-cache -fv > /dev/null 2>&1
 
 # Cleanup
-cd -
 rm -rf "$TEMP_DIR"
 
 success "Fonts installed to $FONTS_DIR/nerd-fonts"
