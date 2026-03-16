@@ -156,8 +156,8 @@ install_symlinks_raspbian() {
     # Vim
     create_symlink "$DOTFILES_DIR/vim/vimrc" "$HOME/.vimrc"
 
-    # Tmux
-    create_symlink "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
+    # Tmux (thumbs excluded — requires Rust compile, not suitable for Pi)
+    create_symlink "$DOTFILES_DIR/tmux/tmux-raspbian.conf" "$HOME/.tmux.conf"
 
     # Yazi
     create_symlink "$DOTFILES_DIR/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
