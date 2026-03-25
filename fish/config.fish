@@ -28,6 +28,18 @@ function y
 	rm -f -- "$tmp"
 end
 
+#this is help obsidian cli see the flatpak
+if set -q TMUX
+    # Update environment variables from tmux
+    for var in DBUS_SESSION_BUS_ADDRESS DISPLAY WAYLAND_DISPLAY
+        set -l val (tmux show-environment | string match "$var=*" | string split -m1 =)[2]
+        if test -n "$val"
+            set -gx $var $val
+        end
+    end
+end
+
+
 # Added by LM Studio CLI (lms)
 set -gx PATH $PATH /home/jgatkinsn/.lmstudio/bin
 # End of LM Studio CLI section
