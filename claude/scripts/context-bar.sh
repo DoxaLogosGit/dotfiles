@@ -130,7 +130,7 @@ get_oauth_token() {
 # Function to fetch usage data from API (with 2-minute cache)
 fetch_usage_data() {
     local cache_file="/tmp/claude-usage-cache.json"
-    local cache_ttl=120
+    local cache_ttl=300
 
     # Check if successful cache is valid
     if [[ -f "$cache_file" ]]; then

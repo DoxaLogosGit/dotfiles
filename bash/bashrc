@@ -36,3 +36,4 @@ alias idrive='/opt/IDriveForLinux/bin/idrive'
 
 # Scout CLI
 export PATH="${HOME}/.local/bin:$PATH"
+. "$HOME/.cargo/env"

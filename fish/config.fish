@@ -8,8 +8,8 @@ set -gx ODIN_ROOT  ~/projects/Odin
 set -gx EDITOR nvim
 set -gx ENABLE_TOOL_SEARCH true
 alias ll "eza --icons --color=always --color-scale=all -l --git"
-alias c "claude"
-alias ac "/bin/bash claude_aws.sh"
+alias c "claude-personal"
+alias cw "claude-work"
 
 set name_list $(string split "-" $(uname -r))
 
@@ -17,6 +17,16 @@ if string match -qi -- "WSL2" $name_list
     set -gx TERM xterm-256color
 else
     set -gx TERM xterm-256color
+end
+
+# ~/.config/fish/functions/claude-personal.fish
+function claude-personal
+    env CLAUDE_CONFIG_DIR=$HOME/.claude $HOME/.local/bin/claude $argv
+end
+
+# ~/.config/fish/functions/claude-work.fish
+function claude-work
+    env CLAUDE_CONFIG_DIR=$HOME/.claude-work $HOME/.local/bin/claude $argv
 end
 
 function y
