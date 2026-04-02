@@ -14,96 +14,96 @@ disabled = true
 symbol = "󰏗 "
 
 [perl]
-symbol = " "
+symbol = " "
 
 [php]
-symbol = " "
+symbol = " "
 
 [pijul_channel]
-symbol = " "
+symbol = " "
 
 [python]
-symbol = " "
+symbol = " "
 
 [rlang]
 symbol = "󰟔 "
 
 [ruby]
-symbol = " "
+symbol = " "
 
 [rust]
 symbol = "󱘗 "
 
 [scala]
-symbol = " "
+symbol = " "
 
 [swift]
-symbol = " "
+symbol = " "
 
 [zig]
-symbol = " "
+symbol = " "
 [c]
-symbol = " "
+symbol = " "
 
 [conda]
-symbol = " "
+symbol = " "
 
 [crystal]
-symbol = " "
+symbol = " "
 
 [dart]
-symbol = " "
+symbol = " "
 
 [directory]
 read_only = " 󰌾"
 
 [docker_context]
-symbol = " "
+symbol = " "
 
 [elixir]
-symbol = " "
+symbol = " "
 
 [elm]
-symbol = " "
+symbol = " "
 
 [fennel]
-symbol = " "
+symbol = " "
 
 [fossil_branch]
-symbol = " "
+symbol = " "
 
 [git_branch]
-symbol = " "
+symbol = " "
 
 [golang]
-symbol = " "
+symbol = " "
 
 [guix_shell]
-symbol = " "
+symbol = " "
 
 [haskell]
-symbol = " "
+symbol = " "
 
 [haxe]
-symbol = " "
+symbol = " "
 
 [hg_branch]
-symbol = " "
+symbol = " "
 
 [hostname]
-ssh_symbol = " "
+ssh_symbol = " "
 
 [java]
-symbol = " "
+symbol = " "
 
 [julia]
-symbol = " "
+symbol = " "
 
 [kotlin]
-symbol = " "
+symbol = " "
 
 [lua]
-symbol = " "
+symbol = " "
 
 [memory_usage]
 symbol = "󰍛 "
@@ -115,55 +115,55 @@ symbol = "󰔷 "
 symbol = "󰆥 "
 
 [nix_shell]
-symbol = " "
+symbol = " "
 
 [nodejs]
-symbol = " "
+symbol = " "
 
 [ocaml]
-symbol = " "
+symbol = " "
 
 [os.symbols]
-Alpaquita = " "
-Alpine = " "
-AlmaLinux = " "
-Amazon = " "
-Android = " "
-Arch = " "
-Artix = " "
-CentOS = " "
-Debian = " "
-DragonFly = " "
-Emscripten = " "
-EndeavourOS = " "
-Fedora = " "
-FreeBSD = " "
+Alpaquita = " "
+Alpine = " "
+AlmaLinux = " "
+Amazon = " "
+Android = " "
+Arch = " "
+Artix = " "
+CentOS = " "
+Debian = " "
+DragonFly = " "
+Emscripten = " "
+EndeavourOS = " "
+Fedora = " "
+FreeBSD = " "
 Garuda = "󰛓 "
-Gentoo = " "
+Gentoo = " "
 HardenedBSD = "󰞌 "
 Illumos = "󰈸 "
-Kali = " "
-Linux = " "
-Mabox = " "
-Macos = " "
-Manjaro = " "
-Mariner = " "
-MidnightBSD = " "
-Mint = " "
-NetBSD = " "
-NixOS = " "
+Kali = " "
+Linux = " "
+Mabox = " "
+Macos = " "
+Manjaro = " "
+Mariner = " "
+MidnightBSD = " "
+Mint = " "
+NetBSD = " "
+NixOS = " "
 OpenBSD = "󰈺 "
-openSUSE = " "
+openSUSE = " "
 OracleLinux = "󰌷 "
-Pop = " "
-Raspbian = " "
-Redhat = " "
-RedHatEnterprise = " "
-RockyLinux = " "
+Pop = " "
+Raspbian = " "
+Redhat = " "
+RedHatEnterprise = " "
+RockyLinux = " "
 Redox = "󰀘 "
 Solus = "󰠳 "
-SUSE = " "
-Ubuntu = " "
-Unknown = " "
-Void = " "
+SUSE = " "
+Ubuntu = " "
+Unknown = " "
+Void = " "
 Windows = "󰍲 "

@@ -16,7 +16,7 @@ success() { echo -e "${GREEN}[OK]${NC} $1"; }
 warning() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 
 FONTS_DIR="$HOME/.local/share/fonts"
-FONTCONFIG_DIR="$HOME/.local/share/fontconfig/conf.avail"
+FONTCONFIG_DIR="$HOME/.config/fontconfig/conf.d"
 TEMP_DIR=$(mktemp -d)
 
 info "Downloading Nerd Fonts from https://www.nerdfonts.com/font-downloads"
