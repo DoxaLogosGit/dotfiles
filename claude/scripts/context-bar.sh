@@ -100,6 +100,11 @@ fi
 # USAGE TRACKING (Session & Weekly)
 # ============================================================================
 
+# Resolve config dir — honours CLAUDE_CONFIG_DIR so work/personal accounts stay isolated
+_claude_config_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+# Short stable slug for cache namespacing (basename of config dir)
+_claude_account_slug=$(basename "$_claude_config_dir")
+
 # Function to check if using OAuth (subscription) vs API billing
 is_oauth_mode() {
     # If using API billing mode, these env vars would be set
@@ -110,7 +115,7 @@ is_oauth_mode() {
     fi
 
     # Check if OAuth credentials exist
-    local creds_file="$HOME/.claude/.credentials.json"
+    local creds_file="$_claude_config_dir/.credentials.json"
     if [[ ! -f "$creds_file" ]]; then
         return 1
     fi
@@ -120,7 +125,7 @@ is_oauth_mode() {
 
 # Function to get OAuth token from credentials
 get_oauth_token() {
-    local creds_file="$HOME/.claude/.credentials.json"
+    local creds_file="$_claude_config_dir/.credentials.json"
     if [[ ! -f "$creds_file" ]]; then
         return 1
     fi
@@ -129,7 +134,7 @@ get_oauth_token() {
 
 # Function to fetch usage data from API (with 7-minute cache)
 fetch_usage_data() {
-    local cache_file="/tmp/claude-usage-cache.json"
+    local cache_file="/tmp/claude-usage-cache-${_claude_account_slug}.json"
     local cache_ttl=420
 
     # Check if successful cache is valid
@@ -142,7 +147,7 @@ fetch_usage_data() {
     fi
 
     # If recently rate limited, skip the API call — keeps hit_at fixed so "since X ago" ticks up
-    local ratelimit_file="/tmp/claude-usage-ratelimit.json"
+    local ratelimit_file="/tmp/claude-usage-ratelimit-${_claude_account_slug}.json"
     if [[ -f "$ratelimit_file" ]]; then
         local rl_age=$(( $(date +%s) - $(stat -c %Y "$ratelimit_file" 2>/dev/null || stat -f %m "$ratelimit_file" 2>/dev/null) ))
         if [[ $rl_age -lt $cache_ttl ]]; then
@@ -164,7 +169,7 @@ fetch_usage_data() {
         "https://api.anthropic.com/api/oauth/usage" 2>/dev/null)
 
     if [[ -n "$body" ]] && echo "$body" | jq -e 'has("five_hour")' >/dev/null 2>&1; then
-        rm -f "$header_file" "/tmp/claude-usage-ratelimit.json"
+        rm -f "$header_file" "/tmp/claude-usage-ratelimit-${_claude_account_slug}.json"
         echo "$body" > "$cache_file"
         echo "$body"
         return 0
@@ -190,7 +195,7 @@ fetch_usage_data() {
         fi
 
         jq -n --argjson hit "$now" --argjson reset "$reset_epoch" \
-            '{"hit_at": $hit, "reset_at": $reset}' > "/tmp/claude-usage-ratelimit.json"
+            '{"hit_at": $hit, "reset_at": $reset}' > "/tmp/claude-usage-ratelimit-${_claude_account_slug}.json"
     fi
 
     rm -f "$header_file"
@@ -375,8 +380,8 @@ if is_oauth_mode; then
         usage_line+="${C_RESET}"
 
         printf '%b\n' "$usage_line"
-    elif [[ -f "/tmp/claude-usage-ratelimit.json" ]]; then
-        rl_reset=$(jq -r '.reset_at // empty' /tmp/claude-usage-ratelimit.json)
+    elif [[ -f "/tmp/claude-usage-ratelimit-${_claude_account_slug}.json" ]]; then
+        rl_reset=$(jq -r '.reset_at // empty' "/tmp/claude-usage-ratelimit-${_claude_account_slug}.json")
 
         rl_line="${C_RED}⚠ Rate Limited${C_RESET}"
         if [[ -n "$rl_reset" && "$rl_reset" != "null" ]]; then
