@@ -127,10 +127,10 @@ get_oauth_token() {
     jq -r '.claudeAiOauth.accessToken // empty' < "$creds_file" 2>/dev/null
 }
 
-# Function to fetch usage data from API (with 2-minute cache)
+# Function to fetch usage data from API (with 7-minute cache)
 fetch_usage_data() {
     local cache_file="/tmp/claude-usage-cache.json"
-    local cache_ttl=300
+    local cache_ttl=420
 
     # Check if successful cache is valid
     if [[ -f "$cache_file" ]]; then
