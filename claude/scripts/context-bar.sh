@@ -132,6 +132,22 @@ get_oauth_token() {
     jq -r '.claudeAiOauth.accessToken // empty' < "$creds_file" 2>/dev/null
 }
 
+# Function to get subscription type label from credentials
+get_subscription_label() {
+    local creds_file="$_claude_config_dir/.credentials.json"
+    if [[ ! -f "$creds_file" ]]; then
+        echo ""
+        return
+    fi
+    local sub_type
+    sub_type=$(jq -r '.claudeAiOauth.subscriptionType // empty' < "$creds_file" 2>/dev/null)
+    case "$sub_type" in
+        pro)   echo "Pro" ;;
+        team)  echo "Teams" ;;
+        *)     [[ -n "$sub_type" ]] && echo "$sub_type" || echo "" ;;
+    esac
+}
+
 # Function to fetch usage data from API (with 3-minute cache)
 fetch_usage_data() {
     local cache_file="/tmp/claude-usage-cache-${_claude_account_slug}.json"
@@ -373,7 +389,10 @@ if is_oauth_mode; then
         weekly_bar=$(make_usage_bar $weekly_pct)
 
         # Build and output usage line
-        usage_line="${C_USAGE_LABEL}Session ${C_GRAY}${session_bar} ${session_pct}%"
+        sub_label=$(get_subscription_label)
+        usage_line=""
+        [[ -n "$sub_label" ]] && usage_line="${C_ACCENT}${sub_label}${C_GRAY} | "
+        usage_line+="${C_USAGE_LABEL}Session ${C_GRAY}${session_bar} ${session_pct}%"
         [[ -n "$session_countdown" ]] && usage_line+=" (🕐${session_countdown})"
         usage_line+=" ${C_GRAY}| ${C_USAGE_LABEL}Weekly ${C_GRAY}${weekly_bar} ${weekly_pct}%"
         [[ -n "$weekly_countdown" ]] && usage_line+=" (🕐${weekly_countdown})"
