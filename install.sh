@@ -138,6 +138,7 @@ install_symlinks_raspbian() {
     mkdir -p "$HOME/.config/nushell"
     mkdir -p "$HOME/.config/htop"
     mkdir -p "$HOME/.config/btop"
+    mkdir -p "$HOME/.config/zellij"
     mkdir -p "$HOME/.tmux/plugins"
     mkdir -p "$HOME/.local/bin"
 
@@ -163,6 +164,9 @@ install_symlinks_raspbian() {
     create_symlink "$DOTFILES_DIR/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
     create_symlink "$DOTFILES_DIR/yazi/keymap.toml" "$HOME/.config/yazi/keymap.toml"
     create_symlink "$DOTFILES_DIR/yazi/theme.toml" "$HOME/.config/yazi/theme.toml"
+
+    # Zellij
+    create_symlink "$DOTFILES_DIR/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
 
     # Git
     create_symlink "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
@@ -203,6 +207,7 @@ install_symlinks() {
     mkdir -p "$HOME/.config/nvim"
     mkdir -p "$HOME/.config/ghostty"
     mkdir -p "$HOME/.config/yazi"
+    mkdir -p "$HOME/.config/zellij"
     mkdir -p "$HOME/.config/nushell"
     mkdir -p "$HOME/.config/htop"
     mkdir -p "$HOME/.config/btop"
@@ -237,6 +242,9 @@ install_symlinks() {
     create_symlink "$DOTFILES_DIR/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
     create_symlink "$DOTFILES_DIR/yazi/keymap.toml" "$HOME/.config/yazi/keymap.toml"
     create_symlink "$DOTFILES_DIR/yazi/theme.toml" "$HOME/.config/yazi/theme.toml"
+
+    # Zellij
+    create_symlink "$DOTFILES_DIR/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
 
     # Git
     create_symlink "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"

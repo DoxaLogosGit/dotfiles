@@ -151,7 +151,7 @@ get_subscription_label() {
 # Function to fetch usage data from API (with 3-minute cache)
 fetch_usage_data() {
     local cache_file="/tmp/claude-usage-cache-${_claude_account_slug}.json"
-    local cache_ttl=180
+    local cache_ttl=360
 
     # Check if successful cache is valid
     if [[ -f "$cache_file" ]]; then

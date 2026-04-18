@@ -71,6 +71,10 @@ sudo apt-get install -yy btop || info "btop not in repos, install manually"
 sudo apt-get install -yy clang
 sudo apt-get install -yy rustc cargo || true
 
+# Install zellij via cargo
+info "Installing zellij..."
+cargo install zellij
+
 # Python tools
 sudo pip3 install tldr || true
 

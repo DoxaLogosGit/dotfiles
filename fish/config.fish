@@ -60,3 +60,8 @@ set --export BUN_INSTALL "$HOME/.bun"
 set --export PATH $BUN_INSTALL/bin $PATH
 
 mise activate fish | source
+
+# fzf (PatrickF1/fzf.fish handles key bindings: Ctrl+R history, Ctrl+Alt+F files, Ctrl+Alt+L git log, Ctrl+Alt+S git status)
+set -gx FZF_DEFAULT_COMMAND "fd --hidden --follow --exclude .git"
+set -gx FZF_DEFAULT_OPTS "--height 40% --layout=reverse --border --preview-window=right:60%:wrap"
+set -gx fzf_fd_opts "--hidden --follow --exclude .git"

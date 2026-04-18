@@ -54,6 +54,11 @@ install_fisher
 
 # ── Best-effort extras ───────────────────────────────────────────────────────
 
+# Rust + zellij (compiling on Pi takes 20–30 min)
+sudo apt-get install -yy rustc cargo || warning "rust/cargo not available, skipping"
+info "Installing zellij (this will take a while on Pi hardware)..."
+cargo install zellij || warning "zellij install failed"
+
 # zoxide — used in fish config
 sudo apt-get install -yy zoxide || warning "zoxide not available, skipping"
 

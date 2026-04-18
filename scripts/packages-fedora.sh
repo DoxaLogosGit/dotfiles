@@ -29,6 +29,10 @@ sudo dnf install -y gcc-c++
 sudo dnf install -y clang
 sudo dnf install -y rust cargo
 sudo dnf install -y clang-devel
+
+# Install zellij via cargo
+info "Installing zellij..."
+cargo install zellij
 sudo dnf install -y python-devel || sudo dnf install -y python3-devel
 sudo dnf install -y python-pip || sudo dnf install -y python3-pip
 sudo dnf install -y lua
