@@ -93,26 +93,8 @@ pip install jedi_language_server || pip3 install jedi_language_server
 pip install flake8 || pip3 install flake8
 pip install vale || pip3 install vale
 
-# Install Node.js via nvm
-info "Installing Node.js via nvm..."
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-nvm install --lts
-nvm use --lts
-
-# Install bun
-info "Installing bun..."
-curl -fsSL https://bun.sh/install | bash
-
-# Install global packages via bun
-info "Installing global packages via bun..."
-bun install -g @anthropic-ai/claude-code
-bun install -g @google/gemini-cli
-bun install -g @openai/codex
-bun install -g playwright
-bunx playwright install --with-deps
-bun install -g @playwright/mcp
+# shellcheck source=install-global-packages.sh
+source "$(dirname "${BASH_SOURCE[0]}")/install-global-packages.sh"
 
 # Install yazi
 info "Installing yazi..."
