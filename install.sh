@@ -132,24 +132,18 @@ install_symlinks_raspbian() {
 
     mkdir -p "$HOME/.vim-tmp"
     mkdir -p "$HOME/.tmp"
-    mkdir -p "$HOME/.config/fish"
-    mkdir -p "$HOME/.config/nvim"
-    mkdir -p "$HOME/.config/yazi"
-    mkdir -p "$HOME/.config/nushell"
-    mkdir -p "$HOME/.config/htop"
-    mkdir -p "$HOME/.config/btop"
-    mkdir -p "$HOME/.config/zellij"
     mkdir -p "$HOME/.tmux/plugins"
     mkdir -p "$HOME/.local/bin"
+    mkdir -p "$HOME/.pi"
 
-    # Fish
+    # Fish (fish manages its own dir — symlink config files only)
     create_symlink "$DOTFILES_DIR/fish/config.fish" "$HOME/.config/fish/config.fish"
     create_symlink "$DOTFILES_DIR/fish/fish_plugins" "$HOME/.config/fish/fish_plugins"
 
     # Starship
     create_symlink "$DOTFILES_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
 
-    # Neovim
+    # Neovim (lua/ dir exists in live but not tracked — symlink known files only)
     create_symlink "$DOTFILES_DIR/nvim/init.lua" "$HOME/.config/nvim/init.lua"
     create_symlink "$DOTFILES_DIR/nvim/lazy-lock.json" "$HOME/.config/nvim/lazy-lock.json"
     create_symlink "$DOTFILES_DIR/nvim/colors" "$HOME/.config/nvim/colors"
@@ -161,17 +155,15 @@ install_symlinks_raspbian() {
     create_symlink "$DOTFILES_DIR/tmux/tmux-raspbian.conf" "$HOME/.tmux.conf"
 
     # Yazi
-    create_symlink "$DOTFILES_DIR/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
-    create_symlink "$DOTFILES_DIR/yazi/keymap.toml" "$HOME/.config/yazi/keymap.toml"
-    create_symlink "$DOTFILES_DIR/yazi/theme.toml" "$HOME/.config/yazi/theme.toml"
+    create_symlink "$DOTFILES_DIR/yazi" "$HOME/.config/yazi"
 
     # Zellij
-    create_symlink "$DOTFILES_DIR/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
+    create_symlink "$DOTFILES_DIR/zellij" "$HOME/.config/zellij"
 
     # Git
     create_symlink "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
 
-    # Nushell
+    # Nushell (nushell writes history.txt — symlink config file only)
     create_symlink "$DOTFILES_DIR/nushell/config.nu" "$HOME/.config/nushell/config.nu"
 
     # Zsh (legacy)
@@ -185,10 +177,13 @@ install_symlinks_raspbian() {
     create_symlink "$DOTFILES_DIR/bash/bash_profile" "$HOME/.bash_profile"
 
     # htop
-    create_symlink "$DOTFILES_DIR/htop/htoprc" "$HOME/.config/htop/htoprc"
+    create_symlink "$DOTFILES_DIR/htop" "$HOME/.config/htop"
 
     # btop
-    create_symlink "$DOTFILES_DIR/btop/btop.conf" "$HOME/.config/btop/btop.conf"
+    create_symlink "$DOTFILES_DIR/btop" "$HOME/.config/btop"
+
+    # Pi coding agent
+    create_symlink "$DOTFILES_DIR/pi" "$HOME/.pi/agent"
 
     # Scripts
     create_symlink "$DOTFILES_DIR/scripts/reset_last_tmux_resurrect.sh" "$HOME/.local/bin/reset_last_tmux_resurrect.sh"
@@ -200,31 +195,21 @@ install_symlinks_raspbian() {
 install_symlinks() {
     info "Creating symlinks..."
 
-    # Create required directories
     mkdir -p "$HOME/.vim-tmp"
     mkdir -p "$HOME/.tmp"
-    mkdir -p "$HOME/.config/fish"
-    mkdir -p "$HOME/.config/nvim"
-    mkdir -p "$HOME/.config/ghostty"
-    mkdir -p "$HOME/.config/yazi"
-    mkdir -p "$HOME/.config/zellij"
-    mkdir -p "$HOME/.config/nushell"
-    mkdir -p "$HOME/.config/htop"
-    mkdir -p "$HOME/.config/btop"
     mkdir -p "$HOME/.config/Code/User"
-    mkdir -p "$HOME/.config/opencode"
-    mkdir -p "$HOME/.gemini"
-    mkdir -p "$HOME/.claude/scripts"
     mkdir -p "$HOME/.tmux/plugins"
+    mkdir -p "$HOME/.local/bin"
+    mkdir -p "$HOME/.pi"
 
-    # Fish
+    # Fish (fish manages its own dir — symlink config files only)
     create_symlink "$DOTFILES_DIR/fish/config.fish" "$HOME/.config/fish/config.fish"
     create_symlink "$DOTFILES_DIR/fish/fish_plugins" "$HOME/.config/fish/fish_plugins"
 
     # Starship
     create_symlink "$DOTFILES_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
 
-    # Neovim
+    # Neovim (lua/ dir exists in live but not tracked — symlink known files only)
     create_symlink "$DOTFILES_DIR/nvim/init.lua" "$HOME/.config/nvim/init.lua"
     create_symlink "$DOTFILES_DIR/nvim/lazy-lock.json" "$HOME/.config/nvim/lazy-lock.json"
     create_symlink "$DOTFILES_DIR/nvim/colors" "$HOME/.config/nvim/colors"
@@ -232,24 +217,22 @@ install_symlinks() {
     # Vim
     create_symlink "$DOTFILES_DIR/vim/vimrc" "$HOME/.vimrc"
 
-    # Tmux (TPM will manage plugins)
+    # Tmux
     create_symlink "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
 
-    # Ghostty
-    create_symlink "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
+    # Ghostty (themes/ is tool-managed, gitignored)
+    create_symlink "$DOTFILES_DIR/ghostty" "$HOME/.config/ghostty"
 
     # Yazi
-    create_symlink "$DOTFILES_DIR/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
-    create_symlink "$DOTFILES_DIR/yazi/keymap.toml" "$HOME/.config/yazi/keymap.toml"
-    create_symlink "$DOTFILES_DIR/yazi/theme.toml" "$HOME/.config/yazi/theme.toml"
+    create_symlink "$DOTFILES_DIR/yazi" "$HOME/.config/yazi"
 
     # Zellij
-    create_symlink "$DOTFILES_DIR/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
+    create_symlink "$DOTFILES_DIR/zellij" "$HOME/.config/zellij"
 
     # Git
     create_symlink "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
 
-    # Nushell
+    # Nushell (nushell writes history.txt — symlink config file only)
     create_symlink "$DOTFILES_DIR/nushell/config.nu" "$HOME/.config/nushell/config.nu"
 
     # Zsh (legacy)
@@ -258,34 +241,33 @@ install_symlinks() {
     # Python
     create_symlink "$DOTFILES_DIR/python/pylintrc" "$HOME/.pylintrc"
 
-    # Claude
-    mkdir -p "$HOME/.claude/scripts"
-    mkdir -p "$HOME/.claude/plugins"
-    create_symlink "$DOTFILES_DIR/claude/scripts/context-bar.sh" "$HOME/.claude/scripts/context-bar.sh"
-    create_symlink "$DOTFILES_DIR/claude/scripts/setup-plugins.sh" "$HOME/.claude/scripts/setup-plugins.sh"
-    create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
-
     # Bash
     create_symlink "$DOTFILES_DIR/bash/bashrc" "$HOME/.bashrc"
     create_symlink "$DOTFILES_DIR/bash/bash_profile" "$HOME/.bash_profile"
 
     # htop
-    create_symlink "$DOTFILES_DIR/htop/htoprc" "$HOME/.config/htop/htoprc"
+    create_symlink "$DOTFILES_DIR/htop" "$HOME/.config/htop"
 
-    # btop
-    create_symlink "$DOTFILES_DIR/btop/btop.conf" "$HOME/.config/btop/btop.conf"
+    # btop (themes/ is tool-managed, gitignored)
+    create_symlink "$DOTFILES_DIR/btop" "$HOME/.config/btop"
 
-    # VS Code
+    # Claude (Claude Code manages ~/.claude/ — symlink scripts dir and settings file)
+    create_symlink "$DOTFILES_DIR/claude/scripts" "$HOME/.claude/scripts"
+    create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
+
+    # Pi coding agent
+    create_symlink "$DOTFILES_DIR/pi" "$HOME/.pi/agent"
+
+    # VS Code (Code/User is tool-managed — symlink settings file only)
     create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/.config/Code/User/settings.json"
 
-    # OpenCode
+    # OpenCode (opencode manages its own dir — symlink config file only)
     create_symlink "$DOTFILES_DIR/opencode/opencode.json" "$HOME/.config/opencode/opencode.json"
 
-    # Gemini
+    # Gemini (gemini manages ~/.gemini/ — symlink settings file only)
     create_symlink "$DOTFILES_DIR/gemini/settings.json" "$HOME/.gemini/settings.json"
 
-    # Scripts - create ~/.local/bin if needed
-    mkdir -p "$HOME/.local/bin"
+    # Scripts
     create_symlink "$DOTFILES_DIR/scripts/reset_last_tmux_resurrect.sh" "$HOME/.local/bin/reset_last_tmux_resurrect.sh"
 
     success "Symlinks created!"
