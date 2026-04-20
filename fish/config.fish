@@ -7,7 +7,7 @@ set -gx PATH $PATH ~/projects/Odin ~/.local/bin ~/.local/bin/yubico-authenticato
 set -gx ODIN_ROOT  ~/projects/Odin
 set -gx EDITOR nvim
 set -gx ENABLE_TOOL_SEARCH true
-alias ll "eza --icons --color=always --color-scale=all -l --git"
+alias ll "eza --icons=always --color=always --color-scale=all -l --git"
 alias c "claude-personal"
 alias cw "claude-work"
 
