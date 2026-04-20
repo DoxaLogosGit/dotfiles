@@ -4,3 +4,20 @@ PARAMETER num_ctx 16384
 PARAMETER temperature 0.2
 PARAMETER top_p 0.8
 PARAMETER top_k 20
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|im_start|>"
+
+# Proper Qwen 3.5 ChatML template with thinking pre-closed
+TEMPLATE """{{- if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}{{- range .Messages }}<|im_start|>{{ .Role }}
+{{ .Content }}<|im_end|>
+{{ end }}<|im_start|>assistant
+<think>
+
+</think>
+
+"""
+
+SYSTEM """You are a precise coding assistant. When tools are available, use them directly rather than describing what you would do. Be concise."""
+

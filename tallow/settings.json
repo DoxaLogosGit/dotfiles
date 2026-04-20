@@ -1,0 +1,8 @@
+{
+  "$schema": "file:///home/jgatkinsn/.bun/install/global/node_modules/@dungle-scrubs/tallow/schemas/settings.schema.json",
+  "theme": "catppuccin-mocha",
+  "enableSkillCommands": false,
+  "lastChangelogVersion": "0.9.4",
+  "defaultProvider": "ollama",
+  "defaultModel": "omnicoder-oc"
+}

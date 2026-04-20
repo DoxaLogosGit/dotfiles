@@ -35,6 +35,7 @@ bun install -g @anthropic-ai/claude-code
 bun install -g @google/gemini-cli
 bun install -g @openai/codex
 bun install -g @mariozechner/pi-coding-agent
+bun install -g @dungle-scrubs/tallow
 bun install -g playwright
 bunx playwright install --with-deps
 bun install -g @playwright/mcp

@@ -1,9 +1,31 @@
 {
   "plugin": [
     "oh-my-opencode",
-    "opencode-antigravity-auth@1.2.8"
+    "opencode-antigravity-auth@1.6.0"
   ],
+  "model":"ollama/qwen25-coder",
   "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (local)",
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+        "omnicoder-oc": {
+          "name": "Omnicoder Qwen3.5 9b (agentic)",
+          "tools": true
+        },
+        "qwen35-4b-pi": {
+          "name": "Qwen 3.5 4B (chat only)",
+          "tools": false
+        },
+        "qwen35-pi": {
+          "name": "Qwen 3.5 9B (chat only)",
+          "tools": false
+        }
+      }
+    },
     "google": {
       "name": "Google",
       "models": {

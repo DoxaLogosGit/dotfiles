@@ -135,6 +135,7 @@ install_symlinks_raspbian() {
     mkdir -p "$HOME/.tmux/plugins"
     mkdir -p "$HOME/.local/bin"
     mkdir -p "$HOME/.pi"
+    mkdir -p "$HOME/.tallow"
 
     # Fish (fish manages its own dir — symlink config files only)
     create_symlink "$DOTFILES_DIR/fish/config.fish" "$HOME/.config/fish/config.fish"
@@ -185,6 +186,10 @@ install_symlinks_raspbian() {
     # Pi coding agent
     create_symlink "$DOTFILES_DIR/pi" "$HOME/.pi/agent"
 
+    # Tallow coding agent (tallow manages ~/.tallow/ — symlink config files only)
+    create_symlink "$DOTFILES_DIR/tallow/models.json" "$HOME/.tallow/models.json"
+    create_symlink "$DOTFILES_DIR/tallow/settings.json" "$HOME/.tallow/settings.json"
+
     # Scripts
     create_symlink "$DOTFILES_DIR/scripts/reset_last_tmux_resurrect.sh" "$HOME/.local/bin/reset_last_tmux_resurrect.sh"
 
@@ -201,6 +206,7 @@ install_symlinks() {
     mkdir -p "$HOME/.tmux/plugins"
     mkdir -p "$HOME/.local/bin"
     mkdir -p "$HOME/.pi"
+    mkdir -p "$HOME/.tallow"
 
     # Fish (fish manages its own dir — symlink config files only)
     create_symlink "$DOTFILES_DIR/fish/config.fish" "$HOME/.config/fish/config.fish"
@@ -257,6 +263,10 @@ install_symlinks() {
 
     # Pi coding agent
     create_symlink "$DOTFILES_DIR/pi" "$HOME/.pi/agent"
+
+    # Tallow coding agent (tallow manages ~/.tallow/ — symlink config files only)
+    create_symlink "$DOTFILES_DIR/tallow/models.json" "$HOME/.tallow/models.json"
+    create_symlink "$DOTFILES_DIR/tallow/settings.json" "$HOME/.tallow/settings.json"
 
     # VS Code (Code/User is tool-managed — symlink settings file only)
     create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/.config/Code/User/settings.json"
