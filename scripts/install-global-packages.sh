@@ -28,6 +28,12 @@ info "Installing bun..."
 curl -fsSL https://bun.sh/install | bash
 export PATH="$HOME/.bun/bin:$PATH"
 
+# ── Rust via rustup ──────────────────────────────────────────────────────────
+
+info "Installing Rust via rustup..."
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+. "$HOME/.cargo/env"
+
 # ── Global packages ───────────────────────────────────────────────────────────
 
 info "Installing global packages via bun..."
