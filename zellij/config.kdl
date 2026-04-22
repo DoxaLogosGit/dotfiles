@@ -177,6 +177,12 @@ keybinds clear-defaults=true {
         bind "Alt o" { MoveTab "right"; }
         bind "Alt p" { TogglePaneInGroup; }
         bind "Alt Shift p" { ToggleGroupMarking; }
+        bind "Alt w" {
+            LaunchOrFocusPlugin "session-manager" {
+                floating true
+                move_to_focused_tab true
+            }
+        }
     }
     shared_except "locked" "renametab" "renamepane" {
         bind "Ctrl Space" { SwitchToMode "locked"; }
