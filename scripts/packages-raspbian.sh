@@ -71,7 +71,8 @@ curl -sS https://starship.rs/install.sh | sh -s -- -y || warning "starship insta
 
 # Node.js via nvm — needed for nvim LSP servers / tree-sitter
 info "Installing Node.js via nvm..."
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash || warning "nvm install failed"
+NVM_VERSION=$(curl -s https://api.github.com/repos/nvm-sh/nvm/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
+curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" | bash || warning "nvm install failed"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 nvm install --lts && nvm use --lts || warning "node install failed"

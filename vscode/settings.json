@@ -24,5 +24,6 @@
         "https://json-schema.org/": true,
         "https://biomejs.dev": true
     },
-    "claudeContextBar.refreshInterval": 80
+    "claudeContextBar.refreshInterval": 80,
+    "security.workspace.trust.untrustedFiles": "open"
 }
