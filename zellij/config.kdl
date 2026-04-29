@@ -177,6 +177,9 @@ keybinds clear-defaults=true {
         bind "Alt o" { MoveTab "right"; }
         bind "Alt p" { TogglePaneInGroup; }
         bind "Alt Shift p" { ToggleGroupMarking; }
+        bind "Alt t" { NewTab
+                       SwitchToMode "locked" 
+             }
         bind "Alt w" {
             LaunchOrFocusPlugin "session-manager" {
                 floating true
@@ -353,7 +356,7 @@ default_mode "locked"
 //   - detach (Default)
 //   - quit
 // 
-// on_force_close "quit"
+on_force_close "detach"
  
 // Configure the scroll back buffer size
 // This is the number of lines zellij stores for each pane in the scroll back
