@@ -39,20 +39,27 @@ Or run interactively:
 - **Vim** - Classic configuration
 
 ### Terminal Tools
+- **zellij** - Terminal multiplexer with custom layouts and keybindings
 - **tmux** - Terminal multiplexer with TPM for plugins
 - **yazi** - Terminal file manager
 - **starship** - Cross-shell prompt
 - **htop** - Interactive process viewer
 - **btop** - Resource monitor
 
+### AI / Coding Agents
+- **claude** - Claude Code CLI customizations
+- **gemini** - Gemini CLI settings
+- **opencode** - OpenCode CLI configuration
+- **codex** - OpenAI Codex CLI configuration
+- **pi** - Pi coding agent configuration (`~/.pi/agent`)
+- **tallow** - Tallow coding agent settings
+- **ollama** - Local model files and Modelfiles for Ollama (omnicoder, qwen3.5:9b)
+
 ### Other Configs
 - **git** - Global git configuration
 - **ghostty** - Terminal emulator settings
 - **pylint** - Python linting configuration
-- **claude** - Claude Code CLI customizations
 - **vscode** - Visual Studio Code settings
-- **opencode** - OpenCode CLI configuration
-- **gemini** - Gemini CLI settings
 
 ## Directory Structure
 
@@ -62,9 +69,21 @@ Or run interactively:
 ├── scripts/
 │   ├── packages-debian.sh        # Debian/Ubuntu package installation
 │   ├── packages-fedora.sh        # Fedora/RHEL package installation
+│   ├── packages-raspbian.sh      # Raspberry Pi / Raspbian package installation
+│   ├── install-global-packages.sh # Node.js (nvm), bun, Rust, and global CLI tools
 │   └── fonts.sh                  # Nerd fonts installation
 ├── fish/
-│   └── config.fish               # → ~/.config/fish/config.fish
+│   ├── config.fish               # → ~/.config/fish/config.fish
+│   ├── fish_plugins              # → ~/.config/fish/fish_plugins
+│   └── functions/                # → ~/.config/fish/functions/
+│       ├── zeldump.fish          #   dump current zellij session
+│       ├── zm.fish               #   attach/create named zellij session
+│       └── zw.fish               #   switch zellij session
+├── zellij/
+│   ├── config.kdl                # → ~/.config/zellij/config.kdl
+│   └── layouts/
+│       ├── main.kdl              #   default layout
+│       └── work.kdl              #   work layout
 ├── starship/
 │   └── starship.toml             # → ~/.config/starship.toml
 ├── nvim/
@@ -75,12 +94,8 @@ Or run interactively:
 │   └── vimrc                     # → ~/.vimrc
 ├── tmux/
 │   └── tmux.conf                 # → ~/.tmux.conf
-├── ghostty/
-│   └── config                    # → ~/.config/ghostty/config
-├── yazi/
-│   ├── yazi.toml                 # → ~/.config/yazi/yazi.toml
-│   ├── keymap.toml               # → ~/.config/yazi/keymap.toml
-│   └── theme.toml                # → ~/.config/yazi/theme.toml
+├── ghostty/                      # → ~/.config/ghostty/
+├── yazi/                         # → ~/.config/yazi/
 ├── git/
 │   └── gitconfig                 # → ~/.gitconfig
 ├── nushell/
@@ -92,10 +107,15 @@ Or run interactively:
 ├── bash/
 │   ├── bashrc                    # → ~/.bashrc
 │   └── bash_profile              # → ~/.bash_profile
-├── htop/
-│   └── htoprc                    # → ~/.config/htop/htoprc
-├── btop/
-│   └── btop.conf                 # → ~/.config/btop/btop.conf
+├── htop/                         # → ~/.config/htop/
+├── btop/                         # → ~/.config/btop/
+├── ollama/
+│   └── modelfiles/               # Ollama Modelfiles for local models
+├── pi/
+│   └── settings.json             # → ~/.pi/agent/ (pi coding agent)
+├── tallow/
+│   ├── models.json               # → ~/.tallow/models.json
+│   └── settings.json             # → ~/.tallow/settings.json
 ├── vscode/
 │   └── settings.json             # → ~/.config/Code/User/settings.json
 ├── opencode/
@@ -115,6 +135,13 @@ Or run interactively:
 chsh -s /usr/bin/fish
 ```
 
+### Install Global CLI Tools
+The installer can install Node.js (via nvm), bun, Rust (via rustup), and global coding-agent packages:
+```bash
+./scripts/install-global-packages.sh
+```
+This installs: Claude Code, Gemini CLI, OpenAI Codex, pi coding agent, Tallow, and Playwright.
+
 ### Install Tmux Plugins
 After starting tmux, press `prefix + I` (that's `Ctrl-A` then `Shift-I`) to install plugins via TPM.
 
@@ -125,6 +152,7 @@ Plugins are managed by lazy.nvim and will auto-install on first launch.
 
 - **Debian/Ubuntu** and derivatives
 - **Fedora/RHEL** and derivatives
+- **Raspberry Pi OS (Raspbian)**
 
 ## License
 
