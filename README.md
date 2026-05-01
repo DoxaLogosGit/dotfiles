@@ -135,13 +135,6 @@ Or run interactively:
 chsh -s /usr/bin/fish
 ```
 
-### Install Global CLI Tools
-The installer can install Node.js (via nvm), bun, Rust (via rustup), and global coding-agent packages:
-```bash
-./scripts/install-global-packages.sh
-```
-This installs: Claude Code, Gemini CLI, OpenAI Codex, pi coding agent, Tallow, and Playwright.
-
 ### Install Tmux Plugins
 After starting tmux, press `prefix + I` (that's `Ctrl-A` then `Shift-I`) to install plugins via TPM.
 
