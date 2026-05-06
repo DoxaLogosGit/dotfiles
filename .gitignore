@@ -11,6 +11,7 @@ Thumbs.db
 
 # Backup files
 *.bak
+*.bak.*
 *.backup
 
 # Local overrides (for machine-specific config)

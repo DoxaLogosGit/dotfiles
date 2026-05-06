@@ -1,5 +1,8 @@
 {
-  "lastChangelogVersion": "0.67.68",
+  "defaultModel": "qwen3.5:cloud",
   "defaultProvider": "ollama",
-  "defaultModel": "omnicoder-oc"
+  "lastChangelogVersion": "0.67.68",
+  "packages": [
+    "npm:@ollama/pi-web-search"
+  ]
 }

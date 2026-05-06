@@ -1,12 +1,26 @@
 {
   "providers": {
     "ollama": {
-      "baseUrl": "http://localhost:11434/v1",
       "api": "openai-completions",
       "apiKey": "ollama",
+      "baseUrl": "http://localhost:11434/v1",
       "models": [
-        { "id": "qwen35-9b-pi" },
-        { "id": "omnicoder-oc" }
+        {
+          "id": "qwen35-9b-pi"
+        },
+        {
+          "id": "omnicoder-oc"
+        },
+        {
+          "_launch": true,
+          "contextWindow": 262144,
+          "id": "qwen3.5:cloud",
+          "input": [
+            "text",
+            "image"
+          ],
+          "reasoning": true
+        }
       ]
     }
   }

@@ -3,7 +3,7 @@
     "oh-my-opencode",
     "opencode-antigravity-auth@1.6.0"
   ],
-  "model":"ollama/qwen25-coder",
+  "model": "ollama/omnicoder-oc",
   "provider": {
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",

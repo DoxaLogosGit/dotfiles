@@ -4,5 +4,5 @@
   "enableSkillCommands": false,
   "lastChangelogVersion": "0.9.4",
   "defaultProvider": "ollama",
-  "defaultModel": "omnicoder-oc"
+  "defaultModel": "devstral-2:123b-cloud"
 }

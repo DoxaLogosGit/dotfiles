@@ -6,7 +6,11 @@
       "apiKey": "ollama",
       "models": [
         { "id": "qwen35-9b-pi" },
-        { "id": "omnicoder-oc" }
+        { "id": "nemotron-3-super:cloud" },
+        { "id": "qwen3-coder-next:cloud" },
+        { "id": "devstral-2:123b-cloud" },
+        { "id": "omnicoder-oc" },
+        { "id": "gemma4:31b-cloud" }
       ]
     }
   }
