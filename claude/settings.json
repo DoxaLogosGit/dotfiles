@@ -1,44 +1,5 @@
 {
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/scripts/context-bar.sh"
-  },
-  "enabledPlugins": {
-    "obsidian@obsidian-skills": true,
-    "excalidraw@excalidraw-skills": true,
-    "typescript-lsp@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
-    "playwright@claude-plugins-official": true
-  },
-  "extraKnownMarketplaces": {
-    "obsidian-skills": {
-      "source": {
-        "source": "github",
-        "repo": "kepano/obsidian-skills"
-      }
-    },
-    "excalidraw-skills": {
-      "source": {
-        "source": "directory",
-        "path": "~/.dotfiles/claude/plugins/excalidraw-skills"
-      }
-    }
-  },
-  "effortLevel": "high",
-  "advisorModel": "opus",
-  "editorMode": "vim",
-  "security": {
-    "auth": {
-      "selectedType": "oauth-personal"
-    }
-  },
-  "general": {
-    "previewFeatures": true,
-    "vimMode": true,
-    "preferredEditor": "neovim"
-  },
+  "skillListingBudgetFraction": 0.02,
   "hooks": {
     "SessionStart": [
       {
@@ -257,6 +218,45 @@
         ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/scripts/context-bar.sh"
+  },
+  "enabledPlugins": {
+    "excalidraw@excalidraw-skills": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "obsidian-skills": {
+      "source": {
+        "source": "github",
+        "repo": "kepano/obsidian-skills"
+      }
+    },
+    "excalidraw-skills": {
+      "source": {
+        "source": "directory",
+        "path": "~/.dotfiles/claude/plugins/excalidraw-skills"
+      }
+    }
+  },
+  "effortLevel": "high",
+  "advisorModel": "opus",
+  "editorMode": "vim",
+  "security": {
+    "auth": {
+      "selectedType": "oauth-personal"
+    }
+  },
+  "general": {
+    "previewFeatures": true,
+    "vimMode": true,
+    "preferredEditor": "neovim"
   },
   "experimental": {
     "useModelRouter": false
