@@ -1,12 +1,11 @@
 {
-  "skillListingBudgetFraction": 0.02,
   "hooks": {
     "SessionStart": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" idle"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" idle SessionStart"
           }
         ]
       }
@@ -16,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working UserPromptSubmit"
           }
         ]
       }
@@ -26,7 +25,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" idle"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" idle Stop"
           }
         ]
       }
@@ -37,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Bash"
           }
         ]
       },
@@ -46,7 +45,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Read"
           }
         ]
       },
@@ -55,7 +54,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Write"
           }
         ]
       },
@@ -64,7 +63,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Edit"
           }
         ]
       },
@@ -73,7 +72,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/MultiEdit"
           }
         ]
       },
@@ -82,7 +81,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Glob"
           }
         ]
       },
@@ -91,7 +90,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Grep"
           }
         ]
       },
@@ -100,7 +99,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/WebFetch"
           }
         ]
       },
@@ -109,7 +108,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/WebSearch"
           }
         ]
       },
@@ -118,7 +117,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Task"
           }
         ]
       },
@@ -127,7 +126,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/NotebookEdit"
           }
         ]
       },
@@ -136,7 +135,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Skill"
           }
         ]
       },
@@ -145,7 +144,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/EnterPlanMode"
           }
         ]
       },
@@ -154,7 +153,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" input"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" input PreToolUse/AskUserQuestion"
           }
         ]
       },
@@ -163,7 +162,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" input"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" input PreToolUse/ExitPlanMode"
           }
         ]
       }
@@ -173,7 +172,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PostToolUse"
           }
         ]
       }
@@ -183,27 +182,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" input"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" input PermissionRequest"
           }
         ]
       }
     ],
     "Notification": [
       {
-        "matcher": "permission_prompt|elicitation_dialog",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" input"
-          }
-        ]
-      },
-      {
         "matcher": "idle_prompt",
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" idle"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" idle Notification/idle"
           }
         ]
       }
@@ -213,7 +203,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" off"
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" off SessionEnd"
           }
         ]
       }
@@ -224,12 +214,14 @@
     "command": "~/.claude/scripts/context-bar.sh"
   },
   "enabledPlugins": {
+    "obsidian@obsidian-skills": true,
     "excalidraw@excalidraw-skills": true,
     "typescript-lsp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
-    "playwright@claude-plugins-official": true
+    "playwright@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "obsidian-skills": {
