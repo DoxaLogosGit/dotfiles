@@ -59,6 +59,8 @@ sudo apt-get install -yy fish
 # shellcheck source=install-nushell.sh
 source "$(dirname "${BASH_SOURCE[0]}")/install-nushell.sh"
 sudo apt-get install -yy nushell 2>/dev/null || install_nushell
+info "Installing xonsh..."
+pip install xonsh[full] || pip3 install xonsh[full]
 
 # Tmux
 sudo apt-get install -yy tmux

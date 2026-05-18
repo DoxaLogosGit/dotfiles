@@ -77,6 +77,7 @@ Options:
     --fonts         Install nerd fonts
     --plugins       Install Claude Code plugins
     --all           Do everything (packages + symlinks + fonts + plugins)
+    --systemd      Enable systemd user units (snapshot timer)
     --dry-run       Show what would be done without making changes
     -h, --help      Show this help message
 
@@ -168,6 +169,9 @@ install_symlinks_common() {
     # Nushell (nushell writes history.txt — symlink config file only)
     create_symlink "$DOTFILES_DIR/nushell/config.nu" "$HOME/.config/nushell/config.nu"
 
+    # Xonsh (xonsh writes history — symlink config file only)
+    create_symlink "$DOTFILES_DIR/xonsh/xonshrc" "$HOME/.xonshrc"
+
     # Zsh (legacy)
     create_symlink "$DOTFILES_DIR/zsh/zshrc" "$HOME/.zshrc"
 
@@ -193,6 +197,10 @@ install_symlinks_common() {
 
     # Scripts
     create_symlink "$DOTFILES_DIR/scripts/reset_last_tmux_resurrect.sh" "$HOME/.local/bin/reset_last_tmux_resurrect.sh"
+
+    # Zellij snapshot tool (rotating session-state backups)
+    create_symlink "$DOTFILES_DIR/scripts/zellij-snapshot" "$HOME/.local/bin/zellij-snapshot"
+    create_symlink "$DOTFILES_DIR/scripts/zellij-restore" "$HOME/.local/bin/zellij-restore"
 }
 
 # Install symlinks (Raspbian — thumbs/Ghostty/Claude/VS Code/OpenCode/Gemini excluded)
@@ -278,12 +286,41 @@ install_fonts() {
     fi
 }
 
+install_systemd_units() {
+    info "Installing systemd user units..."
+
+    if ! systemctl --user show-environment >/dev/null 2>&1; then
+        warning "systemctl --user is not available — skipping systemd units."
+        warning "  On WSL: enable systemd in /etc/wsl.conf and restart WSL."
+        return 0
+    fi
+
+    create_symlink "$DOTFILES_DIR/scripts/zellij-snapshot.service" \
+        "$HOME/.config/systemd/user/zellij-snapshot.service"
+    create_symlink "$DOTFILES_DIR/scripts/zellij-snapshot.timer" \
+        "$HOME/.config/systemd/user/zellij-snapshot.timer"
+    create_symlink "$DOTFILES_DIR/scripts/zellij-snapshot-shutdown.service" \
+        "$HOME/.config/systemd/user/zellij-snapshot-shutdown.service"
+
+    if [ "$DRY_RUN" = true ]; then
+        info "[DRY-RUN] Would run: systemctl --user daemon-reload"
+        info "[DRY-RUN] Would run: systemctl --user enable --now zellij-snapshot.timer"
+        info "[DRY-RUN] Would run: systemctl --user enable zellij-snapshot-shutdown.service"
+    else
+        systemctl --user daemon-reload
+        systemctl --user enable --now zellij-snapshot.timer
+        systemctl --user enable zellij-snapshot-shutdown.service
+        success "Systemd units enabled."
+    fi
+}
+
 # Main
 main() {
     local DO_PACKAGES=false
     local DO_SYMLINKS=false
     local DO_FONTS=false
     local DO_PLUGINS=false
+    local DO_SYSTEMD=false
     DRY_RUN=false
 
     # Parse arguments
@@ -310,6 +347,11 @@ main() {
                 DO_SYMLINKS=true
                 DO_FONTS=true
                 DO_PLUGINS=true
+                DO_SYSTEMD=true
+                shift
+                ;;
+            --systemd)
+                DO_SYSTEMD=true
                 shift
                 ;;
             --dry-run)
@@ -341,9 +383,10 @@ main() {
         echo "  3) Install packages only"
         echo "  4) Install fonts only"
         echo "  5) Install Claude plugins only"
-        echo "  6) Exit"
+        echo "  6) Enable systemd user units (snapshot timer)"
+        echo "  7) Exit"
         echo ""
-        read -p "Enter choice [1-6]: " choice
+        read -p "Enter choice [1-7]: " choice
 
         case "$choice" in
             1)
@@ -351,6 +394,7 @@ main() {
                 DO_SYMLINKS=true
                 DO_FONTS=true
                 DO_PLUGINS=true
+                DO_SYSTEMD=true
                 ;;
             2)
                 DO_SYMLINKS=true
@@ -365,6 +409,9 @@ main() {
                 DO_PLUGINS=true
                 ;;
             6)
+                DO_SYSTEMD=true
+                ;;
+            7)
                 echo "Bye!"
                 exit 0
                 ;;
@@ -402,6 +449,14 @@ main() {
 
     if [ "$DO_PLUGINS" = true ]; then
         install_claude_plugins
+    fi
+
+    if [ "$DO_SYSTEMD" = true ]; then
+        if [ "$OS_TYPE" = "raspbian" ]; then
+            info "Skipping systemd units on Raspbian."
+        else
+            install_systemd_units
+        fi
     fi
 
     echo ""

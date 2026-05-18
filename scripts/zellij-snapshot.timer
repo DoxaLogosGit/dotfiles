@@ -1,0 +1,16 @@
+[Unit]
+Description=Periodic Zellij session-state snapshots
+Documentation=https://github.com/zellij-org/zellij/issues/3752
+
+[Timer]
+# Run 1 minute after login, then every 2 minutes
+OnStartupSec=1min
+OnUnitActiveSec=2min
+
+# Don't stack up missed runs if the laptop was suspended
+AccuracySec=10s
+
+Unit=zellij-snapshot.service
+
+[Install]
+WantedBy=timers.target

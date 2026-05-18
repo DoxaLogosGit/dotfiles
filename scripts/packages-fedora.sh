@@ -98,6 +98,8 @@ sudo dnf install -y fish
 # shellcheck source=install-nushell.sh
 source "$(dirname "${BASH_SOURCE[0]}")/install-nushell.sh"
 sudo dnf install -y nushell 2>/dev/null || install_nushell
+info "Installing xonsh..."
+pip install xonsh[full] || pip3 install xonsh[full]
 
 # Install starship prompt
 info "Installing starship..."

@@ -1,0 +1,16 @@
+[Unit]
+Description=Final Zellij snapshot before shutdown/reboot
+Documentation=https://github.com/zellij-org/zellij/issues/3752
+DefaultDependencies=no
+Before=shutdown.target reboot.target halt.target
+
+ConditionPathExists=%h/.cache/zellij
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/zellij-snapshot
+SuccessExitStatus=0 1
+TimeoutStartSec=10s
+
+[Install]
+WantedBy=shutdown.target reboot.target halt.target
