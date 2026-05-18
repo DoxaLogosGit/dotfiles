@@ -1,46 +1,285 @@
 {
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/scripts/context-bar.sh"
-  },
+  "advisorModel": "opus",
+  "editorMode": "vim",
+  "effortLevel": "high",
   "enabledPlugins": {
-    "obsidian@obsidian-skills": true,
-    "excalidraw@excalidraw-skills": true,
-    "typescript-lsp@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
+    "excalidraw@excalidraw-skills": true,
+    "frontend-design@claude-plugins-official": true,
+    "obsidian@obsidian-skills": true,
     "playwright@claude-plugins-official": true,
-    "pyright-lsp@claude-plugins-official": true
+    "pyright-lsp@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
+  },
+  "experimental": {
+    "useModelRouter": false
   },
   "extraKnownMarketplaces": {
-    "obsidian-skills": {
-      "source": {
-        "source": "github",
-        "repo": "kepano/obsidian-skills"
-      }
-    },
     "excalidraw-skills": {
       "source": {
-        "source": "directory",
-        "path": "~/.dotfiles/claude/plugins/excalidraw-skills"
+        "path": "~/.dotfiles/claude/plugins/excalidraw-skills",
+        "source": "directory"
+      }
+    },
+    "obsidian-skills": {
+      "source": {
+        "repo": "kepano/obsidian-skills",
+        "source": "github"
       }
     }
   },
-  "effortLevel": "high",
-  "advisorModel": "opus",
-  "editorMode": "vim",
+  "general": {
+    "preferredEditor": "neovim",
+    "previewFeatures": true,
+    "vimMode": true
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "atuin hook claude-code",
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PostToolUse"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "command": "atuin hook claude-code",
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "atuin hook claude-code",
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Bash"
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Read"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Write"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Edit"
+          }
+        ]
+      },
+      {
+        "matcher": "MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/MultiEdit"
+          }
+        ]
+      },
+      {
+        "matcher": "Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Glob"
+          }
+        ]
+      },
+      {
+        "matcher": "Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Grep"
+          }
+        ]
+      },
+      {
+        "matcher": "WebFetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/WebFetch"
+          }
+        ]
+      },
+      {
+        "matcher": "WebSearch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/WebSearch"
+          }
+        ]
+      },
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Task"
+          }
+        ]
+      },
+      {
+        "matcher": "NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/NotebookEdit"
+          }
+        ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/Skill"
+          }
+        ]
+      },
+      {
+        "matcher": "EnterPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working PreToolUse/EnterPlanMode"
+          }
+        ]
+      },
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" input PreToolUse/AskUserQuestion"
+          }
+        ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" input PreToolUse/ExitPlanMode"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" idle SessionStart"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" working UserPromptSubmit"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" idle Stop"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" off SessionEnd"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" input PermissionRequest"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/claude-asus-status/claude_kbd_hook.sh\" idle Notification/idle"
+          }
+        ]
+      }
+    ]
+  },
   "security": {
     "auth": {
       "selectedType": "oauth-personal"
     }
   },
-  "general": {
-    "previewFeatures": true,
-    "vimMode": true,
-    "preferredEditor": "neovim"
-  },
-  "experimental": {
-    "useModelRouter": false
+  "statusLine": {
+    "command": "~/.claude/scripts/context-bar.sh",
+    "type": "command"
   }
 }
