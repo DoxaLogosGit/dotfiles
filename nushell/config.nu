@@ -897,3 +897,4 @@ $env.config = {
     ]
 }
 source "~/.cargo/env.nu"
+source ~/.local/share/atuin/init.nu

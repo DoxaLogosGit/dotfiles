@@ -49,6 +49,9 @@ def _y(*args):
             pass
 aliases['y'] = _y
 
+# Atuin shell history
+execx($(atuin init xonsh))
+
 # Starship prompt
 execx($(starship init xonsh))
 

@@ -1,6 +1,7 @@
 if status is-interactive
     # Commands to run in interactive sessions can go here
 end
+atuin init fish | source
 starship init fish | source
 set -gx NVM_DIR  ~/.nvm
 set -gx PATH $PATH ~/projects/Odin ~/.local/bin ~/.local/bin/yubico-authenticator ~/projects/ols  ~/.cargo/bin ~/.nvm /opt/IDriveForLinux/bin

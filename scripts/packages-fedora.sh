@@ -99,6 +99,8 @@ sudo dnf install -y fish
 source "$(dirname "${BASH_SOURCE[0]}")/install-nushell.sh"
 sudo dnf install -y nushell 2>/dev/null || install_nushell
 sudo dnf install -y xonsh
+info "Installing atuin..."
+cargo install atuin
 
 # Install starship prompt
 info "Installing starship..."

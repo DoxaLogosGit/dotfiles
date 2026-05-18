@@ -60,6 +60,8 @@ sudo apt-get install -yy fish
 source "$(dirname "${BASH_SOURCE[0]}")/install-nushell.sh"
 sudo apt-get install -yy nushell 2>/dev/null || install_nushell
 sudo apt-get install -yy xonsh
+info "Installing atuin..."
+cargo install atuin
 
 # Tmux
 sudo apt-get install -yy tmux

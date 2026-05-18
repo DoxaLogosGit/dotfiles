@@ -1,0 +1,12 @@
+# Atuin configuration — ~/.config/atuin/config.toml
+# https://docs.atuin.sh/cli/configuration/config/
+
+search_mode = "fuzzy"
+
+# Default: search all history; up-arrow: current session only
+filter_mode = "global"
+filter_mode_shell_up_key_binding = "session"
+
+style = "compact"
+inline_height = 20
+show_preview = true

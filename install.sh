@@ -172,6 +172,22 @@ install_symlinks_common() {
     # Xonsh (xonsh writes history — symlink config file only)
     create_symlink "$DOTFILES_DIR/xonsh/xonshrc" "$HOME/.xonshrc"
 
+    # Atuin (atuin manages ~/.config/atuin/ — symlink config file only)
+    create_symlink "$DOTFILES_DIR/atuin/config.toml" "$HOME/.config/atuin/config.toml"
+
+    # Atuin — generate nushell integration file
+    if command -v atuin &>/dev/null; then
+        if [ "$DRY_RUN" = true ]; then
+            info "[DRY-RUN] Would generate: ~/.local/share/atuin/init.nu"
+        else
+            mkdir -p "$HOME/.local/share/atuin"
+            atuin init nu > "$HOME/.local/share/atuin/init.nu"
+            success "Generated: ~/.local/share/atuin/init.nu"
+        fi
+    else
+        warning "atuin not found — skipping nushell init generation (run after installing atuin)"
+    fi
+
     # Zsh (legacy)
     create_symlink "$DOTFILES_DIR/zsh/zshrc" "$HOME/.zshrc"
 
