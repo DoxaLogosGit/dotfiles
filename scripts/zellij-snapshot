@@ -18,7 +18,7 @@ set -euo pipefail
 
 SESSION_DIR="${ZELLIJ_SESSION_DIR:-$HOME/.cache/zellij/contract_version_1/session_info}"
 SNAPSHOT_ROOT="${ZELLIJ_SNAPSHOT_ROOT:-$HOME/.local/share/zellij-snapshots}"
-KEEP="${ZELLIJ_SNAPSHOT_KEEP:-10}"
+KEEP="${ZELLIJ_SNAPSHOT_KEEP:-50}"
 LAST_GOOD_LINK="$SNAPSHOT_ROOT/last-good"
 
 # --- Helpers -----------------------------------------------------------------
@@ -118,6 +118,17 @@ cmd_snapshot() {
     fi
 }
 
+_session_summary() {
+    local layout="$1/session-layout.kdl"
+    [[ -f "$layout" ]] || { printf '(missing)'; return; }
+    local tabs panes names
+    tabs=$(grep -cE '^\s+tab(\s|$)' "$layout" 2>/dev/null || echo 0)
+    # pane command= lines are real user panes; plugin panes are ui chrome
+    panes=$(grep -c 'pane command=' "$layout" 2>/dev/null || echo 0)
+    names=$(grep -oP 'tab name="\K[^"]+' "$layout" 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
+    printf '%dt/%dp [%s]' "$tabs" "$panes" "$names"
+}
+
 cmd_list() {
     [[ -d "$SNAPSHOT_ROOT" ]] || { log "no snapshots yet"; return 0; }
 
@@ -130,17 +141,21 @@ cmd_list() {
     while IFS= read -r snap; do
         local marker=" "
         [[ "$snap" == "$last_good" ]] && marker="*"
-        local sessions
-        sessions=$(find "$SNAPSHOT_ROOT/$snap/session_info" \
-            -maxdepth 1 -mindepth 1 -type d 2>/dev/null | wc -l)
-        printf '%s %s  (%d sessions)\n' "$marker" "$snap" "$sessions"
+        local snap_path="$SNAPSHOT_ROOT/$snap"
+        printf '%s %s\n' "$marker" "$snap"
+        for session_dir in "$snap_path/session_info"/*/; do
+            [[ -d "$session_dir" ]] || continue
+            local sname
+            sname=$(basename "$session_dir")
+            printf '      %-24s  %s\n' "$sname" "$(_session_summary "$session_dir")"
+        done
     done < <(
         find "$SNAPSHOT_ROOT" -maxdepth 1 -mindepth 1 -type d \
             -not -name '.*' -printf '%f\n' | sort
     )
 
     echo
-    echo "  (* = last-good)"
+    echo "  (* = last-good)  t=tabs  p=user panes (command= only)"
 }
 
 cmd_verify() {

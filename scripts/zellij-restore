@@ -7,9 +7,7 @@
 #   zellij-restore <timestamp>      # restore from specific snapshot
 #   zellij-restore --list           # show available snapshots (same as zellij-snapshot --list)
 #
-# IMPORTANT: Zellij should NOT be running when you restore. The script
-# will refuse to proceed if it detects a running zellij process.
-#
+# Any running zellij sessions are killed automatically before restoring.
 
 set -euo pipefail
 
@@ -20,12 +18,25 @@ LAST_GOOD_LINK="$SNAPSHOT_ROOT/last-good"
 log() { printf '[zellij-restore] %s\n' "$*" >&2; }
 die() { log "ERROR: $*"; exit 1; }
 
-# Refuse to clobber state while Zellij is running
-check_zellij_not_running() {
+# Kill any running zellij sessions/server before restoring
+kill_zellij_if_running() {
     local user="${USER:-$(id -un)}"
-    if pgrep -u "$user" -x zellij >/dev/null 2>&1; then
-        die "zellij is running. Detach and run 'zellij kill-all-sessions' first."
+    if ! pgrep -u "$user" -x zellij >/dev/null 2>&1; then
+        return 0
     fi
+    log "zellij is running — killing sessions before restore"
+    zellij kill-all-sessions --yes 2>/dev/null || true
+    # Wait for the server process to exit (up to 5s)
+    local i
+    for (( i = 0; i < 10; i++ )); do
+        pgrep -u "$user" -x zellij >/dev/null 2>&1 || return 0
+        sleep 0.5
+    done
+    # Still running — force kill
+    pkill -u "$user" -x zellij 2>/dev/null || true
+    sleep 0.5
+    pgrep -u "$user" -x zellij >/dev/null 2>&1 && die "could not stop zellij; kill it manually and retry"
+    log "zellij stopped"
 }
 
 usage() {
@@ -40,6 +51,7 @@ Usage:
 The snapshot timestamp format is YYYYMMDDTHHMMSSZ (UTC), e.g.
 20260515T213100Z. Use --list to see what's available.
 
+Any running zellij sessions are killed automatically before restoring.
 A backup of the current session_info is made before restore at
 <session_dir>.pre-restore.<timestamp>
 EOF
@@ -62,7 +74,7 @@ cmd_restore() {
     [[ -d "$snap_path" ]] || die "snapshot not found: $snap_name"
     [[ -d "$snap_path/session_info" ]] || die "snapshot has no session_info: $snap_name"
 
-    check_zellij_not_running
+    kill_zellij_if_running
 
     # Back up current state before clobbering
     if [[ -d "$SESSION_DIR" ]]; then
