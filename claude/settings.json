@@ -1,49 +1,15 @@
 {
-  "advisorModel": "opus",
-  "editorMode": "vim",
-  "effortLevel": "high",
-  "enabledPlugins": {
-    "code-simplifier@claude-plugins-official": true,
-    "excalidraw@excalidraw-skills": true,
-    "frontend-design@claude-plugins-official": true,
-    "obsidian@obsidian-skills": true,
-    "playwright@claude-plugins-official": true,
-    "pyright-lsp@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true
-  },
-  "experimental": {
-    "useModelRouter": false
-  },
-  "extraKnownMarketplaces": {
-    "excalidraw-skills": {
-      "source": {
-        "path": "~/.dotfiles/claude/plugins/excalidraw-skills",
-        "source": "directory"
-      }
-    },
-    "obsidian-skills": {
-      "source": {
-        "repo": "kepano/obsidian-skills",
-        "source": "github"
-      }
-    }
-  },
-  "general": {
-    "preferredEditor": "neovim",
-    "previewFeatures": true,
-    "vimMode": true
-  },
+  "model": "opus",
   "hooks": {
     "PostToolUse": [
       {
+        "matcher": "Bash",
         "hooks": [
           {
-            "command": "atuin hook claude-code",
-            "type": "command"
+            "type": "command",
+            "command": "atuin hook claude-code"
           }
-        ],
-        "matcher": "Bash"
+        ]
       },
       {
         "hooks": [
@@ -56,24 +22,24 @@
     ],
     "PostToolUseFailure": [
       {
+        "matcher": "Bash",
         "hooks": [
           {
-            "command": "atuin hook claude-code",
-            "type": "command"
+            "type": "command",
+            "command": "atuin hook claude-code"
           }
-        ],
-        "matcher": "Bash"
+        ]
       }
     ],
     "PreToolUse": [
       {
+        "matcher": "Bash",
         "hooks": [
           {
-            "command": "atuin hook claude-code",
-            "type": "command"
+            "type": "command",
+            "command": "atuin hook claude-code"
           }
-        ],
-        "matcher": "Bash"
+        ]
       },
       {
         "matcher": "Bash",
@@ -273,13 +239,50 @@
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/scripts/context-bar.sh"
+  },
+  "enabledPlugins": {
+    "code-simplifier@claude-plugins-official": true,
+    "excalidraw@excalidraw-skills": true,
+    "frontend-design@claude-plugins-official": true,
+    "obsidian@obsidian-skills": true,
+    "playwright@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "excalidraw-skills": {
+      "source": {
+        "source": "directory",
+        "path": "~/.dotfiles/claude/plugins/excalidraw-skills"
+      }
+    },
+    "obsidian-skills": {
+      "source": {
+        "source": "github",
+        "repo": "kepano/obsidian-skills"
+      }
+    }
+  },
+  "effortLevel": "high",
+  "advisorModel": "opus",
+  "editorMode": "vim",
+  "skipAutoPermissionPrompt": true,
+  "experimental": {
+    "useModelRouter": false
+  },
+  "general": {
+    "preferredEditor": "neovim",
+    "previewFeatures": true,
+    "vimMode": true
+  },
   "security": {
     "auth": {
       "selectedType": "oauth-personal"
     }
   },
-  "statusLine": {
-    "command": "~/.claude/scripts/context-bar.sh",
-    "type": "command"
-  }
+  "tui": "fullscreen"
 }

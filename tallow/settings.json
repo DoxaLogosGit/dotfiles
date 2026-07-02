@@ -4,5 +4,5 @@
   "enableSkillCommands": false,
   "lastChangelogVersion": "0.9.4",
   "defaultProvider": "ollama",
-  "defaultModel": "minimax-m2.5:cloud"
+  "defaultModel": "minimax-m3:cloud"
 }
