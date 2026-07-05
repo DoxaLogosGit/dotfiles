@@ -9,11 +9,8 @@
         { "id": "granite4.1:8b" },
         { "id": "nemotron-3-super:cloud" },
         { "id": "nemotron-3-ultra:cloud" },
-        { "id": "qwen3-coder-next:cloud" },
-        { "id": "devstral-2:123b-cloud" },
         { "id": "omnicoder-oc" },
         { "id": "minimax-m2.5:cloud" },
-        { "id": "minimax-m2.7:cloud" },
         { "id": "minimax-m3:cloud" },
         { "id": "gemma4:31b-cloud" }
       ]
