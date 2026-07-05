@@ -211,6 +211,9 @@ install_symlinks_common() {
     create_symlink "$DOTFILES_DIR/tallow/models.json" "$HOME/.tallow/models.json"
     create_symlink "$DOTFILES_DIR/tallow/settings.json" "$HOME/.tallow/settings.json"
 
+    # Herdr (herdr manages ~/.config/herdr/ logs + sessions — symlink config file only)
+    create_symlink "$DOTFILES_DIR/herdr/config.toml" "$HOME/.config/herdr/config.toml"
+
     # Scripts
     create_symlink "$DOTFILES_DIR/scripts/reset_last_tmux_resurrect.sh" "$HOME/.local/bin/reset_last_tmux_resurrect.sh"
 

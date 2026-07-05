@@ -53,6 +53,7 @@ Or run interactively:
 - **codex** - OpenAI Codex CLI configuration
 - **pi** - Pi coding agent configuration (`~/.pi/agent`)
 - **tallow** - Tallow coding agent settings
+- **herdr** - Herdr terminal multiplexer settings
 - **ollama** - Local model files and Modelfiles for Ollama (omnicoder, qwen3.5:9b)
 
 ### Other Configs
@@ -116,6 +117,8 @@ Or run interactively:
 ├── tallow/
 │   ├── models.json               # → ~/.tallow/models.json
 │   └── settings.json             # → ~/.tallow/settings.json
+├── herdr/
+│   └── config.toml               # → ~/.config/herdr/config.toml
 ├── vscode/
 │   └── settings.json             # → ~/.config/Code/User/settings.json
 ├── opencode/
