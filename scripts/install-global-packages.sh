@@ -45,7 +45,13 @@ bun install -g @openai/codex
 bun install -g @mariozechner/pi-coding-agent
 bun install -g @dungle-scrubs/tallow
 bun install -g playwright
-bunx playwright install --with-deps
+# --with-deps shells out to apt/dnf for browser system libraries and is
+# Linux-only; on macOS Playwright bundles what it needs.
+if [ "$(uname -s)" = "Darwin" ]; then
+    bunx playwright install
+else
+    bunx playwright install --with-deps
+fi
 bun install -g @playwright/mcp
 
 success "Global packages installed!"
