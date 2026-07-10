@@ -1,2 +1,3 @@
+onboarding = false
 [keys]
-prefix = "ctrl+space"
+#prefix = "ctrl+space"
