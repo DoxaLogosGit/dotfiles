@@ -318,6 +318,13 @@ install_packages() {
         else
             bash "$DOTFILES_DIR/scripts/packages-fedora.sh"
         fi
+    elif [ "$OS_TYPE" = "macos" ]; then
+        info "Installing packages for macOS..."
+        if [ "$DRY_RUN" = true ]; then
+            info "[DRY-RUN] Would run: scripts/packages-macos.sh"
+        else
+            bash "$DOTFILES_DIR/scripts/packages-macos.sh"
+        fi
     else
         error "Unsupported OS type: $OS_TYPE"
         exit 1
