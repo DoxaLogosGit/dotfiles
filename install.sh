@@ -238,13 +238,10 @@ install_symlinks_raspbian() {
     success "Symlinks created!"
 }
 
-# Install symlinks
-install_symlinks() {
-    info "Creating symlinks..."
-
-    mkdir -p "$HOME/.config/Code/User"
-
-    install_symlinks_common "tmux.conf"
+# Desktop/agent symlinks shared by Linux and macOS (Raspbian omits these).
+# $1 = VS Code "User" settings dir (differs by OS).
+install_symlinks_desktop() {
+    local code_user_dir="$1"
 
     # Ghostty (themes/ is tool-managed, gitignored)
     create_symlink "$DOTFILES_DIR/ghostty" "$HOME/.config/ghostty"
@@ -254,13 +251,36 @@ install_symlinks() {
     create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
 
     # VS Code (Code/User is tool-managed — symlink settings file only)
-    create_symlink "$DOTFILES_DIR/vscode/settings.json" "$HOME/.config/Code/User/settings.json"
+    create_symlink "$DOTFILES_DIR/vscode/settings.json" "$code_user_dir/settings.json"
 
     # OpenCode (opencode manages its own dir — symlink config file only)
     create_symlink "$DOTFILES_DIR/opencode/opencode.json" "$HOME/.config/opencode/opencode.json"
 
     # Gemini (gemini manages ~/.gemini/ — symlink settings file only)
     create_symlink "$DOTFILES_DIR/gemini/settings.json" "$HOME/.gemini/settings.json"
+}
+
+# Install symlinks (Linux)
+install_symlinks() {
+    info "Creating symlinks..."
+
+    mkdir -p "$HOME/.config/Code/User"
+
+    install_symlinks_common "tmux.conf"
+    install_symlinks_desktop "$HOME/.config/Code/User"
+
+    success "Symlinks created!"
+}
+
+# Install symlinks (macOS — VS Code settings live under ~/Library)
+install_symlinks_macos() {
+    info "Creating symlinks (macOS)..."
+
+    local code_user_dir="$HOME/Library/Application Support/Code/User"
+    mkdir -p "$code_user_dir"
+
+    install_symlinks_common "tmux.conf"
+    install_symlinks_desktop "$code_user_dir"
 
     success "Symlinks created!"
 }
@@ -466,6 +486,8 @@ main() {
     if [ "$DO_SYMLINKS" = true ]; then
         if [ "$OS_TYPE" = "raspbian" ]; then
             install_symlinks_raspbian
+        elif [ "$OS_TYPE" = "macos" ]; then
+            install_symlinks_macos
         else
             install_symlinks
         fi
@@ -491,4 +513,8 @@ main() {
     success "Done!"
 }
 
-main "$@"
+# Only run main when executed directly, so the functions above can be
+# sourced in isolation (e.g. for testing) without kicking off an install.
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    main "$@"
+fi
