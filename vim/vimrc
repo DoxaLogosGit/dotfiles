@@ -15,13 +15,19 @@ let Tlist_Exist_OnlyWindow = 1 " if you are the last, kill yourself
 let Tlist_File_Fold_Auto_Close = 0 " Do not close tags for other files
 
 filetype off
-call pathogen#incubate()
-call pathogen#helptags()
-execute pathogen#infect()
+" Pathogen is optional: load it only if installed, otherwise plain vim throws
+" E117 (Unknown function: pathogen#...) on every startup.
+if filereadable(expand('~/.vim/autoload/pathogen.vim'))
+    execute pathogen#infect()
+    call pathogen#helptags()
+endif
 
 filetype plugin indent on
 syntax on
-colorscheme jaydark
+" jaydark lives under nvim/colors (symlinked to ~/.config/nvim/colors); add it to
+" runtimepath so plain vim can find it. silent! guards against a missing scheme.
+set runtimepath+=~/.config/nvim
+silent! colorscheme jaydark
 let TE_Use_Right_Window = 1
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Python
