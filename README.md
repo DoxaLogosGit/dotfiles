@@ -71,6 +71,8 @@ Or run interactively:
 │   ├── packages-debian.sh        # Debian/Ubuntu package installation
 │   ├── packages-fedora.sh        # Fedora/RHEL package installation
 │   ├── packages-raspbian.sh      # Raspberry Pi / Raspbian package installation
+│   ├── packages-macos.sh         # macOS package installation (Homebrew)
+│   ├── install-homebrew.sh       # macOS: arch-detect prefix + bootstrap Homebrew
 │   ├── install-global-packages.sh # Node.js (nvm), bun, Rust, and global CLI tools
 │   └── fonts.sh                  # Nerd fonts installation
 ├── fish/
@@ -149,6 +151,12 @@ Plugins are managed by lazy.nvim and will auto-install on first launch.
 - **Debian/Ubuntu** and derivatives
 - **Fedora/RHEL** and derivatives
 - **Raspberry Pi OS (Raspbian)**
+- **macOS** (Apple Silicon or Intel) — installs everything via Homebrew.
+  Two differences from the Linux installs: the `zellij-snapshot` timer is not
+  set up (macOS has no systemd; the snapshot/restore scripts are still linked
+  for manual use), and GUI apps (Ghostty, VS Code) are assumed installed
+  separately — only their configs are linked. Nerd Fonts install as Homebrew
+  casks.
 
 ## License
 

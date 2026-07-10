@@ -4,7 +4,7 @@
 # https://github.com/jgatkinsn/dotfiles
 #
 # This script installs and configures dotfiles on a new system.
-# It supports Debian/Ubuntu and Fedora/RHEL systems.
+# It supports Debian/Ubuntu, Fedora/RHEL, Raspbian, and macOS systems.
 #
 
 set -e
@@ -333,6 +333,31 @@ install_packages() {
 
 # Install fonts
 install_fonts() {
+    if [ "$OS_TYPE" = "macos" ]; then
+        info "Installing Nerd Font casks via Homebrew..."
+        if [ "$DRY_RUN" = true ]; then
+            info "[DRY-RUN] Would run: brew install --cask <nerd-font casks>"
+            return
+        fi
+        # shellcheck source=scripts/install-homebrew.sh
+        source "$DOTFILES_DIR/scripts/install-homebrew.sh"
+        install_homebrew
+        local casks="font-ubuntu-nerd-font font-ubuntu-mono-nerd-font \
+font-symbols-only-nerd-font font-jetbrains-mono-nerd-font \
+font-fira-mono-nerd-font font-fira-code-nerd-font font-adwaita-mono-nerd-font"
+        local cask
+        for cask in $casks; do
+            if brew list --cask "$cask" >/dev/null 2>&1; then
+                info "$cask already installed"
+            else
+                info "Installing $cask..."
+                brew install --cask "$cask"
+            fi
+        done
+        success "Fonts installed via Homebrew casks."
+        return
+    fi
+
     info "Installing nerd fonts..."
     if [ "$DRY_RUN" = true ]; then
         info "[DRY-RUN] Would run: scripts/fonts.sh"
@@ -511,6 +536,8 @@ main() {
     if [ "$DO_SYSTEMD" = true ]; then
         if [ "$OS_TYPE" = "raspbian" ]; then
             info "Skipping systemd units on Raspbian."
+        elif [ "$OS_TYPE" = "macos" ]; then
+            info "Skipping systemd units on macOS (no systemd; zellij-snapshot scripts still symlinked for manual use)."
         else
             install_systemd_units
         fi
