@@ -24,10 +24,21 @@ sudo dnf update -y
 sudo dnf install -y cmake
 sudo dnf install -y make
 sudo dnf install -y gcc-c++
+sudo dnf install -y curl
+
+# perl-core is required before Rust: several crates' build scripts
+# (e.g. openssl-sys) need perl to compile.
+sudo dnf install -y perl-core
+
+# Rust via rustup. We do NOT install the Fedora rust/cargo package — it
+# conflicts with rustup and lags behind, and some crates need a newer
+# compiler. Install rustup first so every `cargo install` below uses it.
+# shellcheck source=install-rust.sh
+source "$(dirname "${BASH_SOURCE[0]}")/install-rust.sh"
+install_rust
 
 # Languages
 sudo dnf install -y clang
-sudo dnf install -y rust cargo
 sudo dnf install -y clang-devel
 
 # Install zellij via cargo
@@ -102,9 +113,9 @@ sudo dnf install -y xonsh
 info "Installing atuin..."
 cargo install atuin
 
-# Install starship prompt
+# Install starship prompt (via rustup's cargo, built from source)
 info "Installing starship..."
-curl -sS https://starship.rs/install.sh | sh -s -- -y
+cargo install starship --locked
 
 # Install yazi
 info "Installing yazi..."

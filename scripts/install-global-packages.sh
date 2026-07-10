@@ -29,10 +29,12 @@ curl -fsSL https://bun.sh/install | bash
 export PATH="$HOME/.bun/bin:$PATH"
 
 # ── Rust via rustup ──────────────────────────────────────────────────────────
+# Idempotent: the package scripts install rust earlier so cargo installs use
+# rustup's toolchain; this is a no-op (just an update) when already installed.
 
-info "Installing Rust via rustup..."
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-. "$HOME/.cargo/env"
+# shellcheck source=install-rust.sh
+source "$(dirname "${BASH_SOURCE[0]}")/install-rust.sh"
+install_rust
 
 # ── Global packages ───────────────────────────────────────────────────────────
 

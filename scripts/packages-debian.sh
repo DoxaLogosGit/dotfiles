@@ -36,6 +36,17 @@ sudo apt-get install -yy wget
 sudo apt-get install -yy curl
 sudo apt-get install -yy vifm
 
+# perl is required before Rust: several crates' build scripts
+# (e.g. openssl-sys) need perl to compile.
+sudo apt-get install -yy perl
+
+# Rust via rustup. We do NOT install the distro rustc/cargo package — it
+# conflicts with rustup and lags behind, and some crates need a newer
+# compiler. Install rustup first so every `cargo install` below uses it.
+# shellcheck source=install-rust.sh
+source "$(dirname "${BASH_SOURCE[0]}")/install-rust.sh"
+install_rust
+
 # Editors
 sudo apt-get install -yy vim-gtk
 sudo apt-get install -yy neovim
@@ -72,7 +83,6 @@ sudo apt-get install -yy btop || info "btop not in repos, install manually"
 
 # Development tools
 sudo apt-get install -yy clang
-sudo apt-get install -yy rustc cargo || true
 
 # Install zellij via cargo
 info "Installing zellij..."
@@ -81,9 +91,9 @@ cargo install zellij
 # Python tools
 sudo pip3 install tldr || true
 
-# Install starship prompt
+# Install starship prompt (via rustup's cargo, built from source)
 info "Installing starship..."
-curl -sS https://starship.rs/install.sh | sh -s -- -y
+cargo install starship --locked
 
 # Install rust-analyzer
 info "Installing rust-analyzer..."
