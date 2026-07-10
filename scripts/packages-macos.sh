@@ -74,6 +74,12 @@ brew_install uv
 source "$SCRIPT_DIR/install-rust.sh"
 install_rust
 
+# Rust TUI tools not in Homebrew (tudiff: terminal diff; herdr: AI agent
+# workspace manager) — installed via rustup's cargo.
+info "Installing tudiff and herdr..."
+cargo install tudiff
+cargo install herdr
+
 # Python LSP / lint tools via uv (macOS Python is externally managed — no sudo pip).
 info "Installing Python tools via uv..."
 uv tool install jedi-language-server || true

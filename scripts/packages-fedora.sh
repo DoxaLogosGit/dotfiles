@@ -117,6 +117,11 @@ cargo install atuin
 info "Installing starship..."
 cargo install starship --locked
 
+# Rust TUI tools (tudiff: terminal diff; herdr: AI agent workspace manager)
+info "Installing tudiff and herdr..."
+cargo install tudiff
+cargo install herdr
+
 # Install yazi
 info "Installing yazi..."
 wget -q https://github.com/sxyazi/yazi/releases/download/v25.4.8/yazi-x86_64-unknown-linux-gnu.zip -O /tmp/yazi.zip

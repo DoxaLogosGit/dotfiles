@@ -95,6 +95,11 @@ sudo pip3 install tldr || true
 info "Installing starship..."
 cargo install starship --locked
 
+# Rust TUI tools (tudiff: terminal diff; herdr: AI agent workspace manager)
+info "Installing tudiff and herdr..."
+cargo install tudiff
+cargo install herdr
+
 # Install rust-analyzer
 info "Installing rust-analyzer..."
 mkdir -p ~/.local/bin

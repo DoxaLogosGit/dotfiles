@@ -59,6 +59,11 @@ sudo apt-get install -yy rustc cargo || warning "rust/cargo not available, skipp
 info "Installing zellij (this will take a while on Pi hardware)..."
 cargo install zellij || warning "zellij install failed"
 
+# Rust TUI tools (tudiff: terminal diff; herdr: AI agent workspace manager)
+info "Installing tudiff and herdr (slow to compile on Pi hardware)..."
+cargo install tudiff || warning "tudiff install failed"
+cargo install herdr || warning "herdr install failed"
+
 # zoxide — used in fish config
 sudo apt-get install -yy zoxide || warning "zoxide not available, skipping"
 
