@@ -27,6 +27,15 @@ error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # Detect OS
 detect_os() {
+    # macOS has none of the Linux /etc/os-release files; detect it first.
+    if [ "$(uname -s)" = "Darwin" ]; then
+        OS="macos"
+        OS_FAMILY="darwin"
+        OS_TYPE="macos"
+        info "Detected OS: macOS (type: macos)"
+        return
+    fi
+
     if [ -f /etc/os-release ]; then
         . /etc/os-release
         OS=$ID
