@@ -58,6 +58,7 @@ sudo apt-get install -yy bat
 sudo apt-get install -yy ffmpeg
 sudo apt-get install -yy p7zip-full || sudo apt-get install -yy 7zip
 sudo apt-get install -yy jq
+sudo apt-get install -yy shellcheck
 sudo apt-get install -yy poppler-utils
 sudo apt-get install -yy fd-find
 sudo apt-get install -yy ripgrep

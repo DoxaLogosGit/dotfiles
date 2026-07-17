@@ -28,7 +28,7 @@ sudo apt-get install -yy \
     python3-dev python3-pip python3-venv
 
 # Neovim + deps needed by the lua/lsp config
-sudo apt-get install -yy neovim lua5.4 ripgrep fd-find fzf jq bat clang
+sudo apt-get install -yy neovim lua5.4 ripgrep fd-find fzf jq bat clang shellcheck
 
 # Fish
 sudo apt-get install -yy fish

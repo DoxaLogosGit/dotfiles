@@ -62,6 +62,7 @@ sudo dnf install -y poppler
 sudo dnf install -y ffmpeg
 sudo dnf install -y jq
 sudo dnf install -y yq || true
+sudo dnf install -y ShellCheck
 sudo dnf install -y moreutils
 sudo dnf install -y asciinema
 
