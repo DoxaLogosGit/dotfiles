@@ -42,6 +42,22 @@ brew_install() {
     done
 }
 
+# Guarded brew cask install: skip if already present so re-runs don't trip set -e.
+brew_install_cask() {
+    local cask
+    for cask in "$@"; do
+        if brew list --cask "$cask" >/dev/null 2>&1; then
+            info "$cask already installed"
+        else
+            info "Installing $cask..."
+            brew install --cask "$cask"
+        fi
+    done
+}
+
+# GUI apps
+brew_install_cask ghostty
+
 # Editors + multiplexers
 brew_install neovim vim tmux zellij
 

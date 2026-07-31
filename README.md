@@ -156,8 +156,8 @@ Plugins are managed by lazy.nvim and will auto-install on first launch.
   macOS default) with oh-my-zsh instead of installing fish/nushell/xonsh, the
   `zellij-snapshot` timer is not set up (macOS has no systemd; the
   snapshot/restore scripts are still linked for manual use), and GUI apps
-  (Ghostty, VS Code) are assumed installed separately — only their configs
-  are linked. Nerd Fonts install as Homebrew casks.
+  install as Homebrew casks (Ghostty, Nerd Fonts) except VS Code, which is
+  assumed installed separately — only its config is linked.
 
 ## License
 
