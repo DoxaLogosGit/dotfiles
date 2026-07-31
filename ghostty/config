@@ -1,3 +1,4 @@
 shell-integration = fish
 theme = dark:Firefly Traditional,light:Galaxy
 font-family = JetBrainsMono Nerd Font
+confirm-close-surface = false

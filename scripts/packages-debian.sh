@@ -96,10 +96,10 @@ sudo pip3 install tldr || true
 info "Installing starship..."
 cargo install starship --locked
 
-# Rust TUI tools (tudiff: terminal diff; herdr: AI agent workspace manager)
-info "Installing tudiff and herdr..."
-cargo install tudiff
-cargo install herdr
+# Rust TUI tools
+# shellcheck source=install-rust-tools.sh
+source "$(dirname "${BASH_SOURCE[0]}")/install-rust-tools.sh"
+install_rust_tools
 
 # Install rust-analyzer
 info "Installing rust-analyzer..."

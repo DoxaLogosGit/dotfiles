@@ -25,5 +25,6 @@
         "https://biomejs.dev": true
     },
     "claudeContextBar.refreshInterval": 80,
-    "security.workspace.trust.untrustedFiles": "open"
+    "security.workspace.trust.untrustedFiles": "open",
+    "todo-tree.ripgrep.ripgrep": "/usr/bin/rg"
 }
