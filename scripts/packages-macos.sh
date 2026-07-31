@@ -64,6 +64,10 @@ brew_install neovim vim tmux zellij
 # Prompt + shell history
 brew_install starship atuin
 
+# herdr (AI agent workspace manager) — fails to compile from source on
+# macOS, so it's installed via Homebrew here instead of install-rust-tools.sh.
+brew_install herdr
+
 # Core CLI utilities
 brew_install bat fd ripgrep fzf eza zoxide yazi jq yq glow moreutils p7zip shellcheck
 
@@ -90,7 +94,7 @@ install_rust
 # Rust TUI tools not in Homebrew — installed via rustup's cargo.
 # shellcheck source=install-rust-tools.sh
 source "$SCRIPT_DIR/install-rust-tools.sh"
-install_rust_tools
+install_rust_tools tudiff tuicr
 
 # oh-my-zsh (macOS already defaults to zsh — no other shells installed here).
 # shellcheck source=install-oh-my-zsh.sh

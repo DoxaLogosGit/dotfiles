@@ -62,7 +62,7 @@ cargo install zellij || warning "zellij install failed"
 # Rust TUI tools (slow to compile on Pi hardware)
 # shellcheck source=install-rust-tools.sh
 source "$(dirname "${BASH_SOURCE[0]}")/install-rust-tools.sh"
-install_rust_tools
+install_rust_tools tudiff herdr tuicr
 
 # zoxide — used in fish config
 sudo apt-get install -yy zoxide || warning "zoxide not available, skipping"

@@ -99,7 +99,7 @@ cargo install starship --locked
 # Rust TUI tools
 # shellcheck source=install-rust-tools.sh
 source "$(dirname "${BASH_SOURCE[0]}")/install-rust-tools.sh"
-install_rust_tools
+install_rust_tools tudiff herdr tuicr
 
 # Install rust-analyzer
 info "Installing rust-analyzer..."
