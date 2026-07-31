@@ -29,10 +29,10 @@ Or run interactively:
 ## What's Included
 
 ### Shells
-- **Fish** - Primary shell with starship prompt
+- **Fish** - Primary shell with starship prompt (Linux)
 - **Bash** - Bash configuration with aliases
-- **Nushell** - Modern shell alternative
-- **Zsh** - Legacy configuration
+- **Nushell** - Modern shell alternative (Linux)
+- **Zsh** - macOS shell (oh-my-zsh + starship/atuin/zoxide/mise integrations)
 
 ### Editors
 - **Neovim** - Primary editor with lazy.nvim plugin manager
@@ -135,7 +135,7 @@ Or run interactively:
 
 ## Post-Installation
 
-### Set Fish as Default Shell
+### Set Fish as Default Shell (Linux)
 ```bash
 chsh -s /usr/bin/fish
 ```
@@ -152,11 +152,12 @@ Plugins are managed by lazy.nvim and will auto-install on first launch.
 - **Fedora/RHEL** and derivatives
 - **Raspberry Pi OS (Raspbian)**
 - **macOS** (Apple Silicon or Intel) — installs everything via Homebrew.
-  Two differences from the Linux installs: the `zellij-snapshot` timer is not
-  set up (macOS has no systemd; the snapshot/restore scripts are still linked
-  for manual use), and GUI apps (Ghostty, VS Code) are assumed installed
-  separately — only their configs are linked. Nerd Fonts install as Homebrew
-  casks.
+  Differences from the Linux installs: shell setup targets zsh (already the
+  macOS default) with oh-my-zsh instead of installing fish/nushell/xonsh, the
+  `zellij-snapshot` timer is not set up (macOS has no systemd; the
+  snapshot/restore scripts are still linked for manual use), and GUI apps
+  (Ghostty, VS Code) are assumed installed separately — only their configs
+  are linked. Nerd Fonts install as Homebrew casks.
 
 ## License
 

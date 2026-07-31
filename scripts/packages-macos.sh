@@ -42,9 +42,6 @@ brew_install() {
     done
 }
 
-# Shells
-brew_install fish nushell xonsh
-
 # Editors + multiplexers
 brew_install neovim vim tmux zellij
 
@@ -79,6 +76,11 @@ install_rust
 source "$SCRIPT_DIR/install-rust-tools.sh"
 install_rust_tools
 
+# oh-my-zsh (macOS already defaults to zsh — no other shells installed here).
+# shellcheck source=install-oh-my-zsh.sh
+source "$SCRIPT_DIR/install-oh-my-zsh.sh"
+install_oh_my_zsh
+
 # Python LSP / lint tools via uv (macOS Python is externally managed — no sudo pip).
 info "Installing Python tools via uv..."
 uv tool install jedi-language-server || true
@@ -100,11 +102,6 @@ else
     success "TPM installed!"
 fi
 
-# Fisher (fish plugin manager) + plugins from fish_plugins.
-# shellcheck source=install-fisher.sh
-source "$SCRIPT_DIR/install-fisher.sh"
-install_fisher
-
 # Required directories
 mkdir -p "$HOME/.vim-tmp"
 mkdir -p "$HOME/.tmp"
@@ -114,6 +111,4 @@ success "Package installation complete!"
 
 echo ""
 info "To install tmux plugins, start tmux and press: prefix + I (capital i)"
-info "Set fish as your default shell:"
-info "  echo \"$HOMEBREW_PREFIX/bin/fish\" | sudo tee -a /etc/shells"
-info "  chsh -s \"$HOMEBREW_PREFIX/bin/fish\""
+info "zsh is already the default shell on macOS — nothing to chsh."
