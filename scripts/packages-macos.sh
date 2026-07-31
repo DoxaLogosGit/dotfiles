@@ -49,7 +49,7 @@ brew_install neovim vim tmux zellij
 brew_install starship atuin
 
 # Core CLI utilities
-brew_install bat fd ripgrep fzf eza zoxide yazi jq yq glow moreutils p7zip asciinema shellcheck
+brew_install bat fd ripgrep fzf eza zoxide yazi jq yq glow moreutils p7zip shellcheck
 
 # System monitoring
 brew_install htop btop fastfetch procs progress glances ncdu duf

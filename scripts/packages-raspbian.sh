@@ -82,6 +82,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 nvm install --lts && nvm use --lts || warning "node install failed"
 npm install -g @mariozechner/pi-coding-agent || warning "pi-coding-agent install failed"
+npm install -g opencode-ai || warning "opencode install failed"
 
 # Python LSP tools
 pip3 install --break-system-packages jedi_language_server flake8 || true
