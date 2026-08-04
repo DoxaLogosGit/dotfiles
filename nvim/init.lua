@@ -77,7 +77,15 @@ require("lazy").setup({
 
   -- Treesitter
   { 'nvim-treesitter/nvim-treesitter',
+    branch = 'main',
     build = ':TSUpdate',
+    config = function()
+      require('nvim-treesitter').install({ 'rust', 'toml' })
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = { 'rust', 'toml' },
+        callback = function() vim.treesitter.start() end,
+      })
+    end
   },
 
   -- Markdown support
@@ -100,7 +108,10 @@ require("lazy").setup({
   { 'williamboman/mason-lspconfig.nvim',
     dependencies = { 'williamboman/mason.nvim' },
     config = function()
-      require("mason-lspconfig").setup()
+      -- rust_analyzer is managed by rustaceanvim (via rustup), not Mason
+      require("mason-lspconfig").setup({
+        automatic_enable = { exclude = { "rust_analyzer" } },
+      })
     end
   },
   { 'neovim/nvim-lspconfig',
@@ -108,7 +119,42 @@ require("lazy").setup({
       vim.lsp.enable('jedi_language_server')
       vim.lsp.enable('clangd')
       vim.lsp.enable('ols')
-      vim.lsp.enable('rust_analyzer')
+    end
+  },
+
+  -- Rust
+  { 'mrcjkb/rustaceanvim',
+    version = '^6',
+    lazy = false,
+    config = function()
+      vim.g.rustaceanvim = {
+        server = {
+          default_settings = {
+            ['rust-analyzer'] = {
+              check = { command = 'clippy' },
+              cargo = { allFeatures = true },
+              procMacro = { enable = true },
+              inlayHints = {
+                lifetimeElisionHints = { enable = 'skip_trivial' },
+                closureReturnTypeHints = { enable = 'with_block' },
+              },
+            },
+          },
+        },
+      }
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = 'rust',
+        callback = function(ev)
+          local map = function(k, cmd) vim.keymap.set('n', k, cmd, { buffer = ev.buf }) end
+          map('<leader>a', function() vim.cmd.RustLsp('codeAction') end)
+          map('<leader>rr', function() vim.cmd.RustLsp('runnables') end)
+          map('<leader>rt', function() vim.cmd.RustLsp('testables') end)
+          map('<leader>re', function() vim.cmd.RustLsp('explainError') end)
+          map('<leader>rd', function() vim.cmd.RustLsp('renderDiagnostic') end)
+          map('<leader>rm', function() vim.cmd.RustLsp('expandMacro') end)
+          vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+        end,
+      })
     end
   },
 

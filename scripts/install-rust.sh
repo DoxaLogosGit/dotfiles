@@ -29,5 +29,9 @@ install_rust() {
     [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
     export PATH="$HOME/.cargo/bin:$PATH"
 
+    # rust-analyzer via rustup stays version-matched to the active toolchain
+    # (nvim's rustaceanvim config relies on this rather than a Mason install).
+    rustup component add rust-analyzer clippy rustfmt
+
     success "Rust toolchain ready ($(rustc --version 2>/dev/null || echo 'rustc not on PATH'))"
 }

@@ -101,11 +101,9 @@ cargo install starship --locked
 source "$(dirname "${BASH_SOURCE[0]}")/install-rust-tools.sh"
 install_rust_tools tudiff herdr tuicr
 
-# Install rust-analyzer
-info "Installing rust-analyzer..."
-mkdir -p ~/.local/bin
-curl -L https://github.com/rust-lang/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer
-chmod +x ~/.local/bin/rust-analyzer
+# rust-analyzer comes from `rustup component add` in install-rust.sh, not a
+# standalone binary here — that stays version-matched to the active toolchain
+# and avoids shadowing the rustup one on PATH.
 
 # Python LSP tools
 pip install jedi_language_server || pip3 install jedi_language_server

@@ -78,7 +78,7 @@ brew_install htop btop fastfetch procs progress glances ncdu duf
 brew_install wget curl mtr ipcalc
 
 # Toolchain / runtime / media
-brew_install mise rust-analyzer lua imagemagick poppler ffmpeg lazydocker
+brew_install mise lua imagemagick poppler ffmpeg lazydocker
 
 # Docs + lint
 brew_install tldr vale
