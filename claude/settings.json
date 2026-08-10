@@ -1,5 +1,5 @@
 {
-  "model": "sonnet",
+  "model": "opus",
   "hooks": {
     "Notification": [
       {
@@ -262,7 +262,8 @@
     "pyright-lsp@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "simple-english@simple-english": true
   },
   "extraKnownMarketplaces": {
     "excalidraw-skills": {
@@ -275,6 +276,12 @@
       "source": {
         "source": "github",
         "repo": "kepano/obsidian-skills"
+      }
+    },
+    "simple-english": {
+      "source": {
+        "source": "github",
+        "repo": "AminBlg/SimpleEnglish"
       }
     }
   },

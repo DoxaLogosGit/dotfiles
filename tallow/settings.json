@@ -4,5 +4,5 @@
   "enableSkillCommands": false,
   "lastChangelogVersion": "0.9.4",
   "defaultProvider": "ollama",
-  "defaultModel": "nemotron-3-ultra:cloud"
+  "defaultModel": "minimax-m3:cloud"
 }

@@ -5,9 +5,12 @@
       "apiKey": "ollama",
       "baseUrl": "http://localhost:11434/v1",
       "models": [
-        {
-          "id": "qwen35-9b-pi"
-        },
+        { "id": "qwen35-pi" },
+        { "id": "granite4.1:8b" },
+        { "id": "nemotron-3-super:cloud" },
+        { "id": "nemotron-3-ultra:cloud" },
+        { "id": "minimax-m3:cloud" },
+        { "id": "gemma4:31b-cloud" },
         {
           "id": "omnicoder-oc"
         },
