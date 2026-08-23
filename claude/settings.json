@@ -289,6 +289,7 @@
   "advisorModel": "opus",
   "tui": "fullscreen",
   "editorMode": "vim",
+  "agentPushNotifEnabled": false,
   "skipAutoPermissionPrompt": true,
   "experimental": {
     "useModelRouter": false
@@ -302,5 +303,6 @@
     "auth": {
       "selectedType": "oauth-personal"
     }
-  }
+  },
+  "remoteControlAtStartup": true
 }
