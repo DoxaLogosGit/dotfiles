@@ -67,11 +67,10 @@ sudo apt-get install -yy zoxide
 sudo apt-get install -yy imagemagick
 
 # Shells
-sudo apt-get install -yy fish
+sudo apt-get install -yy zsh
 # shellcheck source=install-nushell.sh
 source "$(dirname "${BASH_SOURCE[0]}")/install-nushell.sh"
 sudo apt-get install -yy nushell 2>/dev/null || install_nushell
-sudo apt-get install -yy xonsh
 info "Installing atuin..."
 cargo install atuin
 
@@ -144,10 +143,10 @@ else
     success "TPM installed!"
 fi
 
-# Install Fisher
-# shellcheck source=install-fisher.sh
-source "$(dirname "${BASH_SOURCE[0]}")/install-fisher.sh"
-install_fisher
+# Install oh-my-zsh + its custom plugins
+# shellcheck source=install-oh-my-zsh.sh
+source "$(dirname "${BASH_SOURCE[0]}")/install-oh-my-zsh.sh"
+install_oh_my_zsh
 
 # Create required directories
 mkdir -p $HOME/.vim-tmp
@@ -157,4 +156,4 @@ success "Package installation complete!"
 
 echo ""
 info "To install tmux plugins, start tmux and press: prefix + I (capital i)"
-info "Don't forget to set up fish as your default shell: chsh -s /usr/bin/fish"
+info "Don't forget to set up zsh as your default shell: chsh -s /usr/bin/zsh"

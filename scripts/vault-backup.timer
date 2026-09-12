@@ -1,0 +1,19 @@
+[Unit]
+Description=Periodic Obsidian vault backup
+Documentation=https://gitlab.com/DoxaLogos/obsidian-notes
+
+[Timer]
+# Every 30 minutes on the clock, matching the interval the Obsidian Git
+# plugin used (autoSaveInterval: 30).
+OnCalendar=*:0/30
+
+# Catch up one missed run after the machine was off or suspended. The plugin
+# could not do this: it only ran while Obsidian was open.
+Persistent=true
+
+AccuracySec=1min
+
+Unit=vault-backup.service
+
+[Install]
+WantedBy=timers.target

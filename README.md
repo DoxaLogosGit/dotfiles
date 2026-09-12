@@ -29,10 +29,10 @@ Or run interactively:
 ## What's Included
 
 ### Shells
-- **Fish** - Primary shell with starship prompt (Linux)
+- **Zsh** - Primary shell (oh-my-zsh + autosuggestions/syntax-highlighting,
+  starship/atuin/zoxide/mise integrations, fzf key bindings)
 - **Bash** - Bash configuration with aliases
 - **Nushell** - Modern shell alternative (Linux)
-- **Zsh** - macOS shell (oh-my-zsh + starship/atuin/zoxide/mise integrations)
 
 ### Editors
 - **Neovim** - Primary editor with lazy.nvim plugin manager
@@ -75,13 +75,8 @@ Or run interactively:
 │   ├── install-homebrew.sh       # macOS: arch-detect prefix + bootstrap Homebrew
 │   ├── install-global-packages.sh # Node.js (nvm), bun, Rust, and global CLI tools
 │   └── fonts.sh                  # Nerd fonts installation
-├── fish/
-│   ├── config.fish               # → ~/.config/fish/config.fish
-│   ├── fish_plugins              # → ~/.config/fish/fish_plugins
-│   └── functions/                # → ~/.config/fish/functions/
-│       ├── zeldump.fish          #   dump current zellij session
-│       ├── zm.fish               #   attach/create named zellij session
-│       └── zw.fish               #   switch zellij session
+├── zsh/
+│   └── zshrc                     # → ~/.zshrc  (primary shell config)
 ├── zellij/
 │   ├── config.kdl                # → ~/.config/zellij/config.kdl
 │   └── layouts/
@@ -103,8 +98,6 @@ Or run interactively:
 │   └── gitconfig                 # → ~/.gitconfig
 ├── nushell/
 │   └── config.nu                 # → ~/.config/nushell/config.nu
-├── zsh/
-│   └── zshrc                     # → ~/.zshrc
 ├── python/
 │   └── pylintrc                  # → ~/.pylintrc
 ├── bash/
@@ -135,10 +128,18 @@ Or run interactively:
 
 ## Post-Installation
 
-### Set Fish as Default Shell (Linux)
+### Set Zsh as Default Shell (Linux)
 ```bash
-chsh -s /usr/bin/fish
+chsh -s /usr/bin/zsh
 ```
+macOS already defaults to zsh — nothing to do there.
+
+Shell helpers defined in `zsh/zshrc`: `ll`, `c` / `cw` (Claude personal/work
+config dirs), `y` (yazi, cd on exit), `zm` / `zw` (attach named zellij
+sessions), `zdump` (dump the attached session's layout).
+
+Machine-local additions that shouldn't be committed go in `~/.zshrc.local`,
+which `zshrc` sources last if present.
 
 ### Install Tmux Plugins
 After starting tmux, press `prefix + I` (that's `Ctrl-A` then `Shift-I`) to install plugins via TPM.
@@ -153,7 +154,7 @@ Plugins are managed by lazy.nvim and will auto-install on first launch.
 - **Raspberry Pi OS (Raspbian)**
 - **macOS** (Apple Silicon or Intel) — installs everything via Homebrew.
   Differences from the Linux installs: shell setup targets zsh (already the
-  macOS default) with oh-my-zsh instead of installing fish/nushell/xonsh, the
+  macOS default) with oh-my-zsh and does not install nushell, the
   `zellij-snapshot` timer is not set up (macOS has no systemd; the
   snapshot/restore scripts are still linked for manual use), and GUI apps
   install as Homebrew casks (Ghostty, Nerd Fonts) except VS Code, which is

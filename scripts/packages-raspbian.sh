@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Package installation for Raspbian (Trixie / Debian 13) on Raspberry Pi
-# Core: neovim, tmux, fish. Everything else is best-effort.
+# Core: neovim, tmux, zsh. Everything else is best-effort.
 # Called by install.sh
 #
 
@@ -30,8 +30,8 @@ sudo apt-get install -yy \
 # Neovim + deps needed by the lua/lsp config
 sudo apt-get install -yy neovim lua5.4 ripgrep fd-find fzf jq bat clang shellcheck
 
-# Fish
-sudo apt-get install -yy fish
+# Zsh
+sudo apt-get install -yy zsh
 
 # Tmux
 sudo apt-get install -yy tmux
@@ -46,11 +46,11 @@ else
     success "TPM installed"
 fi
 
-# ── Fisher (Fish plugin manager) ─────────────────────────────────────────────
+# ── oh-my-zsh (+ autosuggestions / syntax-highlighting) ──────────────────────
 
-# shellcheck source=install-fisher.sh
-source "$(dirname "${BASH_SOURCE[0]}")/install-fisher.sh"
-install_fisher
+# shellcheck source=install-oh-my-zsh.sh
+source "$(dirname "${BASH_SOURCE[0]}")/install-oh-my-zsh.sh"
+install_oh_my_zsh
 
 # ── Best-effort extras ───────────────────────────────────────────────────────
 
@@ -64,7 +64,7 @@ cargo install zellij || warning "zellij install failed"
 source "$(dirname "${BASH_SOURCE[0]}")/install-rust-tools.sh"
 install_rust_tools tudiff herdr tuicr
 
-# zoxide — used in fish config
+# zoxide — used in zsh config
 sudo apt-get install -yy zoxide || warning "zoxide not available, skipping"
 
 # htop
@@ -87,7 +87,7 @@ npm install -g opencode-ai || warning "opencode install failed"
 # Python LSP tools
 pip3 install --break-system-packages jedi_language_server flake8 || true
 
-# eza (ll alias in fish config) — aarch64 only; armv7 build name differs
+# eza (ll alias in zsh config) — aarch64 only; armv7 build name differs
 if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
     info "Installing eza..."
     wget -q "https://github.com/eza-community/eza/releases/download/v0.21.1/eza_aarch64-unknown-linux-gnu.zip" -O /tmp/eza.zip \
@@ -105,6 +105,6 @@ mkdir -p "$HOME/.vim-tmp" "$HOME/.tmp"
 
 success "Raspbian package installation complete!"
 echo ""
-info "Set fish as default shell: chsh -s /usr/bin/fish"
+info "Set zsh as default shell: chsh -s /usr/bin/zsh"
 info "Install tmux plugins: start tmux, then prefix + I"
 info "Neovim plugins install automatically on first launch via lazy.nvim"

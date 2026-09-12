@@ -5,24 +5,66 @@
       "apiKey": "ollama",
       "baseUrl": "http://localhost:11434/v1",
       "models": [
-        { "id": "qwen35-pi" },
-        { "id": "granite4.1:8b" },
-        { "id": "nemotron-3-super:cloud" },
-        { "id": "nemotron-3-ultra:cloud" },
-        { "id": "minimax-m3:cloud" },
-        { "id": "gemma4:31b-cloud" },
         {
-          "id": "omnicoder-oc"
+          "id": "qwen35-pi",
+          "contextWindow": 262144,
+          "reasoning": true,
+          "input": ["text", "image"]
+        },
+        {
+          "id": "granite4.1:8b",
+          "contextWindow": 131072,
+          "reasoning": false,
+          "input": ["text"]
+        },
+        {
+          "id": "omnicoder-oc",
+          "contextWindow": 262144,
+          "reasoning": true,
+          "input": ["text"]
+        },
+        {
+          "id": "nemotron-3-ultra:cloud",
+          "contextWindow": 262144,
+          "reasoning": true,
+          "input": ["text"]
+        },
+        {
+          "id": "nemotron-3-super:cloud",
+          "contextWindow": 262144,
+          "reasoning": true,
+          "input": ["text"]
+        },
+        {
+          "id": "nemotron-3-nano:30b-cloud",
+          "contextWindow": 262144,
+          "reasoning": true,
+          "input": ["text"]
+        },
+        {
+          "id": "gemma4:31b-cloud",
+          "contextWindow": 262144,
+          "reasoning": true,
+          "input": ["text", "image"]
+        },
+        {
+          "id": "gpt-oss:20b-cloud",
+          "contextWindow": 131072,
+          "reasoning": true,
+          "input": ["text"]
+        },
+        {
+          "id": "minimax-m3:cloud",
+          "contextWindow": 524288,
+          "reasoning": true,
+          "input": ["text", "image"]
         },
         {
           "_launch": true,
-          "contextWindow": 262144,
           "id": "qwen3.5:cloud",
-          "input": [
-            "text",
-            "image"
-          ],
-          "reasoning": true
+          "contextWindow": 262144,
+          "reasoning": true,
+          "input": ["text", "image"]
         }
       ]
     }

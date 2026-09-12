@@ -1,38 +1,137 @@
 # ~/.zshrc
 
-# Homebrew (Apple Silicon or Intel — no-op if brew isn't installed)
+# ── Homebrew (Apple Silicon or Intel — no-op if brew isn't installed) ─────────
 if [[ -x /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [[ -x /usr/local/bin/brew ]]; then
     eval "$(/usr/local/bin/brew shellenv)"
 fi
 
-# oh-my-zsh
+# TERM is set before oh-my-zsh: its key bindings read terminfo for whatever
+# TERM is in effect when it loads.
+export TERM="xterm-256color"
+
+# ── oh-my-zsh ────────────────────────────────────────────────────────────────
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME=""  # starship (below) owns the prompt
-plugins=(git vi-mode tmux colorize colored-man-pages dirhistory)
+# zsh-syntax-highlighting must stay last.
+plugins=(
+    git
+    tmux
+    colorize
+    colored-man-pages
+    dirhistory
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+)
 [[ -f "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
 
+# ── Completion behaviour ─────────────────────────────────────────────────────
+# Arrow-key menu, case-insensitive + substring + fuzzy path matching.
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
+setopt AUTO_CD                 # `cd` optional for a bare directory name
+setopt EXTENDED_GLOB
+setopt INTERACTIVE_COMMENTS
+setopt HIST_IGNORE_ALL_DUPS HIST_REDUCE_BLANKS SHARE_HISTORY
+
+# Home/End/Delete — terminals disagree on these escapes, so bind both forms.
+bindkey '^[[H'  beginning-of-line
+bindkey '^[OH'  beginning-of-line
+bindkey '^[[1~' beginning-of-line
+bindkey '^[[F'  end-of-line
+bindkey '^[OF'  end-of-line
+bindkey '^[[4~' end-of-line
+bindkey '^[[3~' delete-char
+bindkey '^[[1;5C' forward-word      # Ctrl+Right
+bindkey '^[[1;5D' backward-word     # Ctrl+Left
+
+# ── Environment ──────────────────────────────────────────────────────────────
 export EDITOR="nvim"
-export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
-
-# bun
+export NVM_DIR="$HOME/.nvm"
+export ODIN_ROOT="$HOME/projects/Odin"
 export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+export ENABLE_TOOL_SEARCH="true"
 
-# Tool integrations (guarded — no-op if the tool isn't installed)
-command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
-command -v atuin    >/dev/null 2>&1 && eval "$(atuin init zsh)"
-command -v zoxide   >/dev/null 2>&1 && eval "$(zoxide init zsh)"
-command -v mise     >/dev/null 2>&1 && eval "$(mise activate zsh)"
+typeset -U path PATH            # keep $PATH de-duplicated
+path=(
+    "$HOME/.cargo/bin"
+    "$HOME/.local/bin"
+    "$HOME/.local/bin/yubico-authenticator"
+    "$BUN_INSTALL/bin"
+    "$HOME/projects/Odin"
+    "$HOME/projects/ols"
+    "$HOME/.nvm"
+    "$HOME/.lmstudio/bin"
+    /opt/IDriveForLinux/bin
+    $path
+)
 
-# fzf
+# ── Aliases & functions ──────────────────────────────────────────────────────
+alias ll="eza --icons=always --color=always --color-scale=all -l --git"
+alias idrive="/opt/IDriveForLinux/bin/idrive"
+
+c()  { CLAUDE_CONFIG_DIR="$HOME/.claude"      "$HOME/.local/bin/claude" "$@"; }
+cw() { CLAUDE_CONFIG_DIR="$HOME/.claude-work" "$HOME/.local/bin/claude" "$@"; }
+
+# yazi — cd to the directory yazi exited in
+y() {
+    local tmp cwd
+    tmp="$(mktemp -t yazi-cwd.XXXXXX)" || return
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(command cat -- "$tmp")" && [[ -n "$cwd" && "$cwd" != "$PWD" ]]; then
+        builtin cd -- "$cwd" || true
+    fi
+    rm -f -- "$tmp"
+}
+
+# zellij helpers
+zm() { zellij attach MAIN 2>/dev/null || zellij --session MAIN; }
+zw() { zellij attach WORK 2>/dev/null || zellij --session WORK; }
+zdump() {
+    local session
+    session="$(zellij list-sessions | grep ATTACHED | awk '{print $1}')"
+    [[ -n "$session" ]] || { echo "zdump: no attached zellij session" >&2; return 1; }
+    zellij action dump-layout > "$HOME/.dotfiles/zellij/layouts/${session}.kdl"
+}
+
+# Refresh desktop-session vars inside tmux so the Obsidian flatpak CLI works.
+if [[ -n "$TMUX" ]]; then
+    for _var in DBUS_SESSION_BUS_ADDRESS DISPLAY WAYLAND_DISPLAY; do
+        _val="$(tmux show-environment "$_var" 2>/dev/null)"
+        [[ "$_val" == "$_var="* ]] && export "$_var=${_val#*=}"
+    done
+    unset _var _val
+fi
+
+# ── fzf ──────────────────────────────────────────────────────────────────────
 export FZF_DEFAULT_COMMAND="fd --hidden --follow --exclude .git"
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview-window=right:60%:wrap"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
+if command -v fzf >/dev/null 2>&1; then
+    # fzf >= 0.48 ships its own shell integration; older builds ship files.
+    if fzf --zsh >/dev/null 2>&1; then
+        source <(fzf --zsh)
+    else
+        for _f in /usr/share/fzf/shell/key-bindings.zsh \
+                  /usr/share/doc/fzf/examples/key-bindings.zsh \
+                  /usr/share/zsh/site-functions/fzf; do
+            [[ -f "$_f" ]] && source "$_f"
+        done
+        unset _f
+    fi
+fi
 
-alias ll="eza --icons=always --color=always --color-scale=all -l --git"
-c()  { CLAUDE_CONFIG_DIR="$HOME/.claude" "$HOME/.local/bin/claude" "$@"; }
-cw() { CLAUDE_CONFIG_DIR="$HOME/.claude-work" "$HOME/.local/bin/claude" "$@"; }
+# ── Tool integrations (guarded — no-op if the tool isn't installed) ───────────
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
+command -v zoxide   >/dev/null 2>&1 && eval "$(zoxide init zsh)"
+command -v mise     >/dev/null 2>&1 && eval "$(mise activate zsh)"
+# atuin binds Ctrl+R, so it must load after fzf's key bindings.
+command -v atuin    >/dev/null 2>&1 && eval "$(atuin init zsh)"
 
 # Machine/company-local additions that shouldn't live in the shared dotfiles repo.
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

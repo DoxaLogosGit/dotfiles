@@ -86,7 +86,7 @@ Options:
     --fonts         Install nerd fonts
     --plugins       Install Claude Code plugins
     --all           Do everything (packages + symlinks + fonts + plugins)
-    --systemd      Enable systemd user units (snapshot timer)
+    --systemd      Enable systemd user units (snapshot + vault backup timers)
     --dry-run       Show what would be done without making changes
     -h, --help      Show this help message
 
@@ -147,10 +147,8 @@ install_symlinks_common() {
     mkdir -p "$HOME/.pi"
     mkdir -p "$HOME/.tallow"
 
-    # Fish (fish manages its own dir — symlink config files only)
-    create_symlink "$DOTFILES_DIR/fish/config.fish" "$HOME/.config/fish/config.fish"
-    create_symlink "$DOTFILES_DIR/fish/fish_plugins" "$HOME/.config/fish/fish_plugins"
-    create_symlink "$DOTFILES_DIR/fish/functions" "$HOME/.config/fish/functions"
+    # Zsh (primary shell)
+    create_symlink "$DOTFILES_DIR/zsh/zshrc" "$HOME/.zshrc"
 
     # Starship
     create_symlink "$DOTFILES_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
@@ -178,9 +176,6 @@ install_symlinks_common() {
     # Nushell (nushell writes history.txt — symlink config file only)
     create_symlink "$DOTFILES_DIR/nushell/config.nu" "$HOME/.config/nushell/config.nu"
 
-    # Xonsh (xonsh writes history — symlink config file only)
-    create_symlink "$DOTFILES_DIR/xonsh/xonshrc" "$HOME/.xonshrc"
-
     # Atuin (atuin manages ~/.config/atuin/ — symlink config file only)
     create_symlink "$DOTFILES_DIR/atuin/config.toml" "$HOME/.config/atuin/config.toml"
 
@@ -196,9 +191,6 @@ install_symlinks_common() {
     else
         warning "atuin not found — skipping nushell init generation (run after installing atuin)"
     fi
-
-    # Zsh (legacy)
-    create_symlink "$DOTFILES_DIR/zsh/zshrc" "$HOME/.zshrc"
 
     # Python
     create_symlink "$DOTFILES_DIR/python/pylintrc" "$HOME/.pylintrc"
@@ -229,6 +221,9 @@ install_symlinks_common() {
     # Zellij snapshot tool (rotating session-state backups)
     create_symlink "$DOTFILES_DIR/scripts/zellij-snapshot" "$HOME/.local/bin/zellij-snapshot"
     create_symlink "$DOTFILES_DIR/scripts/zellij-restore" "$HOME/.local/bin/zellij-restore"
+
+    # Obsidian vault backup (replaces the Obsidian Git plugin)
+    create_symlink "$DOTFILES_DIR/scripts/vault-backup" "$HOME/.local/bin/vault-backup"
 }
 
 # Install symlinks (Raspbian — thumbs/Ghostty/Claude/VS Code/OpenCode/Gemini excluded)
@@ -382,14 +377,21 @@ install_systemd_units() {
     create_symlink "$DOTFILES_DIR/scripts/zellij-snapshot-shutdown.service" \
         "$HOME/.config/systemd/user/zellij-snapshot-shutdown.service"
 
+    create_symlink "$DOTFILES_DIR/scripts/vault-backup.service" \
+        "$HOME/.config/systemd/user/vault-backup.service"
+    create_symlink "$DOTFILES_DIR/scripts/vault-backup.timer" \
+        "$HOME/.config/systemd/user/vault-backup.timer"
+
     if [ "$DRY_RUN" = true ]; then
         info "[DRY-RUN] Would run: systemctl --user daemon-reload"
         info "[DRY-RUN] Would run: systemctl --user enable --now zellij-snapshot.timer"
         info "[DRY-RUN] Would run: systemctl --user enable zellij-snapshot-shutdown.service"
+        info "[DRY-RUN] Would run: systemctl --user enable --now vault-backup.timer"
     else
         systemctl --user daemon-reload
         systemctl --user enable --now zellij-snapshot.timer
         systemctl --user enable zellij-snapshot-shutdown.service
+        systemctl --user enable --now vault-backup.timer
         success "Systemd units enabled."
     fi
 }

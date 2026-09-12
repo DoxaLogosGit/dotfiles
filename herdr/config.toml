@@ -1,3 +1,15 @@
 onboarding = false
+[terminal]
+default_shell="/usr/bin/zsh"
 [keys]
-#prefix = "ctrl+space"
+# Clear out pane bindings entirely so they don't clutter your mind
+
+# 1. Moving between full-screen Agent Tabs
+next_tab = "ctrl+alt+l"            # Look right to next agent
+previous_tab = "ctrl+alt+h"        # Look left to previous agent
+new_tab = "ctrl+alt+t"             # Spawn new agent tab
+
+# 2. Moving between broad Project Workspaces
+next_workspace = "ctrl+alt+j"      # Jump down a project level
+previous_workspace = "ctrl+alt+k"  # Jump up a project level
+new_workspace = "ctrl+alt+n"       # New workspace context

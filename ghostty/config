@@ -1,4 +1,4 @@
-shell-integration = fish
+shell-integration = zsh
 theme = dark:Firefly Traditional,light:Galaxy
 font-family = JetBrainsMono Nerd Font
 confirm-close-surface = false

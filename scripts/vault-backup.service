@@ -1,0 +1,17 @@
+[Unit]
+Description=Commit and push the Obsidian vault
+Documentation=https://gitlab.com/DoxaLogos/obsidian-notes
+
+# Skip cleanly on machines that do not hold the vault
+ConditionPathExists=%h/Documents/ObsidianNotes/.git
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/vault-backup
+
+# Be nice to the disk
+Nice=10
+IOSchedulingClass=idle
+
+[Install]
+WantedBy=default.target

@@ -106,11 +106,10 @@ sudo pip install glances || pip3 install glances
 sudo pip install uv || pip3 install uv
 
 # Shells
-sudo dnf install -y fish
+sudo dnf install -y zsh
 # shellcheck source=install-nushell.sh
 source "$(dirname "${BASH_SOURCE[0]}")/install-nushell.sh"
 sudo dnf install -y nushell 2>/dev/null || install_nushell
-sudo dnf install -y xonsh
 info "Installing atuin..."
 cargo install atuin
 
@@ -166,10 +165,10 @@ else
     success "TPM installed!"
 fi
 
-# Install Fisher
-# shellcheck source=install-fisher.sh
-source "$(dirname "${BASH_SOURCE[0]}")/install-fisher.sh"
-install_fisher
+# Install oh-my-zsh + its custom plugins
+# shellcheck source=install-oh-my-zsh.sh
+source "$(dirname "${BASH_SOURCE[0]}")/install-oh-my-zsh.sh"
+install_oh_my_zsh
 
 # Create required directories
 mkdir -p $HOME/.vim-tmp
@@ -180,4 +179,4 @@ success "Package installation complete!"
 
 echo ""
 info "To install tmux plugins, start tmux and press: prefix + I (capital i)"
-info "Don't forget to set up fish as your default shell: chsh -s /usr/bin/fish"
+info "Don't forget to set up zsh as your default shell: chsh -s /usr/bin/zsh"

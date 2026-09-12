@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Commit and push the Obsidian vault.
+#
+# Replaces the Obsidian Git plugin. The plugin stored its enabled/disabled state
+# in .obsidian/community-plugins.json, which Syncthing replicates, so disabling
+# it on the phone disabled it on the laptop and backups stopped silently.
+# A systemd user timer cannot sync anywhere, and it runs whether or not
+# Obsidian is open.
+#
+# The vault remote is GitLab. This repository (dotfiles) is on GitHub.
+# They are unrelated. This script only ever touches the vault.
+
+set -uo pipefail
+
+VAULT="${OBSIDIAN_VAULT:-$HOME/Documents/ObsidianNotes}"
+BRANCH="${OBSIDIAN_VAULT_BRANCH:-main}"
+
+if [ ! -d "$VAULT/.git" ]; then
+    echo "vault-backup: no git repository at $VAULT — nothing to do"
+    exit 0
+fi
+
+# Never clean, reset, or checkout. Uncommitted edits from Obsidian live here.
+git -C "$VAULT" add -A
+
+if git -C "$VAULT" diff --cached --quiet; then
+    echo "vault-backup: no changes"
+else
+    git -C "$VAULT" commit -q -m "vault backup: $(date '+%Y-%m-%d %H:%M:%S')"
+    echo "vault-backup: committed $(git -C "$VAULT" rev-parse --short HEAD)"
+fi
+
+if ! git -C "$VAULT" remote get-url origin >/dev/null 2>&1; then
+    echo "vault-backup: no origin remote — commit kept, nothing pushed"
+    exit 0
+fi
+
+# Push every run, not only after a commit. The remote fell silently behind once
+# before, because the plugin committed locally without an upstream to push to.
+if git -C "$VAULT" push -q origin "HEAD:$BRANCH"; then
+    echo "vault-backup: pushed to origin/$BRANCH"
+else
+    echo "vault-backup: push FAILED — commits are safe locally" >&2
+    exit 1
+fi
