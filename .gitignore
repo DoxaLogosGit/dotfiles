@@ -22,6 +22,8 @@ Thumbs.db
 *.secret
 credentials*
 git/gitconfig
+opencode/
+pi/
 
 # Superpowers specs/plans (kept local, not committed)
 docs/superpowers/
