@@ -39,13 +39,14 @@ install_rust
 # ── Global packages ───────────────────────────────────────────────────────────
 
 info "Installing global packages via bun..."
-# Claude Code, Gemini CLI, pi-coding-agent — skipped on macOS (company image
-# blocks Anthropic; kept consistent across the AI-agent CLIs).
+# Claude Code and Gemini CLI are skipped on macOS (company image blocks
+# Anthropic). pi is not Anthropic and is wanted on the contractor MacBook,
+# so it installs everywhere.
 if [ "$(uname -s)" != "Darwin" ]; then
     bun install -g @anthropic-ai/claude-code
     bun install -g @google/gemini-cli
-    bun install -g @mariozechner/pi-coding-agent
 fi
+bun install -g @mariozechner/pi-coding-agent
 bun install -g @openai/codex
 bun install -g opencode-ai
 bun install -g @dungle-scrubs/tallow

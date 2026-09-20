@@ -107,8 +107,11 @@ Or run interactively:
 ├── btop/                         # → ~/.config/btop/
 ├── ollama/
 │   └── modelfiles/               # Ollama Modelfiles for local models
-├── pi/
-│   └── settings.json             # → ~/.pi/agent/ (pi coding agent)
+├── pi/                           # → ~/.pi/agent/ (pi coding agent)
+│   ├── models.json               #   provider config
+│   ├── open-tui.json             #   UI preferences
+│   ├── extensions/, skills/      #   tracked extensions and skills
+│   └── (settings.json untracked) #   per-machine; see install-pi-packages.sh
 ├── tallow/
 │   ├── models.json               # → ~/.tallow/models.json
 │   └── settings.json             # → ~/.tallow/settings.json
@@ -140,6 +143,20 @@ sessions), `zdump` (dump the attached session's layout).
 
 Machine-local additions that shouldn't be committed go in `~/.zshrc.local`,
 which `zshrc` sources last if present.
+
+### Machine-Local Config
+
+Two files hold per-machine settings and are deliberately **not** tracked:
+
+- `~/.gitconfig.local` — `user.email` and `credential.helper`. Seeded from
+  `git/gitconfig.local.example` on install; edit it for the machine
+  (libsecret on Linux, osxkeychain on macOS). The tracked `git/gitconfig`
+  pulls it in with `[include]` and falls back to its own defaults if absent.
+- `~/.pi/agent/settings.json` — pi's provider/model choice and runtime
+  state. The package list that matters lives in
+  `scripts/install-pi-packages.sh`; run it with `--personal` (or set
+  `DOTFILES_PERSONAL=1`) to also install free-tier routing, which work
+  machines should skip.
 
 ### Install Tmux Plugins
 After starting tmux, press `prefix + I` (that's `Ctrl-A` then `Shift-I`) to install plugins via TPM.
