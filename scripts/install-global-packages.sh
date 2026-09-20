@@ -60,3 +60,18 @@ fi
 bun install -g @playwright/mcp
 
 success "Global packages installed!"
+
+# pi agent packages. The tracked package list lives in install-pi-packages.sh;
+# ~/.pi/agent/settings.json is untracked machine state. Set DOTFILES_PERSONAL=1
+# to also install free-tier routing (personal machines only).
+if command -v pi &>/dev/null; then
+    # shellcheck source=install-pi-packages.sh
+    source "$(dirname "${BASH_SOURCE[0]}")/install-pi-packages.sh"
+    if [ "${DOTFILES_PERSONAL:-0}" = "1" ]; then
+        install_pi_packages --personal
+    else
+        install_pi_packages
+    fi
+else
+    info "pi not installed — skipping pi packages"
+fi

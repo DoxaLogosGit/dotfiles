@@ -1,0 +1,19 @@
+# Copy to ~/.gitconfig.local and edit for this machine.
+# Never committed — this is where per-machine identity and credentials go.
+#
+# Personal (Linux):
+#     email  = jgatkinsn@gmail.com
+#     helper = libsecret
+#
+# Contractor MacBook:
+#     email  = <contractor address>
+#     helper = osxkeychain
+#
+# GFE:
+#     email  = <work address>
+#     helper = <whatever the GFE image provides, e.g. manager-core or cache>
+
+[user]
+	email = CHANGE-ME@example.com
+[credential]
+	helper = libsecret

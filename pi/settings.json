@@ -1,9 +1,0 @@
-{
-  "defaultModel": "nemotron-3-ultra:cloud",
-  "defaultProvider": "ollama",
-  "lastChangelogVersion": "0.84.1",
-  "packages": [
-    "npm:@ollama/pi-web-search"
-  ],
-  "theme": "dark"
-}

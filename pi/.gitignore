@@ -16,3 +16,7 @@ trust.json
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+
+# Per-machine: package list lives in scripts/install-pi-packages.sh,
+# provider/model choices and lastChangelogVersion are pi runtime state.
+settings.json

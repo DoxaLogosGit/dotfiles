@@ -113,6 +113,27 @@ backup_file() {
     fi
 }
 
+# Copy a template into place only if the target does not exist. Used for
+# machine-local files that must not be symlinked back into the repo.
+copy_template() {
+    local source="$1"
+    local target="$2"
+
+    if [ -e "$target" ]; then
+        info "Kept existing: $target"
+        return
+    fi
+
+    if [ "$DRY_RUN" = true ]; then
+        info "[DRY-RUN] Would copy template: $source -> $target"
+        return
+    fi
+
+    mkdir -p "$(dirname "$target")"
+    cp "$source" "$target"
+    success "Created from template: $target (edit it for this machine)"
+}
+
 # Create a symlink
 create_symlink() {
     local source="$1"
@@ -170,8 +191,9 @@ install_symlinks_common() {
     # Zellij
     create_symlink "$DOTFILES_DIR/zellij" "$HOME/.config/zellij"
 
-    # Git
+    # Git (identity/credentials are per-machine — see gitconfig.local.example)
     create_symlink "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
+    copy_template "$DOTFILES_DIR/git/gitconfig.local.example" "$HOME/.gitconfig.local"
 
     # Nushell (nushell writes history.txt — symlink config file only)
     create_symlink "$DOTFILES_DIR/nushell/config.nu" "$HOME/.config/nushell/config.nu"

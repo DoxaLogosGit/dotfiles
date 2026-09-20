@@ -1,5 +1,9 @@
+# Portable settings — identical on every machine.
+# Machine-specific identity and credential setup live in ~/.gitconfig.local
+# (see git/gitconfig.local.example). Git applies includes in order and lets
+# later values win, so anything below the [include] can be overridden there.
+
 [user]
-	email = jgatkinsn@gmail.com
 	name = Jay Atkinson
 [push]
 	default = simple
@@ -7,5 +11,12 @@
 	autocrlf = false
 [init]
 	defaultBranch = main
-[credential]
-	helper = libsecret
+
+# Per-machine: user.email and credential.helper.
+# Silently skipped if the file does not exist.
+[include]
+	path = ~/.gitconfig.local
+
+# Per-directory work identity (wins over the machine default above).
+[includeIf "gitdir:~/projects/work/avmc_oss/"]
+	path = ~/.gitconfig-avmc
