@@ -1,2 +1,18 @@
+# Credentials
 auth.json
+
+# Session transcripts and memory databases (conversation content)
 sessions/
+pi-hermes-memory/
+projects-memory/
+
+# Generated model catalog — pi rebuilds it; ~360KB of churn per refresh
+models-store.json
+
+# Machine-specific: absolute local project paths
+trust.json
+
+# Runtime locks / sqlite sidecars
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
