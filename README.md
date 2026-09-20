@@ -48,7 +48,6 @@ Or run interactively:
 
 ### AI / Coding Agents
 - **claude** - Claude Code CLI customizations
-- **gemini** - Gemini CLI settings
 - **opencode** - OpenCode CLI configuration
 - **codex** - OpenAI Codex CLI configuration
 - **pi** - Pi coding agent configuration (`~/.pi/agent`)
@@ -121,8 +120,6 @@ Or run interactively:
 │   └── settings.json             # → ~/.config/Code/User/settings.json
 ├── opencode/
 │   └── opencode.json             # → ~/.config/opencode/opencode.json
-├── gemini/
-│   └── settings.json             # → ~/.gemini/settings.json
 └── claude/
     ├── settings.json             # → ~/.claude/settings.json
     └── scripts/

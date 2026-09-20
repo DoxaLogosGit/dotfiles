@@ -248,7 +248,7 @@ install_symlinks_common() {
     create_symlink "$DOTFILES_DIR/scripts/vault-backup" "$HOME/.local/bin/vault-backup"
 }
 
-# Install symlinks (Raspbian — thumbs/Ghostty/Claude/VS Code/OpenCode/Gemini excluded)
+# Install symlinks (Raspbian — thumbs/Ghostty/Claude/VS Code/OpenCode excluded)
 install_symlinks_raspbian() {
     info "Creating symlinks (Raspbian)..."
     install_symlinks_common "tmux-raspbian.conf"
@@ -273,8 +273,6 @@ install_symlinks_desktop() {
     # OpenCode (opencode manages its own dir — symlink config file only)
     create_symlink "$DOTFILES_DIR/opencode/opencode.json" "$HOME/.config/opencode/opencode.json"
 
-    # Gemini (gemini manages ~/.gemini/ — symlink settings file only)
-    create_symlink "$DOTFILES_DIR/gemini/settings.json" "$HOME/.gemini/settings.json"
 }
 
 # Install symlinks (Linux)
