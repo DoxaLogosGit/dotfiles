@@ -21,6 +21,7 @@ Thumbs.db
 .env
 *.secret
 credentials*
+opencode/
 
 # Superpowers specs/plans (kept local, not committed)
 docs/superpowers/

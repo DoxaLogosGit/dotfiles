@@ -94,7 +94,8 @@ Or run interactively:
 ├── ghostty/                      # → ~/.config/ghostty/
 ├── yazi/                         # → ~/.config/yazi/
 ├── git/
-│   └── gitconfig                 # → ~/.gitconfig
+│   ├── gitconfig                 # → ~/.gitconfig (portable settings)
+│   └── gitconfig.local.example   # → ~/.gitconfig.local (per-machine, untracked)
 ├── nushell/
 │   └── config.nu                 # → ~/.config/nushell/config.nu
 ├── python/
