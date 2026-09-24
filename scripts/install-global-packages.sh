@@ -1,7 +1,8 @@
 #!/bin/bash
 #
 # Install Node.js (via nvm), bun, and global coding-agent packages.
-# Called by packages-debian.sh and packages-fedora.sh
+# Sourced by packages-debian.sh, packages-fedora.sh and packages-macos.sh.
+# OS-specific package choices live in the guarded block below.
 #
 
 GREEN='\033[0;32m'
@@ -39,24 +40,29 @@ install_rust
 # ── Global packages ───────────────────────────────────────────────────────────
 
 info "Installing global packages via bun..."
-# Claude Code is skipped on macOS (company image blocks Anthropic). pi is not
-# Anthropic and is wanted on the contractor MacBook, so it installs everywhere.
-if [ "$(uname -s)" != "Darwin" ]; then
-    bun install -g @anthropic-ai/claude-code
-fi
-bun install -g @mariozechner/pi-coding-agent
+
+# Cross-platform packages.
+# pi was renamed from @mariozechner/* to @earendil-works/* at 0.74; the old
+# scope is frozen at 0.73.1.
+bun install -g @earendil-works/pi-coding-agent
 bun install -g @openai/codex
 bun install -g opencode-ai
 bun install -g @dungle-scrubs/tallow
 bun install -g playwright
-# --with-deps shells out to apt/dnf for browser system libraries and is
-# Linux-only; on macOS Playwright bundles what it needs.
+
+# ── OS-specific global packages ──────────────────────────────────────────────
 if [ "$(uname -s)" = "Darwin" ]; then
+    # Claude Code is skipped on macOS: the company image blocks Anthropic.
+    # Playwright bundles its own browser dependencies here, so no --with-deps.
     bunx playwright install
 else
+    bun install -g @anthropic-ai/claude-code
+    # --with-deps shells out to apt/dnf for browser system libraries.
     bunx playwright install --with-deps
 fi
+
 bun install -g @playwright/mcp
+
 
 success "Global packages installed!"
 

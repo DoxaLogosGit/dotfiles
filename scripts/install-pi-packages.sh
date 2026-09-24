@@ -38,7 +38,7 @@ install_pi_packages() {
     local pkg
     local -a packages=("${PI_PACKAGES_SHARED[@]}")
 
-    if [ "$1" = "--personal" ]; then
+    if [ "${1:-}" = "--personal" ]; then
         packages+=("${PI_PACKAGES_PERSONAL[@]}")
     fi
 
@@ -53,9 +53,13 @@ install_pi_packages() {
     done
     success "pi packages installed!"
 
-    # settings.json is untracked, so a fresh machine starts on pi's defaults.
+    # settings.json and models.json are untracked, so a fresh machine starts on
+    # pi's defaults with no custom providers.
     if [ ! -s "$HOME/.pi/agent/settings.json" ]; then
         info "No ~/.pi/agent/settings.json yet — set your provider and model in pi (/model)."
+    fi
+    if [ ! -s "$HOME/.pi/agent/models.json" ]; then
+        info "No ~/.pi/agent/models.json yet — copy pi/models.json.example and add local providers."
     fi
 }
 
