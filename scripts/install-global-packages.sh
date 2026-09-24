@@ -47,7 +47,6 @@ info "Installing global packages via bun..."
 bun install -g @earendil-works/pi-coding-agent
 bun install -g @openai/codex
 bun install -g opencode-ai
-bun install -g @dungle-scrubs/tallow
 bun install -g playwright
 
 # ── OS-specific global packages ──────────────────────────────────────────────
