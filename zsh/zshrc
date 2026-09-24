@@ -66,13 +66,13 @@ path=(
     "$HOME/projects/ols"
     "$HOME/.nvm"
     "$HOME/.lmstudio/bin"
-    /opt/IDriveForLinux/bin
     $path
 )
+# Linux-only tool locations.
+[[ "$(uname -s)" == "Linux" ]] && path=(/opt/IDriveForLinux/bin $path)
 
 # ── Aliases & functions ──────────────────────────────────────────────────────
 alias ll="eza --icons=always --color=always --color-scale=all -l --git"
-alias idrive="/opt/IDriveForLinux/bin/idrive"
 
 c()  { CLAUDE_CONFIG_DIR="$HOME/.claude"      "$HOME/.local/bin/claude" "$@"; }
 cw() { CLAUDE_CONFIG_DIR="$HOME/.claude-work" "$HOME/.local/bin/claude" "$@"; }
@@ -133,5 +133,40 @@ command -v mise     >/dev/null 2>&1 && eval "$(mise activate zsh)"
 # atuin binds Ctrl+R, so it must load after fzf's key bindings.
 command -v atuin    >/dev/null 2>&1 && eval "$(atuin init zsh)"
 
-# Machine/company-local additions that shouldn't live in the shared dotfiles repo.
+# Delete key sends DEL rather than an escape sequence.
+bindkey "^[[3~" delete-char
+
+# ── nvm (no-op if not installed) ──────────────────────────────────────────────
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ]         && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# ── bun ───────────────────────────────────────────────────────────────────────
+# BUN_INSTALL and its PATH entry are already set above; only completions here.
+[ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
+
+# ── OS-specific ───────────────────────────────────────────────────────────────
+case "$(uname -s)" in
+    Darwin)
+        # Corporate TLS interception: Node and the AWS CLI do not read the
+        # macOS keychain, so point them at an exported system CA bundle.
+        # Generate with: scripts/export-system-ca.sh
+        if [[ -f "$HOME/.config/certs/system-ca.pem" ]]; then
+            export NODE_EXTRA_CA_CERTS="$HOME/.config/certs/system-ca.pem"
+            export AWS_CA_BUNDLE="$NODE_EXTRA_CA_CERTS"
+            export REQUESTS_CA_BUNDLE="$NODE_EXTRA_CA_CERTS"
+        fi
+        ;;
+    Linux)
+        alias idrive="/opt/IDriveForLinux/bin/idrive"
+        ;;
+esac
+
+# Machine/company-local additions that shouldn't live in the shared dotfiles
+# repo: credentials, internal endpoints, per-machine identity. Sourced last so
+# it can override anything above.
+#
+# AWS credentials belong here (or better, use `aws sso login` + AWS_PROFILE).
+# Never export long-lived keys from this tracked file.
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
