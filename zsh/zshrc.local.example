@@ -1,0 +1,21 @@
+# Copy to ~/.zshrc.local and edit for this machine.
+# Never committed — credentials, internal endpoints and per-machine paths
+# belong here, not in the tracked zshrc.
+#
+# Sourced last by ~/.zshrc, so anything set here overrides the shared config.
+
+# ── Internal / corporate API gateways ─────────────────────────────────────────
+# Pi reads these for any gateway defined in pi/models.json with an
+# "!printenv VAR" style apiKey. Keep the real variable names and values local.
+# export SOME_GATEWAY_API_KEY="..."
+
+# ── AWS ───────────────────────────────────────────────────────────────────────
+# Prefer SSO over exported keys:
+#     aws sso login --profile <profile>
+#     export AWS_PROFILE=<profile>
+#
+# Temporary STS keys (ASIA...) expire within hours and silently take precedence
+# over AWS_PROFILE and SSO, which makes Bedrock and other AWS calls look broken.
+# If you must paste them, unset them once they expire:
+#     unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
+# export AWS_PROFILE="..."

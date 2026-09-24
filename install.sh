@@ -166,10 +166,10 @@ install_symlinks_common() {
     mkdir -p "$HOME/.tmux/plugins"
     mkdir -p "$HOME/.local/bin"
     mkdir -p "$HOME/.pi"
-    mkdir -p "$HOME/.tallow"
 
     # Zsh (primary shell)
     create_symlink "$DOTFILES_DIR/zsh/zshrc" "$HOME/.zshrc"
+    copy_template "$DOTFILES_DIR/zsh/zshrc.local.example" "$HOME/.zshrc.local"
 
     # Starship
     create_symlink "$DOTFILES_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
@@ -179,8 +179,9 @@ install_symlinks_common() {
     create_symlink "$DOTFILES_DIR/nvim/lazy-lock.json" "$HOME/.config/nvim/lazy-lock.json"
     create_symlink "$DOTFILES_DIR/nvim/colors" "$HOME/.config/nvim/colors"
 
-    # Vim
+    # Vim (employer/email are per-machine — see vimrc.local.example)
     create_symlink "$DOTFILES_DIR/vim/vimrc" "$HOME/.vimrc"
+    copy_template "$DOTFILES_DIR/vim/vimrc.local.example" "$HOME/.vimrc.local"
 
     # Tmux
     create_symlink "$DOTFILES_DIR/tmux/$tmux_conf" "$HOME/.tmux.conf"
@@ -228,11 +229,10 @@ install_symlinks_common() {
     create_symlink "$DOTFILES_DIR/btop" "$HOME/.config/btop"
 
     # Pi coding agent
+    # models.json and settings.json are untracked (internal endpoints,
+    # per-machine model access), so seed models.json from the example.
     create_symlink "$DOTFILES_DIR/pi" "$HOME/.pi/agent"
-
-    # Tallow coding agent (tallow manages ~/.tallow/ — symlink config files only)
-    create_symlink "$DOTFILES_DIR/tallow/models.json" "$HOME/.tallow/models.json"
-    create_symlink "$DOTFILES_DIR/tallow/settings.json" "$HOME/.tallow/settings.json"
+    copy_template "$DOTFILES_DIR/pi/models.json.example" "$DOTFILES_DIR/pi/models.json"
 
     # Herdr (herdr manages ~/.config/herdr/ logs + sessions — symlink config file only)
     create_symlink "$DOTFILES_DIR/herdr/config.toml" "$HOME/.config/herdr/config.toml"

@@ -1,0 +1,8 @@
+" Copy to ~/.vimrc.local and edit for this machine.
+" Never committed — per-machine identity and employer details go here.
+"
+" Sourced at the end of vim/vimrc, so anything set here wins.
+
+" c-support file-template identity.
+let g:C_Email   = "CHANGE-ME@example.com"
+let g:C_Company = "CHANGE-ME"

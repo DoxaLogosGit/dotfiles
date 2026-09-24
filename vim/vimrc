@@ -60,10 +60,10 @@ let g:ack_default_options = " -H --nocolor --nogroup --column"
 let ackprg = "/usr/bin/ack"
 let g:ackprg = "/usr/bin/ack"
 
+" c-support template identity. Portable defaults only — per-machine employer
+" and email live in ~/.vimrc.local (untracked, sourced at the end of this file).
 let g:C_AuthorName = "Jay Atkinson"
 let g:C_AuthorRef = "JGA"
-let g:C_Email = "jack.g.atkinson@saic.com"
-let g:C_Company = "SAIC, in"
 "let g:C_Comments = no
 set viminfo='50,<50,s50,h,rA:,rB:,!
 set sessionoptions=options,tabpages,globals,curdir,winpos,resize,winsize,buffers
@@ -186,3 +186,11 @@ nmap <silent><Leader>te <Esc>:Pytest error<CR>
 
 "set wiw=78
 "set wh=50
+
+" Machine/company-local settings that shouldn't live in the shared dotfiles
+" repo: employer name, work email, site-specific paths. Sourced last so it can
+" override anything above. See vim/vimrc.local.example.
+if filereadable(expand("~/.vimrc.local"))
+    source ~/.vimrc.local
+endif
+
