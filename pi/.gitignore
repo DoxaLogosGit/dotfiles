@@ -20,3 +20,9 @@ trust.json
 # Per-machine: package list lives in scripts/install-pi-packages.sh,
 # provider/model choices and lastChangelogVersion are pi runtime state.
 settings.json
+
+# Machine-specific provider endpoints and model catalogs (internal gateway
+# URLs, per-account Bedrock model access). Pi supports only one models.json
+# with no include mechanism, so the live file cannot be split into a portable
+# half. See models.json.example for the shape.
+models.json
