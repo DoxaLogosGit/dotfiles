@@ -11,6 +11,10 @@ keybinds clear-defaults=true {
     locked {
         bind "Ctrl Space" { SwitchToMode "normal"; }
     }
+    normal {
+        // Send a real DEL (0x7f) so Delete/Backspace works in nested apps.
+        bind "delete" { WriteChars "\u{7f}"; }
+    }
     pane {
         bind "left" { MoveFocus "left"; }
         bind "down" { MoveFocus "down"; }
