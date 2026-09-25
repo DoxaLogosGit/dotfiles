@@ -237,7 +237,7 @@ belong in one overlay repo with a directory per machine. Splitting them buys no
 isolation you do not already have, and the shared files drift apart.
 
 ```
-~/.dotfiles-local-repo/
+~/.dotfiles-<overlay-repo>/
   common/gitconfig.local        # personal email + helper, stored once
   common/vimrc.local
   laptop/  zsh/ git/ vim/ pi/ herdr/ zellij/layouts/
@@ -249,7 +249,7 @@ Files that are identical everywhere live once in `common/`, with a relative
 symlink from each machine directory:
 
 ```bash
-cd ~/.dotfiles-local-repo/laptop/git
+cd ~/.dotfiles-<overlay-repo>/laptop/git
 ln -s ../../common/gitconfig.local gitconfig.local
 ```
 
@@ -260,8 +260,9 @@ Point `~/.dotfiles-local` at this machine's directory. `install.sh` follows the
 symlink, so there is no environment variable to set or remember:
 
 ```bash
-git clone <private-overlay-repo> ~/.dotfiles-local-repo
-ln -sfn ~/.dotfiles-local-repo/laptop ~/.dotfiles-local
+# Clone into a directory named for the repo, so the two never drift apart.
+git clone <private-overlay-repo> ~/.dotfiles-<overlay-repo>
+ln -sfn ~/.dotfiles-<overlay-repo>/laptop ~/.dotfiles-local
 ./install.sh --symlinks
 ```
 
@@ -269,7 +270,7 @@ Because every linked file resolves *through* that one symlink, repointing it
 switches the whole set at once, with no reinstall:
 
 ```bash
-ln -sfn ~/.dotfiles-local-repo/nas ~/.dotfiles-local
+ln -sfn ~/.dotfiles-<overlay-repo>/nas ~/.dotfiles-local
 ```
 
 Use `ln -sfn`, not `ln -sf`. Without `-n`, when the symlink already exists and
