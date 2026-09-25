@@ -102,15 +102,30 @@ EOF
 backup_file() {
     local file="$1"
     if [ -e "$file" ] || [ -L "$file" ]; then
-        mkdir -p "$BACKUP_DIR"
-        local backup_path="$BACKUP_DIR/$(basename "$file")"
+        # Mirror the target's path under $BACKUP_DIR instead of flattening to
+        # a basename: atuin/herdr both ship config.toml, and ~/.claude and VS
+        # Code both ship settings.json, so a flat name let one backup silently
+        # overwrite another within a single run.
+        local rel="${file#"$HOME"/}"
+        rel="${rel#/}"
+        local backup_path="$BACKUP_DIR/$rel"
+        mkdir -p "$(dirname "$backup_path")"
         if [ "$DRY_RUN" = true ]; then
             info "[DRY-RUN] Would backup: $file -> $backup_path"
-        else
-            cp -P "$file" "$backup_path" 2>/dev/null || true
+            return 0
+        fi
+        # -a, not -P: targets like ~/.pi/agent and ~/.config/ghostty are
+        # directories holding live agent state (auth.json, sessions/). A
+        # non-recursive copy silently skipped them, and the caller then
+        # removed the original.
+        if cp -a "$file" "$backup_path"; then
             info "Backed up: $file -> $backup_path"
+        else
+            warning "Backup FAILED: $file (leaving it untouched)"
+            return 1
         fi
     fi
+    return 0
 }
 
 # Copy a template into place only if the target does not exist. Used for
@@ -139,6 +154,14 @@ create_symlink() {
     local source="$1"
     local target="$2"
 
+    # A source that no longer exists in the repo must never cost the machine
+    # its live config: without this, an untracked-and-deleted source left a
+    # dangling symlink where a working file used to be.
+    if [ ! -e "$source" ]; then
+        warning "Skipped: $source is missing from the repo (kept $target as-is)"
+        return
+    fi
+
     if [ "$DRY_RUN" = true ]; then
         info "[DRY-RUN] Would link: $source -> $target"
         return
@@ -147,9 +170,12 @@ create_symlink() {
     # Create parent directory if needed
     mkdir -p "$(dirname "$target")"
 
-    # Backup existing file
+    # Backup existing file, and keep it if the backup did not succeed
     if [ -e "$target" ] || [ -L "$target" ]; then
-        backup_file "$target"
+        if ! backup_file "$target"; then
+            warning "Skipped: $target (could not back it up)"
+            return
+        fi
         rm -rf "$target"
     fi
 
@@ -270,8 +296,10 @@ install_symlinks_desktop() {
     # VS Code (Code/User is tool-managed — symlink settings file only)
     create_symlink "$DOTFILES_DIR/vscode/settings.json" "$code_user_dir/settings.json"
 
-    # OpenCode (opencode manages its own dir — symlink config file only)
-    create_symlink "$DOTFILES_DIR/opencode/opencode.json" "$HOME/.config/opencode/opencode.json"
+    # OpenCode config is machine-local and untracked (internal endpoints and
+    # per-account model access), so there is nothing here to link. See README
+    # "Machine-local config". Do not re-add a symlink: it would replace the
+    # live ~/.config/opencode/opencode.json with a dangling link.
 
 }
 
