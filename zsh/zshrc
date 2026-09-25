@@ -90,15 +90,45 @@ y() {
 
 # zellij helpers
 zm() { zellij attach MAIN 2>/dev/null || zellij --session MAIN; }
-zw() { zellij attach WORK 2>/dev/null || zellij --session WORK; }
 zdump() {
-    local session
-    session="$(zellij list-sessions | grep ATTACHED | awk '{print $1}')"
-    [[ -n "$session" ]] || { echo "zdump: no attached zellij session" >&2; return 1; }
+    local session dest
+    # Prefer the session we are sitting in. Only fall back to scanning when
+    # run from outside zellij. Live sessions carry no marker in `list-sessions`
+    # (only exited ones are labelled), so filter EXITED out rather than
+    # grepping for ATTACHED, which this zellij never prints.
+    session="$ZELLIJ_SESSION_NAME"
+    if [[ -z "$session" ]]; then
+        local -a live
+        live=(${(f)"$(zellij list-sessions -n 2>/dev/null | grep -v 'EXITED' | awk 'NF {print $1}')"})
+        case ${#live} in
+            0) echo "zdump: no live zellij session" >&2; return 1 ;;
+            1) session="${live[1]}" ;;
+            *) echo "zdump: several live sessions (${live}); run from inside one" >&2; return 1 ;;
+        esac
+    fi
     # Layouts stay machine-local: they embed absolute cwd paths and
     # per-machine commands, so they must never be written into the repo.
-    mkdir -p "$HOME/.config/zellij/layouts"
-    zellij action dump-layout > "$HOME/.config/zellij/layouts/${session}.kdl"
+    dest="$HOME/.config/zellij/layouts/${session}.kdl"
+    mkdir -p "${dest:h}" || return 1
+    # Dump to a temp file first: a redirect would truncate a good layout
+    # before we know the dump succeeded, and on case-insensitive filesystems
+    # (APFS) "MAIN" and "main" are the same file.
+    local tmp
+    tmp="$(mktemp "${dest}.XXXXXX")" || return 1
+    if ! zellij -s "$session" action dump-layout > "$tmp" 2>/dev/null; then
+        rm -f "$tmp"
+        echo "zdump: failed to dump '$session'" >&2
+        return 1
+    fi
+    if [[ ! -s "$tmp" ]]; then
+        rm -f "$tmp"
+        echo "zdump: refusing to write an empty layout for '$session'" >&2
+        return 1
+    fi
+    mv "$tmp" "$dest" || { rm -f "$tmp"; return 1; }
+    # mktemp creates 0600; restore normal config-file perms.
+    chmod 644 "$dest"
+    echo "zdump: wrote ${session}.kdl to ${dest:h}"
 }
 
 # Refresh desktop-session vars inside tmux so the Obsidian flatpak CLI works.
