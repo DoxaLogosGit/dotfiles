@@ -161,6 +161,8 @@ so re-running the installer is safe.
 | `pi/models.json` | provider endpoints and model catalogs | `pi/models.json.example` |
 
 Each is sourced or included last, so it overrides the shared config above it.
+All four can instead be supplied by a
+[Machine-Local Overlay](#machine-local-overlay), which is how they get backed up.
 
 On a fresh install, edit all four:
 
@@ -195,6 +197,47 @@ Three more untracked paths that need no seeding:
 pi reads exactly one `models.json` and has no include mechanism, so a portable
 half and a local half cannot coexist. Both files mix provider endpoints with
 model lists, so the entire file has to be local.
+
+### Machine-Local Overlay
+
+The files above are untracked, which also means they are **unbacked**. Losing
+`pi/models.json` means rebuilding a model catalogue by hand. An optional overlay
+gives those files somewhere to live without putting them in this repo.
+
+An overlay is a directory whose layout mirrors this repo. When present, its
+copies win:
+
+```
+~/.dotfiles-local/
+  zsh/zshrc.local         # credentials, API keys, AWS_PROFILE
+  git/gitconfig.local     # email, credential helper
+  vim/vimrc.local         # employer, work email
+  pi/models.json          # this machine's model catalogue
+  herdr/config.toml       # per-machine keybinds, overrides the shared config
+  zellij/layouts/*.kdl    # layouts dumped on this machine
+```
+
+`install.sh` links whatever it finds and falls back to the tracked defaults for
+everything else, so a partial overlay is fine. Override the location with
+`DOTFILES_OVERLAY=/path ./install.sh --symlinks`.
+
+Adopting an overlay on a machine that already has real `~/.zshrc.local` and
+friends is safe: each existing file is copied to
+`~/.dotfiles-backup/<timestamp>/` before the symlink replaces it.
+
+**An overlay is a backup, not a vault.** `zshrc.local` can hold live
+credentials, so whatever hosts the overlay must be at least as private as the
+values inside it. Nothing here encrypts anything.
+
+**Overlays are deliberately anonymous.** This repo asks only whether one exists,
+never where it came from. Keep each machine class on its own host and network:
+personal devices in one private repo, employer-provided equipment in whatever
+that employer hosts. Do not create an overlay spanning two of them — a work
+gateway hostname does not belong in a personal account, and a GFE box may not be
+able to reach a public host at all.
+
+With no overlay, behaviour is exactly as it was before overlays existed:
+templates are seeded from `*.example` and nothing else changes.
 
 > A `.gitignore` entry does **not** protect a file that is already tracked. If
 > you add config that must stay local, check it with
