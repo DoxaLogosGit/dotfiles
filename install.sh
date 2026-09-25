@@ -341,14 +341,22 @@ install_symlinks_desktop() {
     # Ghostty (themes/ is tool-managed, gitignored)
     create_symlink "$DOTFILES_DIR/ghostty" "$HOME/.config/ghostty"
 
-    # Claude (Claude Code manages ~/.claude/ — symlink scripts dir and settings file)
+    # Claude (Claude Code manages ~/.claude/ — symlink scripts dir and settings
+    # file). settings.json routes through the overlay: Claude cannot be installed
+    # on every machine, so each one decides whether to supply a config at all.
     create_symlink "$DOTFILES_DIR/claude/scripts" "$HOME/.claude/scripts"
-    create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
+    link_from_overlay "claude/settings.json" "$HOME/.claude/settings.json" ||
+        create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
 
     # VS Code (Code/User is tool-managed — symlink settings file only)
     create_symlink "$DOTFILES_DIR/vscode/settings.json" "$code_user_dir/settings.json"
 
-    # OpenCode (opencode manages its own dir — symlink config file only)
+    # OpenCode (opencode manages its own dir — symlink config file only).
+    # opencode.json holds gateway URLs and model catalogues, so it is untracked
+    # and machine-local: take the overlay copy when there is one, otherwise seed
+    # from the template so a fresh clone has a working starting point.
+    link_from_overlay "opencode/opencode.json" "$DOTFILES_DIR/opencode/opencode.json" ||
+        copy_template "$DOTFILES_DIR/opencode/opencode.json.example" "$DOTFILES_DIR/opencode/opencode.json"
     create_symlink "$DOTFILES_DIR/opencode/opencode.json" "$HOME/.config/opencode/opencode.json"
 
 }

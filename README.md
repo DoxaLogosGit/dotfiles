@@ -149,7 +149,7 @@ Anything machine-specific stays out of this repo: identity, credentials,
 employer details, internal API endpoints and per-account model access. This
 repo is public.
 
-Four files hold that state and are deliberately **not** tracked. `install.sh`
+Five files hold that state and are deliberately **not** tracked. `install.sh`
 seeds each one from a tracked `*.example` and never overwrites an existing file,
 so re-running the installer is safe.
 
@@ -159,9 +159,10 @@ so re-running the installer is safe.
 | `~/.zshrc.local` | credentials, API keys, `AWS_PROFILE` | `zsh/zshrc.local.example` |
 | `~/.vimrc.local` | `g:C_Email`, `g:C_Company` | `vim/vimrc.local.example` |
 | `pi/models.json` | provider endpoints and model catalogs | `pi/models.json.example` |
+| `opencode/opencode.json` | gateway URL, model catalogue, permissions | `opencode/opencode.json.example` |
 
 Each is sourced or included last, so it overrides the shared config above it.
-All four can instead be supplied by a
+All five can instead be supplied by a
 [Machine-Local Overlay](#machine-local-overlay), which is how they get backed up.
 
 On a fresh install, edit all four:
@@ -179,15 +180,12 @@ Verify the git identity resolves from the local file, not the tracked one:
 git config --show-origin --get user.email
 ```
 
-Three more untracked paths that need no seeding:
+Two more untracked paths that need no seeding:
 
 - `~/.pi/agent/settings.json` — pi's provider/model choice and runtime state.
   The package list that matters lives in `scripts/install-pi-packages.sh`; run
   it with `--personal` (or set `DOTFILES_PERSONAL=1`) to also install free-tier
   routing, which work machines should skip.
-- `~/.config/opencode/opencode.json` — same reasoning as `pi/models.json`. The
-  whole `opencode/` directory is gitignored; keep a local copy and back it up
-  outside this repo.
 - `~/.config/zellij/layouts/` — zellij layouts embed absolute `cwd` paths and
   per-machine commands, so they do not survive a move between machines. Only
   `zellij/config.kdl` is shared and symlinked; the layouts directory is real and
@@ -196,7 +194,8 @@ Three more untracked paths that need no seeding:
 **Why `pi/models.json` and `opencode.json` are fully local rather than split:**
 pi reads exactly one `models.json` and has no include mechanism, so a portable
 half and a local half cannot coexist. Both files mix provider endpoints with
-model lists, so the entire file has to be local.
+model lists, so the entire file has to be local. The whole `opencode/` directory
+is therefore gitignored apart from the template.
 
 ### Machine-Local Overlay
 
@@ -213,9 +212,15 @@ copies win:
   git/gitconfig.local     # email, credential helper
   vim/vimrc.local         # employer, work email
   pi/models.json          # this machine's model catalogue
+  opencode/opencode.json  # gateway URL, model catalogue, permissions
+  claude/settings.json    # omit on machines where Claude cannot be installed
   herdr/config.toml       # per-machine keybinds, overrides the shared config
   zellij/layouts/*.kdl    # layouts dumped on this machine
 ```
+
+`claude/settings.json` is tracked and shared by default, since it holds only
+portable preferences. An overlay copy wins where a machine needs to diverge —
+useful where Claude Code cannot be installed at all.
 
 `install.sh` links whatever it finds and falls back to the tracked defaults for
 everything else, so a partial overlay is fine. Override the location with
