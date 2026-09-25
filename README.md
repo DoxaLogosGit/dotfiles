@@ -136,8 +136,8 @@ chsh -s /usr/bin/zsh
 macOS already defaults to zsh — nothing to do there.
 
 Shell helpers defined in `zsh/zshrc`: `ll`, `c` / `cw` (Claude personal/work
-config dirs), `y` (yazi, cd on exit), `zm` / `zw` (attach named zellij
-sessions), `zdump` (dump the attached session's layout).
+config dirs), `y` (yazi, cd on exit), `zm` (attach the MAIN zellij session),
+`zdump` (dump the attached session's layout).
 
 Machine-local additions that shouldn't be committed go in `~/.zshrc.local`,
 which `zshrc` sources last if present — see
