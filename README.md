@@ -225,6 +225,58 @@ Adopting an overlay on a machine that already has real `~/.zshrc.local` and
 friends is safe: each existing file is copied to
 `~/.dotfiles-backup/<timestamp>/` before the symlink replaces it.
 
+#### One repo, several machines
+
+Machines that share a security boundary — your own devices on your own network —
+belong in one overlay repo with a directory per machine. Splitting them buys no
+isolation you do not already have, and the shared files drift apart.
+
+```
+~/.dotfiles-local-repo/
+  common/gitconfig.local        # personal email + helper, stored once
+  common/vimrc.local
+  laptop/  zsh/ git/ vim/ pi/ herdr/ zellij/layouts/
+  nas/     zsh/ git/ vim/ zellij/layouts/
+  pihole/  zsh/ git/
+```
+
+Files that are identical everywhere live once in `common/`, with a relative
+symlink from each machine directory:
+
+```bash
+cd ~/.dotfiles-local-repo/laptop/git
+ln -s ../../common/gitconfig.local gitconfig.local
+```
+
+Git stores those as symlinks (mode `120000`) sharing one blob, so editing
+`common/` updates every machine with no duplication.
+
+Point `~/.dotfiles-local` at this machine's directory. `install.sh` follows the
+symlink, so there is no environment variable to set or remember:
+
+```bash
+git clone <private-overlay-repo> ~/.dotfiles-local-repo
+ln -sfn ~/.dotfiles-local-repo/laptop ~/.dotfiles-local
+./install.sh --symlinks
+```
+
+Because every linked file resolves *through* that one symlink, repointing it
+switches the whole set at once, with no reinstall:
+
+```bash
+ln -sfn ~/.dotfiles-local-repo/nas ~/.dotfiles-local
+```
+
+Use `ln -sfn`, not `ln -sf`. Without `-n`, when the symlink already exists and
+points at a directory, `ln` creates the new link *inside* that directory instead
+of replacing it.
+
+> Repointing to a machine directory that lacks a file leaves a **dangling
+> symlink**: `~/.dotfiles/pi/models.json` still resolves through
+> `~/.dotfiles-local`, which no longer has a `pi/` directory. Re-run
+> `./install.sh --symlinks` after repointing, which re-seeds from `*.example`
+> wherever the new overlay has no copy.
+
 **An overlay is a backup, not a vault.** `zshrc.local` can hold live
 credentials, so whatever hosts the overlay must be at least as private as the
 values inside it. Nothing here encrypts anything.
