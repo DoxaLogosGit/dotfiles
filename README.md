@@ -177,7 +177,7 @@ Verify the git identity resolves from the local file, not the tracked one:
 git config --show-origin --get user.email
 ```
 
-Two more untracked files that need no seeding:
+Three more untracked paths that need no seeding:
 
 - `~/.pi/agent/settings.json` — pi's provider/model choice and runtime state.
   The package list that matters lives in `scripts/install-pi-packages.sh`; run
@@ -186,6 +186,10 @@ Two more untracked files that need no seeding:
 - `~/.config/opencode/opencode.json` — same reasoning as `pi/models.json`. The
   whole `opencode/` directory is gitignored; keep a local copy and back it up
   outside this repo.
+- `~/.config/zellij/layouts/` — zellij layouts embed absolute `cwd` paths and
+  per-machine commands, so they do not survive a move between machines. Only
+  `zellij/config.kdl` is shared and symlinked; the layouts directory is real and
+  local. `zdump` writes the attached session's layout there.
 
 **Why `pi/models.json` and `opencode.json` are fully local rather than split:**
 pi reads exactly one `models.json` and has no include mechanism, so a portable

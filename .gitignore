@@ -25,3 +25,8 @@ opencode/
 
 # Superpowers specs/plans (kept local, not committed)
 docs/superpowers/
+
+# Zellij layouts are machine-local: they embed absolute cwd paths and
+# per-machine commands, so they must not be shared across machines.
+# Live layouts belong in ~/.config/zellij/layouts/ (see zdump).
+zellij/layouts/

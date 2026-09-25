@@ -95,7 +95,10 @@ zdump() {
     local session
     session="$(zellij list-sessions | grep ATTACHED | awk '{print $1}')"
     [[ -n "$session" ]] || { echo "zdump: no attached zellij session" >&2; return 1; }
-    zellij action dump-layout > "$HOME/.dotfiles/zellij/layouts/${session}.kdl"
+    # Layouts stay machine-local: they embed absolute cwd paths and
+    # per-machine commands, so they must never be written into the repo.
+    mkdir -p "$HOME/.config/zellij/layouts"
+    zellij action dump-layout > "$HOME/.config/zellij/layouts/${session}.kdl"
 }
 
 # Refresh desktop-session vars inside tmux so the Obsidian flatpak CLI works.

@@ -189,8 +189,10 @@ install_symlinks_common() {
     # Yazi
     create_symlink "$DOTFILES_DIR/yazi" "$HOME/.config/yazi"
 
-    # Zellij
-    create_symlink "$DOTFILES_DIR/zellij" "$HOME/.config/zellij"
+    # Zellij (layouts/ are machine-local — they embed absolute cwd paths and
+    # per-machine commands — so symlink the config file only)
+    create_symlink "$DOTFILES_DIR/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
+    mkdir -p "$HOME/.config/zellij/layouts"
 
     # Git (identity/credentials are per-machine — see gitconfig.local.example)
     create_symlink "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
