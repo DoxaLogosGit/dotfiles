@@ -184,6 +184,30 @@ link_from_overlay() {
     return 0
 }
 
+# Replace a directory symlink left behind by an older layout with a real
+# directory. ~/.config/zellij used to be a symlink to the repo's zellij/, so
+# linking a file *inside* it resolved back into the repo: the installer
+# overwrote the tracked zellij/config.kdl with a symlink pointing at itself,
+# and zellij then failed with "Too many levels of symbolic links".
+ensure_real_dir() {
+    local dir="$1"
+
+    if [ -L "$dir" ]; then
+        if [ "$DRY_RUN" = true ]; then
+            info "[DRY-RUN] Would replace stale directory symlink: $dir"
+            return 0
+        fi
+        if ! backup_file "$dir"; then
+            warning "Skipped: $dir (could not back up the stale symlink)"
+            return 1
+        fi
+        rm -f "$dir"
+        info "Replaced stale directory symlink with a real directory: $dir"
+    fi
+
+    mkdir -p "$dir"
+}
+
 # Copy a template into place only if the target does not exist. Used for
 # machine-local files that must not be symlinked back into the repo.
 copy_template() {
@@ -279,6 +303,8 @@ install_symlinks_common() {
 
     # Zellij (layouts/ are machine-local — they embed absolute cwd paths and
     # per-machine commands — so symlink the config file only)
+    # Older installs symlinked the whole directory; convert before linking into it.
+    ensure_real_dir "$HOME/.config/zellij"
     create_symlink "$DOTFILES_DIR/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
     mkdir -p "$HOME/.config/zellij/layouts"
     # Link each overlay layout individually rather than replacing the directory,
