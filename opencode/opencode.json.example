@@ -1,0 +1,38 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "//": "Copy to opencode.json and edit for this machine. Never committed.",
+  "//provider": "Add internal/corporate gateways and model catalogues here, not in the repo.",
+  "disabled_providers": ["opencode"],
+  "permission": {
+    "//": "Portable safety rules: anything that publishes or rewrites shared history asks first.",
+    "bash": {
+      "*": "allow",
+      "git push*": "ask",
+      "glab mr create*": "ask",
+      "glab mr merge*": "ask",
+      "gh pr create*": "ask",
+      "gh pr merge*": "ask"
+    }
+  },
+  "//model": "Machine-specific. Point these at a provider/model defined below.",
+  "small_model": "ExampleGateway/small-model-id",
+  "model": "ExampleGateway/main-model-id",
+  "provider": {
+    "ExampleGateway": {
+      "//": "OpenAI-compatible gateway. Keep the real baseURL local.",
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "ExampleGateway",
+      "options": {
+        "baseURL": "https://gateway.example.internal/v1/"
+      },
+      "models": {
+        "main-model-id": {
+          "name": "Main Model"
+        },
+        "small-model-id": {
+          "name": "Small Model"
+        }
+      }
+    }
+  }
+}

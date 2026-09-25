@@ -128,6 +128,62 @@ backup_file() {
     return 0
 }
 
+# ── Machine-local overlay ─────────────────────────────────────────────────────
+#
+# Some config is per-machine and cannot be shared: pi/models.json mixes local
+# ollama models with per-network gateways, zellij layouts embed absolute paths,
+# and herdr may be tuned differently on each box.
+#
+# An overlay is an optional, separately-hosted directory holding those files for
+# *this* machine. It is deliberately anonymous: this script only asks whether one
+# exists, never where it came from. That keeps each machine class on its own
+# network and its own host (personal devices in one place, employer-provided
+# equipment in whatever that employer hosts) with no repo referencing another.
+#
+# Layout mirrors this repo, so an overlay holding pi/models.json and
+# herdr/config.toml shadows exactly those files:
+#
+#     ~/.dotfiles-local/
+#       zsh/zshrc.local
+#       git/gitconfig.local
+#       vim/vimrc.local
+#       pi/models.json
+#       herdr/config.toml
+#       zellij/layouts/*.kdl
+#
+# Note that zshrc.local can hold real credentials. An overlay is a backup, not a
+# vault: whatever hosts it must be at least as private as the values inside it.
+#
+# When no overlay is present, every path below behaves exactly as it did before
+# overlays existed: templates are seeded from *.example and nothing else changes.
+DOTFILES_OVERLAY="${DOTFILES_OVERLAY:-$HOME/.dotfiles-local}"
+
+# True when an overlay directory is present.
+overlay_active() {
+    [ -n "$DOTFILES_OVERLAY" ] && [ -d "$DOTFILES_OVERLAY" ]
+}
+
+# Echo the overlay's copy of a repo-relative path when it exists, else nothing.
+overlay_path() {
+    local rel="$1"
+    overlay_active || return 1
+    [ -e "$DOTFILES_OVERLAY/$rel" ] || return 1
+    printf '%s' "$DOTFILES_OVERLAY/$rel"
+}
+
+# Link a machine-local file from the overlay when present. Falls back to the
+# caller's behaviour (via return 1) when there is no overlay copy, so callers
+# keep their existing template-seeding path untouched.
+link_from_overlay() {
+    local rel="$1"
+    local target="$2"
+    local src
+
+    src="$(overlay_path "$rel")" || return 1
+    create_symlink "$src" "$target"
+    return 0
+}
+
 # Copy a template into place only if the target does not exist. Used for
 # machine-local files that must not be symlinked back into the repo.
 copy_template() {
@@ -187,6 +243,10 @@ create_symlink() {
 install_symlinks_common() {
     local tmux_conf="$1"
 
+    if overlay_active; then
+        info "Using machine-local overlay: $DOTFILES_OVERLAY"
+    fi
+
     mkdir -p "$HOME/.vim-tmp"
     mkdir -p "$HOME/.tmp"
     mkdir -p "$HOME/.tmux/plugins"
@@ -195,7 +255,8 @@ install_symlinks_common() {
 
     # Zsh (primary shell)
     create_symlink "$DOTFILES_DIR/zsh/zshrc" "$HOME/.zshrc"
-    copy_template "$DOTFILES_DIR/zsh/zshrc.local.example" "$HOME/.zshrc.local"
+    link_from_overlay "zsh/zshrc.local" "$HOME/.zshrc.local" ||
+        copy_template "$DOTFILES_DIR/zsh/zshrc.local.example" "$HOME/.zshrc.local"
 
     # Starship
     create_symlink "$DOTFILES_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
@@ -207,7 +268,8 @@ install_symlinks_common() {
 
     # Vim (employer/email are per-machine — see vimrc.local.example)
     create_symlink "$DOTFILES_DIR/vim/vimrc" "$HOME/.vimrc"
-    copy_template "$DOTFILES_DIR/vim/vimrc.local.example" "$HOME/.vimrc.local"
+    link_from_overlay "vim/vimrc.local" "$HOME/.vimrc.local" ||
+        copy_template "$DOTFILES_DIR/vim/vimrc.local.example" "$HOME/.vimrc.local"
 
     # Tmux
     create_symlink "$DOTFILES_DIR/tmux/$tmux_conf" "$HOME/.tmux.conf"
@@ -215,12 +277,24 @@ install_symlinks_common() {
     # Yazi
     create_symlink "$DOTFILES_DIR/yazi" "$HOME/.config/yazi"
 
-    # Zellij
-    create_symlink "$DOTFILES_DIR/zellij" "$HOME/.config/zellij"
+    # Zellij (layouts/ are machine-local — they embed absolute cwd paths and
+    # per-machine commands — so symlink the config file only)
+    create_symlink "$DOTFILES_DIR/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
+    mkdir -p "$HOME/.config/zellij/layouts"
+    # Link each overlay layout individually rather than replacing the directory,
+    # so layouts dumped on this machine by `zdump` are never destroyed.
+    if overlay_active && [ -d "$DOTFILES_OVERLAY/zellij/layouts" ]; then
+        local layout
+        for layout in "$DOTFILES_OVERLAY"/zellij/layouts/*.kdl; do
+            [ -e "$layout" ] || continue
+            create_symlink "$layout" "$HOME/.config/zellij/layouts/$(basename "$layout")"
+        done
+    fi
 
     # Git (identity/credentials are per-machine — see gitconfig.local.example)
     create_symlink "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
-    copy_template "$DOTFILES_DIR/git/gitconfig.local.example" "$HOME/.gitconfig.local"
+    link_from_overlay "git/gitconfig.local" "$HOME/.gitconfig.local" ||
+        copy_template "$DOTFILES_DIR/git/gitconfig.local.example" "$HOME/.gitconfig.local"
 
     # Nushell (nushell writes history.txt — symlink config file only)
     create_symlink "$DOTFILES_DIR/nushell/config.nu" "$HOME/.config/nushell/config.nu"
@@ -256,12 +330,16 @@ install_symlinks_common() {
 
     # Pi coding agent
     # models.json and settings.json are untracked (internal endpoints,
-    # per-machine model access), so seed models.json from the example.
+    # per-machine model access). An overlay copy is linked in when present;
+    # otherwise seed models.json from the example as before.
     create_symlink "$DOTFILES_DIR/pi" "$HOME/.pi/agent"
-    copy_template "$DOTFILES_DIR/pi/models.json.example" "$DOTFILES_DIR/pi/models.json"
+    link_from_overlay "pi/models.json" "$DOTFILES_DIR/pi/models.json" ||
+        copy_template "$DOTFILES_DIR/pi/models.json.example" "$DOTFILES_DIR/pi/models.json"
 
-    # Herdr (herdr manages ~/.config/herdr/ logs + sessions — symlink config file only)
-    create_symlink "$DOTFILES_DIR/herdr/config.toml" "$HOME/.config/herdr/config.toml"
+    # Herdr (herdr manages ~/.config/herdr/ logs + sessions — symlink config file
+    # only). An overlay copy wins, so a machine can diverge its keybinds.
+    link_from_overlay "herdr/config.toml" "$HOME/.config/herdr/config.toml" ||
+        create_symlink "$DOTFILES_DIR/herdr/config.toml" "$HOME/.config/herdr/config.toml"
 
     # Scripts
     create_symlink "$DOTFILES_DIR/scripts/reset_last_tmux_resurrect.sh" "$HOME/.local/bin/reset_last_tmux_resurrect.sh"
@@ -289,17 +367,23 @@ install_symlinks_desktop() {
     # Ghostty (themes/ is tool-managed, gitignored)
     create_symlink "$DOTFILES_DIR/ghostty" "$HOME/.config/ghostty"
 
-    # Claude (Claude Code manages ~/.claude/ — symlink scripts dir and settings file)
+    # Claude (Claude Code manages ~/.claude/ — symlink scripts dir and settings
+    # file). settings.json routes through the overlay: Claude cannot be installed
+    # on every machine, so each one decides whether to supply a config at all.
     create_symlink "$DOTFILES_DIR/claude/scripts" "$HOME/.claude/scripts"
-    create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
+    link_from_overlay "claude/settings.json" "$HOME/.claude/settings.json" ||
+        create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
 
     # VS Code (Code/User is tool-managed — symlink settings file only)
     create_symlink "$DOTFILES_DIR/vscode/settings.json" "$code_user_dir/settings.json"
 
-    # OpenCode config is machine-local and untracked (internal endpoints and
-    # per-account model access), so there is nothing here to link. See README
-    # "Machine-local config". Do not re-add a symlink: it would replace the
-    # live ~/.config/opencode/opencode.json with a dangling link.
+    # OpenCode (opencode manages its own dir — symlink config file only).
+    # opencode.json holds gateway URLs and model catalogues, so it is untracked
+    # and machine-local: take the overlay copy when there is one, otherwise seed
+    # from the template so a fresh clone has a working starting point.
+    link_from_overlay "opencode/opencode.json" "$DOTFILES_DIR/opencode/opencode.json" ||
+        copy_template "$DOTFILES_DIR/opencode/opencode.json.example" "$DOTFILES_DIR/opencode/opencode.json"
+    create_symlink "$DOTFILES_DIR/opencode/opencode.json" "$HOME/.config/opencode/opencode.json"
 
 }
 

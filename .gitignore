@@ -21,7 +21,17 @@ Thumbs.db
 .env
 *.secret
 credentials*
-opencode/
+# opencode.json holds gateway URLs and model catalogues, so everything in the
+# directory stays ignored — but the sanitised template must be tracked so fresh
+# clones can seed. Exclude the contents, not the directory itself: git cannot
+# re-include a file whose parent directory is excluded.
+opencode/*
+!opencode/opencode.json.example
 
 # Superpowers specs/plans (kept local, not committed)
 docs/superpowers/
+
+# Zellij layouts are machine-local: they embed absolute cwd paths and
+# per-machine commands, so they must not be shared across machines.
+# Live layouts belong in ~/.config/zellij/layouts/ (see zdump).
+zellij/layouts/
