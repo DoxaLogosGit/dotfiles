@@ -158,6 +158,12 @@ backup_file() {
 # overlays existed: templates are seeded from *.example and nothing else changes.
 DOTFILES_OVERLAY="${DOTFILES_OVERLAY:-$HOME/.dotfiles-local}"
 
+# Per-machine install manifest. Decides which tools this machine installs and
+# configures; absent, everything is installed as it was before manifests.
+# shellcheck source=scripts/manifest.sh
+. "$DOTFILES_DIR/scripts/manifest.sh"
+MANIFEST_TABLE_FILE="$DOTFILES_DIR/scripts/tools.tsv"
+
 # True when an overlay directory is present.
 overlay_active() {
     [ -n "$DOTFILES_OVERLAY" ] && [ -d "$DOTFILES_OVERLAY" ]
@@ -278,55 +284,75 @@ install_symlinks_common() {
     mkdir -p "$HOME/.pi"
 
     # Zsh (primary shell)
-    create_symlink "$DOTFILES_DIR/zsh/zshrc" "$HOME/.zshrc"
-    link_from_overlay "zsh/zshrc.local" "$HOME/.zshrc.local" ||
-        copy_template "$DOTFILES_DIR/zsh/zshrc.local.example" "$HOME/.zshrc.local"
+    if want_config zsh; then
+        create_symlink "$DOTFILES_DIR/zsh/zshrc" "$HOME/.zshrc"
+        link_from_overlay "zsh/zshrc.local" "$HOME/.zshrc.local" ||
+            copy_template "$DOTFILES_DIR/zsh/zshrc.local.example" "$HOME/.zshrc.local"
+    fi
 
     # Starship
-    create_symlink "$DOTFILES_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
+    if want_config starship; then
+        create_symlink "$DOTFILES_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
+    fi
 
     # Neovim (lua/ dir exists in live but not tracked — symlink known files only)
-    create_symlink "$DOTFILES_DIR/nvim/init.lua" "$HOME/.config/nvim/init.lua"
-    create_symlink "$DOTFILES_DIR/nvim/lazy-lock.json" "$HOME/.config/nvim/lazy-lock.json"
-    create_symlink "$DOTFILES_DIR/nvim/colors" "$HOME/.config/nvim/colors"
+    if want_config nvim; then
+        create_symlink "$DOTFILES_DIR/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+        create_symlink "$DOTFILES_DIR/nvim/lazy-lock.json" "$HOME/.config/nvim/lazy-lock.json"
+        create_symlink "$DOTFILES_DIR/nvim/colors" "$HOME/.config/nvim/colors"
+    fi
 
     # Vim (employer/email are per-machine — see vimrc.local.example)
-    create_symlink "$DOTFILES_DIR/vim/vimrc" "$HOME/.vimrc"
-    link_from_overlay "vim/vimrc.local" "$HOME/.vimrc.local" ||
-        copy_template "$DOTFILES_DIR/vim/vimrc.local.example" "$HOME/.vimrc.local"
+    if want_config vim; then
+        create_symlink "$DOTFILES_DIR/vim/vimrc" "$HOME/.vimrc"
+        link_from_overlay "vim/vimrc.local" "$HOME/.vimrc.local" ||
+            copy_template "$DOTFILES_DIR/vim/vimrc.local.example" "$HOME/.vimrc.local"
+    fi
 
     # Tmux
-    create_symlink "$DOTFILES_DIR/tmux/$tmux_conf" "$HOME/.tmux.conf"
+    if want_config tmux; then
+        create_symlink "$DOTFILES_DIR/tmux/$tmux_conf" "$HOME/.tmux.conf"
+    fi
 
     # Yazi
-    create_symlink "$DOTFILES_DIR/yazi" "$HOME/.config/yazi"
+    if want_config yazi; then
+        create_symlink "$DOTFILES_DIR/yazi" "$HOME/.config/yazi"
+    fi
 
     # Zellij (layouts/ are machine-local — they embed absolute cwd paths and
     # per-machine commands — so symlink the config file only)
-    # Older installs symlinked the whole directory; convert before linking into it.
-    ensure_real_dir "$HOME/.config/zellij"
-    create_symlink "$DOTFILES_DIR/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
-    mkdir -p "$HOME/.config/zellij/layouts"
-    # Link each overlay layout individually rather than replacing the directory,
-    # so layouts dumped on this machine by `zdump` are never destroyed.
-    if overlay_active && [ -d "$DOTFILES_OVERLAY/zellij/layouts" ]; then
-        local layout
-        for layout in "$DOTFILES_OVERLAY"/zellij/layouts/*.kdl; do
-            [ -e "$layout" ] || continue
-            create_symlink "$layout" "$HOME/.config/zellij/layouts/$(basename "$layout")"
-        done
+    if want_config zellij; then
+        # Older installs symlinked the whole directory; convert before linking into it.
+        ensure_real_dir "$HOME/.config/zellij"
+        create_symlink "$DOTFILES_DIR/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
+        mkdir -p "$HOME/.config/zellij/layouts"
+        # Link each overlay layout individually rather than replacing the directory,
+        # so layouts dumped on this machine by `zdump` are never destroyed.
+        if overlay_active && [ -d "$DOTFILES_OVERLAY/zellij/layouts" ]; then
+            local layout
+            for layout in "$DOTFILES_OVERLAY"/zellij/layouts/*.kdl; do
+                [ -e "$layout" ] || continue
+                create_symlink "$layout" "$HOME/.config/zellij/layouts/$(basename "$layout")"
+            done
+        fi
     fi
 
     # Git (identity/credentials are per-machine — see gitconfig.local.example)
-    create_symlink "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
-    link_from_overlay "git/gitconfig.local" "$HOME/.gitconfig.local" ||
-        copy_template "$DOTFILES_DIR/git/gitconfig.local.example" "$HOME/.gitconfig.local"
+    if want_config git; then
+        create_symlink "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
+        link_from_overlay "git/gitconfig.local" "$HOME/.gitconfig.local" ||
+            copy_template "$DOTFILES_DIR/git/gitconfig.local.example" "$HOME/.gitconfig.local"
+    fi
 
     # Nushell (nushell writes history.txt — symlink config file only)
-    create_symlink "$DOTFILES_DIR/nushell/config.nu" "$HOME/.config/nushell/config.nu"
+    if want_config nushell; then
+        create_symlink "$DOTFILES_DIR/nushell/config.nu" "$HOME/.config/nushell/config.nu"
+    fi
 
     # Atuin (atuin manages ~/.config/atuin/ — symlink config file only)
-    create_symlink "$DOTFILES_DIR/atuin/config.toml" "$HOME/.config/atuin/config.toml"
+    if want_config atuin; then
+        create_symlink "$DOTFILES_DIR/atuin/config.toml" "$HOME/.config/atuin/config.toml"
+    fi
 
     # Atuin — generate nushell integration file
     if command -v atuin &>/dev/null; then
@@ -342,47 +368,57 @@ install_symlinks_common() {
     fi
 
     # Python
-    create_symlink "$DOTFILES_DIR/python/pylintrc" "$HOME/.pylintrc"
+    if want_config python; then
+        create_symlink "$DOTFILES_DIR/python/pylintrc" "$HOME/.pylintrc"
+    fi
 
     # Bash
-    create_symlink "$DOTFILES_DIR/bash/bashrc" "$HOME/.bashrc"
-    create_symlink "$DOTFILES_DIR/bash/bash_profile" "$HOME/.bash_profile"
+    if want_config bash; then
+        create_symlink "$DOTFILES_DIR/bash/bashrc" "$HOME/.bashrc"
+        create_symlink "$DOTFILES_DIR/bash/bash_profile" "$HOME/.bash_profile"
+    fi
 
     # htop
-    create_symlink "$DOTFILES_DIR/htop" "$HOME/.config/htop"
+    if want_config htop; then
+        create_symlink "$DOTFILES_DIR/htop" "$HOME/.config/htop"
+    fi
 
     # btop
-    create_symlink "$DOTFILES_DIR/btop" "$HOME/.config/btop"
+    if want_config btop; then
+        create_symlink "$DOTFILES_DIR/btop" "$HOME/.config/btop"
+    fi
 
     # Pi coding agent
     # models.json and settings.json are untracked (internal endpoints,
     # per-machine model access). An overlay copy is linked in when present;
     # otherwise seed models.json from the example as before.
-    create_symlink "$DOTFILES_DIR/pi" "$HOME/.pi/agent"
-    link_from_overlay "pi/models.json" "$DOTFILES_DIR/pi/models.json" ||
-        copy_template "$DOTFILES_DIR/pi/models.json.example" "$DOTFILES_DIR/pi/models.json"
+    if want_config pi; then
+        create_symlink "$DOTFILES_DIR/pi" "$HOME/.pi/agent"
+        link_from_overlay "pi/models.json" "$DOTFILES_DIR/pi/models.json" ||
+            copy_template "$DOTFILES_DIR/pi/models.json.example" "$DOTFILES_DIR/pi/models.json"
+    fi
 
     # Herdr (herdr manages ~/.config/herdr/ logs + sessions — symlink config file
     # only). An overlay copy wins, so a machine can diverge its keybinds.
-    link_from_overlay "herdr/config.toml" "$HOME/.config/herdr/config.toml" ||
-        create_symlink "$DOTFILES_DIR/herdr/config.toml" "$HOME/.config/herdr/config.toml"
+    if want_config herdr; then
+        link_from_overlay "herdr/config.toml" "$HOME/.config/herdr/config.toml" ||
+            create_symlink "$DOTFILES_DIR/herdr/config.toml" "$HOME/.config/herdr/config.toml"
+    fi
 
     # Scripts
-    create_symlink "$DOTFILES_DIR/scripts/reset_last_tmux_resurrect.sh" "$HOME/.local/bin/reset_last_tmux_resurrect.sh"
+    if want_config scripts; then
+        create_symlink "$DOTFILES_DIR/scripts/reset_last_tmux_resurrect.sh" "$HOME/.local/bin/reset_last_tmux_resurrect.sh"
 
-    # Zellij snapshot tool (rotating session-state backups)
-    create_symlink "$DOTFILES_DIR/scripts/zellij-snapshot" "$HOME/.local/bin/zellij-snapshot"
-    create_symlink "$DOTFILES_DIR/scripts/zellij-restore" "$HOME/.local/bin/zellij-restore"
+        # Obsidian vault backup (replaces the Obsidian Git plugin)
+        create_symlink "$DOTFILES_DIR/scripts/vault-backup" "$HOME/.local/bin/vault-backup"
+    fi
 
-    # Obsidian vault backup (replaces the Obsidian Git plugin)
-    create_symlink "$DOTFILES_DIR/scripts/vault-backup" "$HOME/.local/bin/vault-backup"
-}
-
-# Install symlinks (Raspbian — thumbs/Ghostty/Claude/VS Code/OpenCode excluded)
-install_symlinks_raspbian() {
-    info "Creating symlinks (Raspbian)..."
-    install_symlinks_common "tmux-raspbian.conf"
-    success "Symlinks created!"
+    # Zellij snapshot tool (rotating session-state backups). Part of zellij:
+    # a machine without it has nothing for these to drive.
+    if want_config zellij; then
+        create_symlink "$DOTFILES_DIR/scripts/zellij-snapshot" "$HOME/.local/bin/zellij-snapshot"
+        create_symlink "$DOTFILES_DIR/scripts/zellij-restore" "$HOME/.local/bin/zellij-restore"
+    fi
 }
 
 # Desktop/agent symlinks shared by Linux and macOS (Raspbian omits these).
@@ -391,25 +427,33 @@ install_symlinks_desktop() {
     local code_user_dir="$1"
 
     # Ghostty (themes/ is tool-managed, gitignored)
-    create_symlink "$DOTFILES_DIR/ghostty" "$HOME/.config/ghostty"
+    if want_config ghostty; then
+        create_symlink "$DOTFILES_DIR/ghostty" "$HOME/.config/ghostty"
+    fi
 
     # Claude (Claude Code manages ~/.claude/ — symlink scripts dir and settings
     # file). settings.json routes through the overlay: Claude cannot be installed
     # on every machine, so each one decides whether to supply a config at all.
-    create_symlink "$DOTFILES_DIR/claude/scripts" "$HOME/.claude/scripts"
-    link_from_overlay "claude/settings.json" "$HOME/.claude/settings.json" ||
-        create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
+    if want_config claude; then
+        create_symlink "$DOTFILES_DIR/claude/scripts" "$HOME/.claude/scripts"
+        link_from_overlay "claude/settings.json" "$HOME/.claude/settings.json" ||
+            create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
+    fi
 
     # VS Code (Code/User is tool-managed — symlink settings file only)
-    create_symlink "$DOTFILES_DIR/vscode/settings.json" "$code_user_dir/settings.json"
+    if want_config vscode; then
+        create_symlink "$DOTFILES_DIR/vscode/settings.json" "$code_user_dir/settings.json"
+    fi
 
     # OpenCode (opencode manages its own dir — symlink config file only).
     # opencode.json holds gateway URLs and model catalogues, so it is untracked
     # and machine-local: take the overlay copy when there is one, otherwise seed
     # from the template so a fresh clone has a working starting point.
-    link_from_overlay "opencode/opencode.json" "$DOTFILES_DIR/opencode/opencode.json" ||
-        copy_template "$DOTFILES_DIR/opencode/opencode.json.example" "$DOTFILES_DIR/opencode/opencode.json"
-    create_symlink "$DOTFILES_DIR/opencode/opencode.json" "$HOME/.config/opencode/opencode.json"
+    if want_config opencode; then
+        link_from_overlay "opencode/opencode.json" "$DOTFILES_DIR/opencode/opencode.json" ||
+            copy_template "$DOTFILES_DIR/opencode/opencode.json.example" "$DOTFILES_DIR/opencode/opencode.json"
+        create_symlink "$DOTFILES_DIR/opencode/opencode.json" "$HOME/.config/opencode/opencode.json"
+    fi
 
 }
 
@@ -665,6 +709,12 @@ main() {
     # Detect OS
     detect_os
 
+    # Validate the machine's manifest before anything is written: a typo must
+    # stop the run, not silently skip a tool.
+    if ! manifest_load "$DOTFILES_OVERLAY/manifest.conf" "$MANIFEST_TABLE_FILE"; then
+        exit 1
+    fi
+
     # Execute selected actions
     if [ "$DRY_RUN" = true ]; then
         warning "Running in DRY-RUN mode - no changes will be made"
@@ -676,9 +726,7 @@ main() {
     fi
 
     if [ "$DO_SYMLINKS" = true ]; then
-        if [ "$OS_TYPE" = "raspbian" ]; then
-            install_symlinks_raspbian
-        elif [ "$OS_TYPE" = "macos" ]; then
+        if [ "$OS_TYPE" = "macos" ]; then
             install_symlinks_macos
         else
             install_symlinks
@@ -704,6 +752,7 @@ main() {
     fi
 
     echo ""
+    manifest_summary
     success "Done!"
 }
 
