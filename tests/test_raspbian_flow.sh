@@ -69,10 +69,26 @@ case "$out" in
 esac
 assert_contains "$out" "Installing tmux" "tmux is the multiplexer here"
 
-# ── prebuilt binaries and npm, not compilation ──────────────────────────────
-assert_contains "$out" "starship_curl" "starship comes from the prebuilt installer"
-assert_contains "$out" "eza_raspbian" "eza comes from the prebuilt release"
+# ── distro packages first, no compilation ───────────────────────────────────
+# Raspbian Trixie is Debian 13, which ships starship, atuin and eza. The
+# handlers try apt first and only fall back to an upstream binary on releases
+# that lack the package, so nothing here compiles and nothing is arch-locked.
+assert_contains "$out" "starship_pkg" "starship goes through the apt-first handler"
+assert_contains "$out" "eza_pkg" "eza goes through the apt-first handler"
+assert_contains "$out" "apt:nodejs,npm" "node is the distro package, not an nvm build"
 assert_contains "$out" "pi_npm" "pi is installed with npm, not bun"
+
+# The handlers must genuinely try apt before anything else.
+for fn in starship_pkg atuin_pkg eza_pkg; do
+    # Strip comments first: the explanations name cargo and curl, and matching
+    # those would judge the prose rather than the code.
+    body="$(sed -n "/^$fn()/,/^}/p" "$REPO/scripts/packages-raspbian.sh" | sed 's/#.*//')"
+    first_cmd="$(printf '%s' "$body" | grep -nE 'apt-get|curl|cargo|wget' | head -1)"
+    case "$first_cmd" in
+        *apt-get*) _pass "$fn tries the distro package first" ;;
+        *) _fail "$fn tries the distro package first" "first install command: $first_cmd" ;;
+    esac
+done
 
 # ── the stale package name is gone ──────────────────────────────────────────
 handler="$(sed -n '/^pi_npm()/,/^}/p' "$REPO/scripts/packages-raspbian.sh")"

@@ -49,10 +49,67 @@ sudo apt-get install -yy \
 
 # ── fn: handlers named by this OS's cells in tools.tsv ────────────────────────
 
-starship_curl() {
-    # Raspbian has no starship package, but upstream publishes prebuilt ARM
-    # binaries — nothing is compiled here.
+_install_prebuilt_zip() {
+    local url="$1" inner="$2" name="$3"
+    local tmp="/tmp/$name.zip"
+    wget -q "$url" -O "$tmp" || { warning "$name download failed"; return 1; }
+    unzip -o "$tmp" -d /tmp >/dev/null || { warning "$name unzip failed"; return 1; }
+    sudo mv "/tmp/$inner" /usr/bin/ || { warning "$name install failed"; return 1; }
+    rm -rf "$tmp" "/tmp/${name:?}"*
+}
+
+starship_pkg() {
+    # Debian 13 ships starship 1.22; bookworm and the older Ubuntu releases do
+    # not. Prefer the package so it stays maintained, and fall back to the
+    # upstream installer, which publishes prebuilt ARM binaries.
+    sudo apt-get install -yy starship 2>/dev/null && return 0
+    info "starship not in this release's repos — using the upstream installer."
     curl -sS https://starship.rs/install.sh | sh -s -- -y
+}
+
+atuin_pkg() {
+    # Debian 13 ships atuin 18.6. Without a package the only route is a cargo
+    # build, which is minutes on a desktop and far worse on a Pi, so a machine
+    # without the package and without a toolchain simply goes without.
+    sudo apt-get install -yy atuin 2>/dev/null && return 0
+    if command -v cargo >/dev/null 2>&1; then
+        info "atuin not in this release's repos — building with cargo."
+        cargo install atuin
+    else
+        warning "atuin needs either the distro package or a Rust toolchain — skipping."
+        return 1
+    fi
+}
+
+eza_pkg() {
+    # Debian 13 and Ubuntu 24.04 ship eza; bookworm does not. The upstream
+    # prebuilt is x86_64/aarch64 only, so on armv7 the package is the only way.
+    sudo apt-get install -yy eza 2>/dev/null && return 0
+    local arch
+    arch="$(uname -m)"
+    case "$arch" in
+        x86_64)          _eza_from_release x86_64-unknown-linux-gnu ;;
+        aarch64|arm64)   _eza_from_release aarch64-unknown-linux-gnu ;;
+        *)
+            warning "eza has no package here and no prebuilt for $arch — set 'eza = no' on this machine."
+            return 1
+            ;;
+    esac
+}
+
+_eza_from_release() {
+    info "eza not in this release's repos — installing the upstream binary for $1."
+    _install_prebuilt_zip \
+        "https://github.com/eza-community/eza/releases/download/v0.21.1/eza_$1.zip" \
+        "eza" eza
+}
+
+glow_deb() {
+    # Debian 13 (trixie) carries glow 2.0; bookworm and the older Ubuntu
+    # releases do not, and there is no upstream .deb worth wiring up for it.
+    sudo apt-get install -yy glow 2>/dev/null && return 0
+    warning "glow not in this release's repos — skipping"
+    return 1
 }
 
 pi_npm() {
@@ -64,21 +121,6 @@ pi_npm() {
 
 opencode_npm() {
     npm install -g opencode-ai
-}
-
-eza_raspbian() {
-    # Prebuilt release binary. aarch64 only: the armv7 asset is named
-    # differently and is not published for every release.
-    if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
-        wget -q "https://github.com/eza-community/eza/releases/download/v0.21.1/eza_aarch64-unknown-linux-gnu.zip" \
-            -O /tmp/eza.zip &&
-            unzip -o /tmp/eza.zip -d /tmp >/dev/null &&
-            sudo mv /tmp/eza /usr/bin/ &&
-            rm -f /tmp/eza.zip
-    else
-        warning "No eza prebuilt for $ARCH — set 'eza = no' on this machine, or install it with cargo."
-        return 1
-    fi
 }
 
 uv_install() {

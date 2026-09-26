@@ -109,16 +109,49 @@ yazi_prebuilt() {
         "yazi-x86_64-unknown-linux-gnu/yazi" yazi
 }
 
-eza_prebuilt() {
-    # Ubuntu 24.04 and Debian trixie carry eza; bookworm does not. Prefer the
-    # repo where it exists so the package stays maintained, and fall back to
-    # the upstream binary where it does not.
-    if sudo apt-get install -yy eza 2>/dev/null; then
-        return 0
+starship_pkg() {
+    # Debian 13 ships starship 1.22; bookworm and the older Ubuntu releases do
+    # not. Prefer the package so it stays maintained, and fall back to the
+    # upstream installer, which publishes prebuilt ARM binaries.
+    sudo apt-get install -yy starship 2>/dev/null && return 0
+    info "starship not in this release's repos — using the upstream installer."
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+}
+
+atuin_pkg() {
+    # Debian 13 ships atuin 18.6. Without a package the only route is a cargo
+    # build, which is minutes on a desktop and far worse on a Pi, so a machine
+    # without the package and without a toolchain simply goes without.
+    sudo apt-get install -yy atuin 2>/dev/null && return 0
+    if command -v cargo >/dev/null 2>&1; then
+        info "atuin not in this release's repos — building with cargo."
+        cargo install atuin
+    else
+        warning "atuin needs either the distro package or a Rust toolchain — skipping."
+        return 1
     fi
-    info "eza not in this release's repos — installing the upstream binary."
+}
+
+eza_pkg() {
+    # Debian 13 and Ubuntu 24.04 ship eza; bookworm does not. The upstream
+    # prebuilt is x86_64/aarch64 only, so on armv7 the package is the only way.
+    sudo apt-get install -yy eza 2>/dev/null && return 0
+    local arch
+    arch="$(uname -m)"
+    case "$arch" in
+        x86_64)          _eza_from_release x86_64-unknown-linux-gnu ;;
+        aarch64|arm64)   _eza_from_release aarch64-unknown-linux-gnu ;;
+        *)
+            warning "eza has no package here and no prebuilt for $arch — set 'eza = no' on this machine."
+            return 1
+            ;;
+    esac
+}
+
+_eza_from_release() {
+    info "eza not in this release's repos — installing the upstream binary for $1."
     _install_prebuilt_zip \
-        "https://github.com/eza-community/eza/releases/download/v0.21.1/eza_x86_64-unknown-linux-gnu.zip" \
+        "https://github.com/eza-community/eza/releases/download/v0.21.1/eza_$1.zip" \
         "eza" eza
 }
 
