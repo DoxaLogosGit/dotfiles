@@ -354,6 +354,28 @@ for naming tools rather than branching on OS:
 Same mechanism, opposite answers, no code branch for either. Under the previous
 design each would have needed its own hardcoded symlink function.
 
+#### WSL
+
+A WSL instance detects as whatever distribution it runs — a Fedora WSL is
+`OS_TYPE=fedora` and installs through `packages-fedora.sh` — so nothing about
+the package side is special. What differs is that the graphical half of the
+machine lives on the Windows side, which is four manifest lines:
+
+```ini
+ghostty = no    # the terminal runs on Windows; only its config would be linked here
+vscode  = no    # VS Code runs on Windows and edits through the WSL remote extension
+fonts   = no    # fonts are installed on Windows and set in the terminal profile
+systemd = no    # unless enabled in /etc/wsl.conf, WSL has no systemd to install units into
+```
+
+Each of those is a per-machine decision rather than a platform fact, which is
+why they belong in the manifest and not in a WSL branch in `install.sh`: a WSL
+instance with systemd enabled in `/etc/wsl.conf` should say `systemd = yes`,
+and WSLg can run graphical applications if you want them.
+
+Add whatever else that machine declines — a work instance behind a proxy that
+blocks a provider sets `claude = no` for the same reason the work MacBook does.
+
 **Adding a tool:** add one row to `scripts/tools.tsv`, then run
 `scripts/gen-manifest-example.sh`. A test fails if the committed
 `manifest.example` has fallen behind the table. The new tool then shows up as a

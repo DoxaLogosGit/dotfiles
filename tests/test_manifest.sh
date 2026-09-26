@@ -80,6 +80,29 @@ assert_contains "$summary" "1 config-only" "summary counts config-only entries"
 manifest_load "$sandbox/nope.conf" "$TABLE" >/dev/null 2>&1
 assert_contains "$(manifest_summary)" "none" "summary says none when there is no manifest"
 
+# ── omissions must be reported, not just explicit noes ──────────────────
+# Opt-in means a tool the manifest never mentions is skipped as surely as one
+# set to no. Saying so is the safeguard: otherwise adding a row to the table
+# withholds that tool from every existing machine in silence.
+printf 'zsh = yes\n' > "$sandbox/sparse.conf"
+manifest_load "$sandbox/sparse.conf" "$TABLE" >/dev/null 2>&1
+sparse_summary="$(manifest_summary)"
+assert_contains "$sparse_summary" "not listed" "the summary names tools the manifest omits"
+assert_contains "$sparse_summary" "more" "a long omission list is truncated with a count"
+case "$sparse_summary" in
+    *zsh*) _fail "a listed tool is not reported as omitted" "zsh appeared in the omissions" ;;
+    *) _pass "a listed tool is not reported as omitted" ;;
+esac
+
+# A manifest covering the whole table reports no omissions at all.
+full="$(grep -vE '^[[:space:]]*(#|$)' "$HERE/../manifest.example" | sed 's/#.*//')"
+printf '%s\n' "$full" > "$sandbox/full.conf"
+manifest_load "$sandbox/full.conf" "$TABLE" >/dev/null 2>&1
+case "$(manifest_summary)" in
+    *"not listed"*) _fail "a complete manifest reports no omissions" "omissions reported anyway" ;;
+    *) _pass "a complete manifest reports no omissions" ;;
+esac
+
 # ── the summary must survive `set -e`, which install.sh enables ─────────
 # grep -c exits 1 on a zero count. Under set -e that aborted the installer at
 # the moment it reported results, after every skip line had already printed.

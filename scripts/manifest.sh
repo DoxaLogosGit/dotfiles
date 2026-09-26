@@ -149,5 +149,26 @@ manifest_summary() {
     skipped=$(printf '%s' "$MANIFEST_DATA" | grep '=no$' | cut -d= -f1 | tr '\n' ' ' || true)
     echo "Manifest: $MANIFEST_FILE ($yes_n yes, $no_n no, $cfg_n config-only)"
     [ -n "$skipped" ] && echo "  skipped: ${skipped% }"
+
+    # Opt-in means a tool the manifest never mentions is skipped too. Saying so
+    # is the whole safeguard: without it, adding a row to the table silently
+    # withholds that tool from every existing machine.
+    local omitted="" omitted_n=0 line tool
+    while IFS= read -r line; do
+        case "$line" in ''|\#*) continue ;; esac
+        tool=$(printf '%s' "$line" | cut -f1)
+        if [ -z "$(manifest_value "$tool")" ]; then
+            omitted_n=$((omitted_n + 1))
+            [ "$omitted_n" -le 12 ] && omitted="$omitted $tool"
+        fi
+    done < "$MANIFEST_TABLE"
+
+    if [ "$omitted_n" -gt 0 ]; then
+        if [ "$omitted_n" -gt 12 ]; then
+            echo "  not listed, so also skipped:$omitted ... and $((omitted_n - 12)) more"
+        else
+            echo "  not listed, so also skipped:$omitted"
+        fi
+    fi
     return 0
 }
