@@ -13,10 +13,10 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
 TABLE="$REPO/scripts/tools.tsv"
 
-# packages-debian.sh has not been converted to the table yet — it still runs
-# its own hardcoded package list and never calls pkg_run_table, so its column
-# is unused. Remove it from this list when it is converted.
-UNCONVERTED="debian"
+# Every package script is table-driven. If one is ever added that is not,
+# list it here and the check below asserts it stays that way rather than
+# silently half-converting.
+UNCONVERTED=""
 
 col_for() {
     case "$1" in
@@ -56,7 +56,7 @@ done
 
 # The reverse direction: a handler defined but named by no cell is dead code.
 # Helpers prefixed with _ and the shared log functions are exempt.
-for os in fedora raspbian macos; do
+for os in fedora debian raspbian macos; do
     script="$REPO/scripts/packages-$os.sh"
     col="$(col_for "$os")"
     required="$(cut -f"$col" "$TABLE" | grep '^fn:' | sed 's/fn://' | sort -u)"

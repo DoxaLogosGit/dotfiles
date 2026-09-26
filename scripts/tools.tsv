@@ -23,6 +23,7 @@ rust	fn:rustup	fn:rustup	apt:rustc,cargo	fn:rustup
 bun	fn:bun_install	fn:bun_install	-	brew:oven-sh/bun/bun
 node	fn:node_nvm	fn:node_nvm	apt:nodejs,npm	fn:node_nvm
 mise	fn:mise_curl	fn:mise_curl	-	brew:mise
+uv	fn:uv_install	fn:uv_install	fn:uv_install	brew:uv
 zsh	dnf:zsh	apt:zsh	apt:zsh	brew:zsh
 bash	dnf:bash	apt:bash	apt:bash	brew:bash
 nushell	fn:nushell_pkg	fn:nushell_pkg	-	brew:nushell
@@ -42,7 +43,7 @@ jq	dnf:jq	apt:jq	apt:jq	brew:jq
 yq	dnf:yq	-	-	brew:yq
 yazi	fn:yazi_prebuilt	fn:yazi_prebuilt	-	brew:yazi
 vifm	-	apt:vifm	-	-
-glow	dnf:glow	apt:glow	-	brew:glow
+glow	dnf:glow	fn:glow_deb	-	brew:glow
 moreutils	dnf:moreutils	-	-	brew:moreutils
 p7zip	dnf:7zip	apt:p7zip-full	-	brew:p7zip
 poppler	dnf:poppler	apt:poppler-utils	-	brew:poppler
@@ -53,8 +54,8 @@ procs	dnf:procs	-	-	brew:procs
 progress	dnf:progress	-	-	brew:progress
 dstat	dnf:pcp-dstat	-	-	-
 iotop	dnf:iotop-c	-	-	-
-glances	pip:glances	pip:glances	-	brew:glances
-bpytop	pip:bpytop	pip:bpytop	-	-
+glances	uv:glances	uv:glances	-	brew:glances
+bpytop	uv:bpytop	uv:bpytop	-	-
 ncdu	dnf:ncdu	-	-	brew:ncdu
 duf	dnf:duf	-	-	brew:duf
 lshw	dnf:lshw	-	-	-
@@ -68,10 +69,9 @@ lua	dnf:lua	apt:lua5.4	apt:lua5.4	brew:lua
 clang	dnf:clang	apt:clang	apt:clang	-
 shellcheck	dnf:ShellCheck	apt:shellcheck	apt:shellcheck	brew:shellcheck
 lazydocker	fn:lazydocker_copr	-	-	brew:lazydocker
-uv	pip:uv	pip:uv	-	brew:uv
-tldr	pip:tldr	pip:tldr	-	brew:tldr
-vale	pip:vale	pip:vale	-	brew:vale
-python-lsp	pip:jedi_language_server,flake8	pip:jedi_language_server,flake8	fn:python_lsp_pi	fn:python_lsp_uv
+tldr	uv:tldr	uv:tldr	-	brew:tldr
+vale	uv:vale	uv:vale	-	brew:vale
+python-lsp	uv:jedi-language-server,flake8	uv:jedi-language-server,flake8	uv:jedi-language-server,flake8	uv:jedi-language-server,flake8
 herdr	cargo:herdr	cargo:herdr	-	brew:herdr
 tudiff	cargo:tudiff	cargo:tudiff	-	cargo:tudiff
 tuicr	cargo:tuicr	cargo:tuicr	-	cargo:tuicr

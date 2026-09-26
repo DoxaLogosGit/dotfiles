@@ -45,6 +45,28 @@ _pkg_pip_install() {
         return 1
 }
 
+# uv tool install, one package per call: `uv tool install a b` is a usage
+# error. Each gets its own isolated environment with a shim in ~/.local/bin,
+# which is why these no longer need sudo or --break-system-packages.
+_pkg_uv_tool_install() {
+    local pkg rc=0
+    if ! command -v uv >/dev/null 2>&1; then
+        # uv installs to ~/.local/bin, which may not be on PATH yet in the
+        # same shell that just installed it.
+        if [ -x "$HOME/.local/bin/uv" ]; then
+            PATH="$HOME/.local/bin:$PATH"
+            export PATH
+        else
+            warning "uv is not installed — skipping: $*"
+            return 1
+        fi
+    fi
+    for pkg in "$@"; do
+        uv tool install "$pkg" || rc=1
+    done
+    return "$rc"
+}
+
 # pkg_install_one <tool> <cell>
 # Cell is method:name; a comma-separated name means several packages.
 pkg_install_one() {
@@ -69,6 +91,7 @@ pkg_install_one() {
         bun)   _pkg_do bun install -g "$@" ;;
         npm)   _pkg_do npm install -g "$@" ;;
         pip)   _pkg_do _pkg_pip_install "$@" ;;
+        uv)    _pkg_do _pkg_uv_tool_install "$@" ;;
         fn)
             if declare -f "$1" >/dev/null 2>&1; then
                 _pkg_do "$1"

@@ -130,6 +130,18 @@ node_nvm() {
     nvm install --lts && nvm use --lts
 }
 
+uv_install() {
+    # Standalone installer rather than pip: it needs no Python of its own and
+    # sidesteps PEP 668, which makes Debian-based systems refuse system-wide
+    # pip installs.
+    if command -v uv >/dev/null 2>&1; then
+        info "uv already installed"
+        return 0
+    fi
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.local/bin:$PATH"
+}
+
 playwright_linux() {
     # --with-deps shells out to dnf for browser system libraries.
     bunx playwright install --with-deps

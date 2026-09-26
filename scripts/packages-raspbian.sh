@@ -81,10 +81,16 @@ eza_raspbian() {
     fi
 }
 
-python_lsp_pi() {
-    # --break-system-packages: Debian refuses a system-wide pip install without
-    # it, and this machine has no virtualenv workflow to put these in.
-    pip3 install --break-system-packages jedi_language_server flake8
+uv_install() {
+    # Standalone installer rather than pip: it needs no Python of its own and
+    # sidesteps PEP 668, which makes Debian-based systems refuse system-wide
+    # pip installs.
+    if command -v uv >/dev/null 2>&1; then
+        info "uv already installed"
+        return 0
+    fi
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.local/bin:$PATH"
 }
 
 # ── Everything else comes from the table ──────────────────────────────────────

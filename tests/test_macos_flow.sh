@@ -69,7 +69,9 @@ out="$(run_macos "$all_yes")"
 assert_contains "$out" "Package installation complete" "the script runs to completion"
 assert_contains "$out" "brew_install neovim" "a brew cell dispatches to brew_install"
 assert_contains "$out" "ghostty_cask" "the ghostty cask handler is reached"
-assert_contains "$out" "python_lsp_uv" "the uv-based python LSP handler is reached"
+# The python LSP tools come through the table's uv cell now, not a macOS-only
+# handler: uv tool install gives the same isolated environments on every OS.
+assert_contains "$out" "jedi-language-server" "the python LSP tools install via uv"
 assert_contains "$out" "cargo install tudiff" "cargo-only tools still use cargo on macOS"
 assert_contains "$out" "brew_install herdr" "herdr comes from brew on macOS, not cargo"
 

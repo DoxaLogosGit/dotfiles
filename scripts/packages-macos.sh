@@ -91,13 +91,6 @@ ghostty_cask() {
     brew_install_cask ghostty
 }
 
-python_lsp_uv() {
-    # macOS Python is externally managed, so no `sudo pip` here: uv owns these.
-    # The uv row precedes python-lsp in tools.tsv.
-    uv tool install jedi-language-server || true
-    uv tool install flake8 || true
-}
-
 node_nvm() {
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
     export NVM_DIR="$HOME/.nvm"
