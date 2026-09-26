@@ -284,9 +284,10 @@ create_symlink() {
     success "Linked: $target -> $source"
 }
 
-# Shared symlinks for all platforms; $1 = tmux config filename (e.g. tmux.conf or tmux-raspbian.conf)
+# Shared symlinks for all platforms. A machine needing a different tmux config
+# supplies tmux/tmux.conf in its overlay directory rather than adding a variant
+# file and an OS branch here.
 install_symlinks_common() {
-    local tmux_conf="$1"
 
     if overlay_active; then
         info "Using machine-local overlay: $DOTFILES_OVERLAY"
@@ -329,7 +330,8 @@ install_symlinks_common() {
 
     # Tmux
     if want_config tmux; then
-        create_symlink "$DOTFILES_DIR/tmux/$tmux_conf" "$HOME/.tmux.conf"
+        link_from_overlay "tmux/tmux.conf" "$HOME/.tmux.conf" ||
+            create_symlink "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
     fi
 
     # Yazi
@@ -481,7 +483,7 @@ install_symlinks() {
 
     ensure_dir "$HOME/.config/Code/User"
 
-    install_symlinks_common "tmux.conf"
+    install_symlinks_common
     install_symlinks_desktop "$HOME/.config/Code/User"
 
     success "Symlinks created!"
@@ -494,7 +496,7 @@ install_symlinks_macos() {
     local code_user_dir="$HOME/Library/Application Support/Code/User"
     ensure_dir "$code_user_dir"
 
-    install_symlinks_common "tmux.conf"
+    install_symlinks_common
     install_symlinks_desktop "$code_user_dir"
 
     success "Symlinks created!"
