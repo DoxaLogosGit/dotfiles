@@ -123,7 +123,8 @@ eza_prebuilt() {
 }
 
 glow_deb() {
-    # glow is not in Debian stable's repositories.
+    # Debian 13 (trixie) carries glow 2.0; bookworm and the older Ubuntu
+    # releases do not, and there is no upstream .deb worth wiring up for it.
     sudo apt-get install -yy glow 2>/dev/null && return 0
     warning "glow not in this release's repos — skipping"
     return 1

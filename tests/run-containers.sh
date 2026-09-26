@@ -18,10 +18,17 @@
 #   fedora     A real Fedora userland (GNU coreutils, dnf), so the package
 #              scripts can run for real without installing anything on the host.
 #
+#   trixie     Debian 13, the current stable, and the release Raspbian Trixie is
+#              built on — so it is the closest available proxy for the Pi.
+#
+#   bookworm   Debian 12, oldstable. Kept because the two releases differ where
+#              it matters: glow and eza are packaged in trixie and not in
+#              bookworm, which is exactly what the fallback handlers exist for.
+#
 # Every install run here is --dry-run: it writes nothing, which is verified by
 # tests/test_dry_run_hermetic.sh.
 #
-# Usage: tests/run-containers.sh [bash32|fedora|debian|all]
+# Usage: tests/run-containers.sh [bash32|fedora|trixie|bookworm|debian|all]
 
 set -u
 
@@ -85,7 +92,14 @@ if [ "$WHICH" = "fedora" ] || [ "$WHICH" = "all" ]; then
     ' || rc=1
 fi
 
-if [ "$WHICH" = "debian" ] || [ "$WHICH" = "all" ]; then
+if [ "$WHICH" = "trixie" ] || [ "$WHICH" = "debian" ] || [ "$WHICH" = "all" ]; then
+    run_in docker.io/library/debian:trixie bash -c '
+        apt-get update -qq >/dev/null 2>&1
+        bash tests/run.sh
+    ' || rc=1
+fi
+
+if [ "$WHICH" = "bookworm" ] || [ "$WHICH" = "debian" ] || [ "$WHICH" = "all" ]; then
     run_in docker.io/library/debian:bookworm bash -c '
         apt-get update -qq >/dev/null 2>&1
         bash tests/run.sh
