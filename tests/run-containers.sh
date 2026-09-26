@@ -8,11 +8,18 @@
 #              over GPLv3. install.sh runs under /bin/bash there, so this is
 #              the only way to *execute* the bash-3.2 constraint rather than
 #              grep for it (tests/test_bash32_compat.sh is the static half).
-#              Alpine-based, so OS_TYPE comes out 'unknown' and the tests that
-#              drive a full install run are skipped here.
+#              The image is Alpine, which detect_os would call 'unknown', so a
+#              fixture from tests/fixtures/ is mounted over /etc/os-release to
+#              give it a supported identity. detect_os still runs for real; only
+#              the file it reads is substituted. The whole suite then runs under
+#              bash 3.2, once per OS identity — including raspbian, whose
+#              routing cannot otherwise be exercised without Pi hardware.
 #
-#   fedora     A supported OS_TYPE, so the phase gates and the package scripts
-#              can run for real without installing anything on the host.
+#   fedora     A real Fedora userland (GNU coreutils, dnf), so the package
+#              scripts can run for real without installing anything on the host.
+#
+# Every install run here is --dry-run: it writes nothing, which is verified by
+# tests/test_dry_run_hermetic.sh.
 #
 # Usage: tests/run-containers.sh [bash32|fedora|debian|all]
 
@@ -30,11 +37,6 @@ if [ -z "$ENGINE" ]; then
     exit 1
 fi
 
-# Tests that do not need a supported OS_TYPE, and so can run on Alpine.
-PORTABLE_TESTS="test_harness.sh test_manifest.sh \
-test_tools_table.sh test_gen_manifest.sh test_bash32_compat.sh \
-test_symlink_gates.sh"
-
 run_in() {
     local image="$1"; shift
     echo ""
@@ -47,11 +49,33 @@ run_in() {
         "$image" "$@"
 }
 
+# As run_in, but with $1 as the container's /etc/os-release, so detect_os
+# resolves to that OS_TYPE.
+run_in_as() {
+    local osid="$1" image="$2"; shift 2
+    local fixture="$REPO/tests/fixtures/os-release.$osid"
+    if [ ! -f "$fixture" ]; then
+        echo "[ERROR] no fixture for '$osid': $fixture" >&2
+        return 1
+    fi
+    echo ""
+    echo "════ $image  (identifying as $osid)"
+    "$ENGINE" run --rm \
+        -v "$REPO":/dotfiles:ro,Z \
+        -v "$fixture":/etc/os-release:ro,Z \
+        -w /dotfiles \
+        -e DOTFILES_DIR=/dotfiles \
+        -e HOME=/root \
+        "$image" "$@"
+}
+
 rc=0
 
 if [ "$WHICH" = "bash32" ] || [ "$WHICH" = "all" ]; then
-    # shellcheck disable=SC2086  # PORTABLE_TESTS is an intentional word list
-    run_in docker.io/library/bash:3.2 bash tests/run.sh $PORTABLE_TESTS || rc=1
+    # The full suite under real bash 3.2, once per OS identity.
+    for osid in fedora debian raspbian; do
+        run_in_as "$osid" docker.io/library/bash:3.2 bash tests/run.sh || rc=1
+    done
 fi
 
 if [ "$WHICH" = "fedora" ] || [ "$WHICH" = "all" ]; then

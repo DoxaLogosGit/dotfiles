@@ -1,0 +1,6 @@
+# Fixture: makes a container identify as Fedora so detect_os yields
+# OS_TYPE=fedora. Mounted over /etc/os-release; the real detection path runs.
+NAME="Fedora Linux"
+ID=fedora
+VERSION_ID=42
+PRETTY_NAME="Fedora Linux 42 (Container Image)"

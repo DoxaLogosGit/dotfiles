@@ -1,0 +1,7 @@
+# Fixture: OS_TYPE=raspbian — the branch that cannot otherwise be exercised
+# without Pi hardware. Only the OS-routing logic is tested, not ARM behaviour.
+NAME="Raspbian GNU/Linux"
+ID=raspbian
+ID_LIKE=debian
+VERSION_ID=12
+PRETTY_NAME="Raspbian GNU/Linux 12 (bookworm)"
