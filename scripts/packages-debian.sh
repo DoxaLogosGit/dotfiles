@@ -65,23 +65,36 @@ bun_install() {
 }
 
 node_pkg() {
-    # The coding agents declare node >= 22.19, and Debian 13 ships 20.19, so
-    # "use the distro package" and "run pi" genuinely conflict here. Take the
-    # distro node when it is new enough and fall back to NodeSource when it is
-    # not, rather than silently installing an agent that cannot start.
-    local need_major=22 have
-    if sudo apt-get install -yy nodejs npm 2>/dev/null; then
-        have="$(node --version 2>/dev/null | sed 's/^v//' | cut -d. -f1)"
-        if [ -n "$have" ] && [ "$have" -ge "$need_major" ]; then
-            info "node $have from the distro package is new enough."
-            return 0
-        fi
-        info "distro node is ${have:-absent}; the agents need >= $need_major."
+    # The coding agents declare node >= 22.19 and Debian 13 ships 20.19, so
+    # "use the distro package" and "run pi" conflict. Take the distro node when
+    # it is new enough, and otherwise fall back to NodeSource — but only on an
+    # architecture that has builds at all.
+    local need_major=22 have arch
+    arch="$(uname -m)"
+
+    sudo apt-get install -yy nodejs npm 2>/dev/null || true
+    have="$(node --version 2>/dev/null | sed 's/^v//' | cut -d. -f1)"
+
+    if [ -n "$have" ] && [ "$have" -ge "$need_major" ]; then
+        info "node $have from the distro package is new enough."
+        return 0
     fi
 
-    info "Installing node $need_major from NodeSource..."
+    case "$arch" in
+        armv6l|armv7l|i386|i686)
+            # Node stopped publishing 32-bit builds after 20.x, and NodeSource
+            # has none either, so there is nothing to upgrade to here. The
+            # distro node still serves everything that does not demand 22.
+            warning "node >= $need_major has no $arch build; staying on ${have:-none}."
+            warning "Agents that require it (pi, opencode) cannot run on this machine — set them to 'no' in its manifest."
+            [ -n "$have" ] && return 0
+            return 1
+            ;;
+    esac
+
+    info "distro node is ${have:-absent}; installing node $need_major from NodeSource..."
     curl -fsSL "https://deb.nodesource.com/setup_${need_major}.x" | sudo -E bash - || {
-        warning "NodeSource setup failed — node stays at ${have:-none}. Agents needing >= $need_major will not run."
+        warning "NodeSource setup failed — node stays at ${have:-none}."
         return 1
     }
     # NodeSource's nodejs bundles npm and conflicts with Debian's npm package;

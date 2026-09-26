@@ -75,7 +75,7 @@ assert_contains "$out" "Installing tmux" "tmux is the multiplexer here"
 # that lack the package, so nothing here compiles and nothing is arch-locked.
 assert_contains "$out" "starship_pkg" "starship goes through the apt-first handler"
 assert_contains "$out" "eza_pkg" "eza goes through the apt-first handler"
-assert_contains "$out" "apt:nodejs,npm" "node is the distro package, not an nvm build"
+assert_contains "$out" "node_pkg" "node goes through the distro-first handler"
 assert_contains "$out" "pi_npm" "pi is installed with npm, not bun"
 
 # The handlers must genuinely try apt before anything else.
@@ -100,6 +100,22 @@ case "$installed_pkg" in
     *mariozechner*) _fail "the stale @mariozechner scope is gone" "still installed: $installed_pkg" ;;
     *) _pass "the stale @mariozechner scope is gone" ;;
 esac
+
+# ── 32-bit Pi: node 22 does not exist for armv7, so do not chase it ─────────
+# This machine is armv7l (a Pi 2/3 on 32-bit Raspbian). Node stopped shipping
+# 32-bit builds after 20.x and NodeSource has none, so the handler must keep
+# the distro node and say plainly that the agents cannot run, instead of
+# adding a repository that has nothing to offer this architecture.
+node_body="$(sed -n '/^node_pkg()/,/^}/p' "$REPO/scripts/packages-raspbian.sh")"
+assert_contains "$node_body" "armv7l" "node_pkg knows about 32-bit ARM"
+assert_contains "$node_body" "nodesource" "$(printf 'node_pkg can still use NodeSource where builds exist')" 2>/dev/null ||
+    assert_contains "$node_body" "deb.nodesource.com" "node_pkg can still use NodeSource where builds exist"
+
+# The 32-bit branch must come before the NodeSource call, or it never runs.
+armv7_line="$(printf '%s' "$node_body" | grep -n 'armv6l|armv7l' | head -1 | cut -d: -f1)"
+nodesource_line="$(printf '%s' "$node_body" | grep -n 'deb.nodesource.com' | head -1 | cut -d: -f1)"
+assert_ok "the 32-bit check precedes the NodeSource fallback" \
+    test "$armv7_line" -lt "$nodesource_line"
 
 # ── every fn: cell resolves ─────────────────────────────────────────────────
 case "$out" in
