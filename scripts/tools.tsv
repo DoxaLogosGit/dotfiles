@@ -71,7 +71,7 @@ lazydocker	fn:lazydocker_copr	-	-	brew:lazydocker
 uv	pip:uv	pip:uv	-	brew:uv
 tldr	pip:tldr	pip:tldr	-	brew:tldr
 vale	pip:vale	pip:vale	-	brew:vale
-python-lsp	pip:jedi_language_server,flake8	pip:jedi_language_server,flake8	fn:python_lsp_pi	-
+python-lsp	pip:jedi_language_server,flake8	pip:jedi_language_server,flake8	fn:python_lsp_pi	fn:python_lsp_uv
 herdr	cargo:herdr	cargo:herdr	-	brew:herdr
 tudiff	cargo:tudiff	cargo:tudiff	-	cargo:tudiff
 tuicr	cargo:tuicr	cargo:tuicr	-	cargo:tuicr

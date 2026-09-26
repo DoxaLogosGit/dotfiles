@@ -24,14 +24,30 @@ set_homebrew_prefix() {
 install_homebrew() {
     set_homebrew_prefix
 
-    if [ -x "$HOMEBREW_PREFIX/bin/brew" ] || command -v brew >/dev/null 2>&1; then
+    # Use the brew that actually exists, not the one the prefix predicts. The
+    # two can disagree — an Apple Silicon machine running the script under
+    # Rosetta reports x86_64 and so guesses /usr/local — and the old code then
+    # ran a nonexistent binary, printed "Homebrew ready ()" with an empty
+    # version, and carried on with brew missing from PATH.
+    local brew_bin=""
+    if [ -x "$HOMEBREW_PREFIX/bin/brew" ]; then
+        brew_bin="$HOMEBREW_PREFIX/bin/brew"
         info "Homebrew already installed."
+    elif command -v brew >/dev/null 2>&1; then
+        brew_bin="$(command -v brew)"
+        info "Homebrew already installed ($brew_bin)."
     else
         info "Installing Homebrew..."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        brew_bin="$HOMEBREW_PREFIX/bin/brew"
+    fi
+
+    if [ ! -x "$brew_bin" ]; then
+        warning "Homebrew not found at $brew_bin — later brew steps will fail."
+        return 1
     fi
 
     # Put brew (and everything it installs) on PATH for the rest of the run.
-    eval "$("$HOMEBREW_PREFIX/bin/brew" shellenv)"
-    success "Homebrew ready ($("$HOMEBREW_PREFIX/bin/brew" --version | head -1))"
+    eval "$("$brew_bin" shellenv)"
+    success "Homebrew ready ($("$brew_bin" --version | head -1))"
 }

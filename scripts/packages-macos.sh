@@ -1,11 +1,15 @@
 #!/bin/bash
 #
-# Package installation for macOS via Homebrew.
+# Package installation for macOS
 # Called by install.sh
 #
-# Everything is installed with brew. Brew names here are API-verified; a bare
+# Individual tools are NOT listed here: they live in scripts/tools.tsv and are
+# installed by pkg_run_table, gated by this machine's manifest. What stays here
+# is bootstrap, prerequisites, and the fn: handlers this OS's cells name.
+#
 # `brew install` of an already-present item exits nonzero and would abort the
-# run under `set -e`, so every install is guarded with `brew list ... ||`.
+# script under set -e, so brew_install and brew_install_cask guard on presence.
+#
 
 set -e
 
@@ -14,22 +18,37 @@ BLUE='\033[0;34m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
-info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
+info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 success() { echo -e "${GREEN}[OK]${NC} $1"; }
 warning() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 
-SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="${DOTFILES_DIR:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+
+# shellcheck source=manifest.sh
+. "$SCRIPT_DIR/manifest.sh"
+# shellcheck source=pkg-runner.sh
+. "$SCRIPT_DIR/pkg-runner.sh"
+
+# install.sh loads the manifest before calling this script; loading it again
+# here keeps the script runnable on its own.
+if [ -z "${MANIFEST_TABLE:-}" ]; then
+    manifest_load "${DOTFILES_OVERLAY:-$HOME/.dotfiles-local}/manifest.conf" \
+                  "$DOTFILES_DIR/scripts/tools.tsv" || exit 1
+fi
 
 info "Installing packages for macOS..."
 
 # Homebrew must exist and be on PATH before any brew call.
 # shellcheck source=install-homebrew.sh
-source "$SCRIPT_DIR/install-homebrew.sh"
+. "$SCRIPT_DIR/install-homebrew.sh"
 install_homebrew
 
 brew update
 
 # Guarded brew install: skip if already present so re-runs don't trip set -e.
+# pkg_install_one's brew method calls this, so it must be defined before
+# pkg_run_table runs.
 brew_install() {
     local formula
     for formula in "$@"; do
@@ -55,74 +74,76 @@ brew_install_cask() {
     done
 }
 
-# GUI apps
-brew_install_cask ghostty
+# ── Prerequisites (never manifest-gated) ──────────────────────────────────────
+brew_install wget curl
 
-# Editors + multiplexers
-brew_install neovim vim tmux zellij
+# ── fn: handlers named by this OS's cells in tools.tsv ────────────────────────
 
-# Prompt + shell history
-brew_install starship atuin
+rustup() {
+    # macOS-safe rustup install; must precede any cargo: cell, which is why
+    # tools.tsv puts the rust row first.
+    # shellcheck source=install-rust.sh
+    . "$SCRIPT_DIR/install-rust.sh"
+    install_rust
+}
 
-# herdr (AI agent workspace manager) — fails to compile from source on
-# macOS, so it's installed via Homebrew here instead of install-rust-tools.sh.
-brew_install herdr
+ghostty_cask() {
+    brew_install_cask ghostty
+}
 
-# Core CLI utilities
-brew_install bat fd ripgrep fzf eza zoxide yazi jq yq glow moreutils p7zip shellcheck
+python_lsp_uv() {
+    # macOS Python is externally managed, so no `sudo pip` here: uv owns these.
+    # The uv row precedes python-lsp in tools.tsv.
+    uv tool install jedi-language-server || true
+    uv tool install flake8 || true
+}
 
-# System monitoring
-brew_install htop btop fastfetch procs progress glances ncdu duf
+node_nvm() {
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    export NVM_DIR="$HOME/.nvm"
+    # shellcheck source=/dev/null
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    nvm install --lts && nvm use --lts
+}
 
-# Network utilities
-brew_install wget curl mtr ipcalc
+playwright_macos() {
+    # Playwright bundles its own browser dependencies on macOS, so no --with-deps.
+    bunx playwright install
+}
 
-# Toolchain / runtime / media
-brew_install mise lua imagemagick poppler ffmpeg lazydocker
+# ── Everything else comes from the table ──────────────────────────────────────
+#
+# herdr is a brew cell rather than a cargo one: it fails to compile from source
+# on macOS. tudiff and tuicr have no formula and stay cargo cells.
 
-# Docs + lint
-brew_install tldr vale
+pkg_run_table macos
 
-# uv — Python package/tool manager (replaces the Linux scripts' `sudo pip`)
-brew_install uv
-
-# Rust toolchain via rustup (macOS-safe; do this before any cargo use).
-# shellcheck source=install-rust.sh
-source "$SCRIPT_DIR/install-rust.sh"
-install_rust
-
-# Rust TUI tools not in Homebrew — installed via rustup's cargo.
-# shellcheck source=install-rust-tools.sh
-source "$SCRIPT_DIR/install-rust-tools.sh"
-install_rust_tools tudiff tuicr
-
-# oh-my-zsh (macOS already defaults to zsh — no other shells installed here).
-# shellcheck source=install-oh-my-zsh.sh
-source "$SCRIPT_DIR/install-oh-my-zsh.sh"
-install_oh_my_zsh
-
-# Python LSP / lint tools via uv (macOS Python is externally managed — no sudo pip).
-info "Installing Python tools via uv..."
-uv tool install jedi-language-server || true
-uv tool install flake8 || true
-
-# Node (nvm) + bun + global coding-agent packages (shared cross-platform helper).
+# ── Global packages that are not single tool rows ─────────────────────────────
 # shellcheck source=install-global-packages.sh
-source "$SCRIPT_DIR/install-global-packages.sh"
+. "$SCRIPT_DIR/install-global-packages.sh"
 
-# TPM (Tmux Plugin Manager)
-TPM_DIR="$HOME/.tmux/plugins/tpm"
-if [ -d "$TPM_DIR" ]; then
-    info "TPM already installed, updating..."
-    git -C "$TPM_DIR" pull
-else
-    info "Installing TPM (Tmux Plugin Manager)..."
-    mkdir -p "$HOME/.tmux/plugins"
-    git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
-    success "TPM installed!"
+# ── Tmux Plugin Manager (part of tmux) ────────────────────────────────────────
+if want tmux; then
+    TPM_DIR="$HOME/.tmux/plugins/tpm"
+    if [ -d "$TPM_DIR" ]; then
+        info "TPM already installed, updating..."
+        git -C "$TPM_DIR" pull
+    else
+        info "Installing TPM (Tmux Plugin Manager)..."
+        mkdir -p "$HOME/.tmux/plugins"
+        git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
+        success "TPM installed!"
+    fi
 fi
 
-# Required directories
+# ── oh-my-zsh (part of zsh) ───────────────────────────────────────────────────
+if want oh-my-zsh; then
+    # shellcheck source=install-oh-my-zsh.sh
+    . "$SCRIPT_DIR/install-oh-my-zsh.sh"
+    install_oh_my_zsh
+fi
+
+# ── Required directories ──────────────────────────────────────────────────────
 mkdir -p "$HOME/.vim-tmp"
 mkdir -p "$HOME/.tmp"
 mkdir -p "$HOME/.local/share/nvim/plugged"
@@ -130,5 +151,7 @@ mkdir -p "$HOME/.local/share/nvim/plugged"
 success "Package installation complete!"
 
 echo ""
-info "To install tmux plugins, start tmux and press: prefix + I (capital i)"
+if want tmux; then
+    info "To install tmux plugins, start tmux and press: prefix + I (capital i)"
+fi
 info "zsh is already the default shell on macOS — nothing to chsh."
