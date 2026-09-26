@@ -7,8 +7,8 @@
 # that installer overwrites ~/.zshrc and runs chsh by default; cloning
 # sidesteps both, matching how TPM is installed elsewhere in these scripts.
 
-type info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
-type success >/dev/null 2>&1 || success() { echo -e "[OK] $1"; }
+declare -f info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
+declare -f success >/dev/null 2>&1 || success() { echo -e "[OK] $1"; }
 
 # Clone or update a repo. $1 = url, $2 = destination
 _clone_or_pull() {

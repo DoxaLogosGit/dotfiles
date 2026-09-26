@@ -1,0 +1,6 @@
+# Fixture: OS_TYPE=debian.
+NAME="Debian GNU/Linux"
+ID=debian
+ID_LIKE=debian
+VERSION_ID=12
+PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"

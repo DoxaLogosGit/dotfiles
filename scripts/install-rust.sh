@@ -13,8 +13,8 @@
 # build scripts (e.g. openssl-sys) need perl to compile.
 
 # Fallbacks in case this is sourced without the caller's helpers.
-type info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
-type success >/dev/null 2>&1 || success() { echo -e "[OK] $1"; }
+declare -f info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
+declare -f success >/dev/null 2>&1 || success() { echo -e "[OK] $1"; }
 
 install_rust() {
     if command -v rustup >/dev/null 2>&1 || [ -x "$HOME/.cargo/bin/rustup" ]; then

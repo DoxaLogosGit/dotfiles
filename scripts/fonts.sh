@@ -46,7 +46,8 @@ for font in "${FONTS[@]}"; do
     # Move conf files if any
     find "$TEMP_DIR/extract/" -name "*.conf" -exec mv {} "$FONTCONFIG_DIR/" \; 2>/dev/null || true
     # Move font files
-    find "$TEMP_DIR/extract/" -name "*.ttf" -o -name "*.otf" | xargs -I{} mv {} "$FONTS_DIR/nerd-fonts/" 2>/dev/null || true
+    find "$TEMP_DIR/extract/" \( -name "*.ttf" -o -name "*.otf" \) \
+        -exec mv {} "$FONTS_DIR/nerd-fonts/" \; 2>/dev/null || true
     rm -rf "$TEMP_DIR/extract/"
 done
 

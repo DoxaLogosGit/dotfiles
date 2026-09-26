@@ -302,6 +302,63 @@ templates are seeded from `*.example` and nothing else changes.
 > `git check-ignore -v <path>`, and if it is already tracked run
 > `git rm --cached <path>` to untrack it while keeping it on disk.
 
+### Install Manifest
+
+Which machine gets which tools is data, not code. Each machine directory in the
+overlay carries a `manifest.conf` naming every tool and what to do with it:
+
+```ini
+zellij = no          # skip the package and the config
+nvim   = config-only # link the config; installed some other way
+tmux   = yes         # install and link
+```
+
+An entry covers everything belonging to that tool, not just its package:
+`tmux = no` also skips the TPM clone and the `tmux.conf` symlink.
+
+You name the **tool**, never the mechanism. `scripts/tools.tsv` holds what each
+tool *is* on each OS — `cargo:zellij` on Fedora, `brew:zellij` on macOS, `-` on
+Raspbian, which ships no such package — so `zellij = no` reads the same
+everywhere and a `-` needs no line at all.
+
+**The rules:**
+
+- **No manifest → everything installs**, exactly as before manifests existed.
+- **With a manifest, a tool left out is skipped** and named in the run summary,
+  so an omission is visible rather than silent.
+- **An unknown key is an error**, naming the file and line, before anything is
+  written. A typo like `ghosty = yes` cannot quietly mean "skip ghostty".
+
+Every run ends with what happened:
+
+```
+Manifest: ~/.dotfiles-local/manifest.conf (53 yes, 19 no, 0 config-only)
+  skipped: zellij rust herdr tudiff tuicr atuin ...
+```
+
+**Availability versus policy.** A tool can be absent for two different reasons,
+and they live in different files. *Availability* is a `-` in the table: Raspbian
+has no `zellij` package, and no machine should have to say so. *Policy* is a
+`no` in a manifest: the work MacBook declines Claude Code because the company
+image blocks Anthropic — a fact about that machine, not about macOS, since a
+personal Mac would install it fine.
+
+The two non-default machines are mirror images, which is the clearest argument
+for naming tools rather than branching on OS:
+
+| | Pi | MacBook |
+|---|---|---|
+| `tmux` | `yes` | `no` |
+| `zellij` | `no` | `yes` |
+
+Same mechanism, opposite answers, no code branch for either. Under the previous
+design each would have needed its own hardcoded symlink function.
+
+**Adding a tool:** add one row to `scripts/tools.tsv`, then run
+`scripts/gen-manifest-example.sh`. A test fails if the committed
+`manifest.example` has fallen behind the table. The new tool then shows up as a
+visible skip on every machine until its manifest says otherwise.
+
 ### macOS: corporate TLS interception
 
 If TLS is intercepted on the network, Node, Python and the AWS CLI fail with
