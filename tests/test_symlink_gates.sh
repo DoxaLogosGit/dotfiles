@@ -73,4 +73,33 @@ esac
 cfg="$(run_symlinks "btop = config-only")"
 assert_contains "$cfg" "btop" "config-only still links the config"
 
+# ── a declined tool must not get scaffolding either ─────────────────────
+# Found on the Pi: --dry-run --all announced it would create
+# ~/.config/Code/User on a headless machine whose manifest declines vscode,
+# and warned about atuin's nushell integration though both were declined.
+run_full_dry() {
+    local manifest_body="$1" sandbox out
+    sandbox="$(make_sandbox)"
+    printf '%s\n' "$manifest_body" > "$sandbox/overlay/manifest.conf"
+    out=$(HOME="$sandbox/home" DOTFILES_DIR="$REPO" DOTFILES_OVERLAY="$sandbox/overlay" \
+          bash "$REPO/install.sh" --dry-run --all 2>&1 || true)
+    cleanup_sandbox "$sandbox"
+    printf '%s' "$out"
+}
+
+headless="$(run_full_dry "$(printf 'zsh = yes\nvscode = no\natuin = no\nnushell = no\n')")"
+case "$headless" in
+    *"Code/User"*) _fail "vscode = no creates no VS Code directory" "the directory was still created" ;;
+    *) _pass "vscode = no creates no VS Code directory" ;;
+esac
+case "$headless" in
+    *"nushell init generation"*) _fail "declining atuin and nushell silences their integration warning" \
+        "the warning was printed anyway" ;;
+    *) _pass "declining atuin and nushell silences their integration warning" ;;
+esac
+
+# And the converse: a machine that wants both still gets the integration step.
+both="$(run_full_dry "$(printf 'zsh = yes\nvscode = yes\natuin = yes\nnushell = yes\n')")"
+assert_contains "$both" "Code/User" "vscode = yes still creates the directory"
+
 finish_tests

@@ -374,17 +374,21 @@ install_symlinks_common() {
         create_symlink "$DOTFILES_DIR/atuin/config.toml" "$HOME/.config/atuin/config.toml"
     fi
 
-    # Atuin — generate nushell integration file
-    if command -v atuin &>/dev/null; then
-        if [ "$DRY_RUN" = true ]; then
-            info "[DRY-RUN] Would generate: ~/.local/share/atuin/init.nu"
+    # Atuin — generate nushell integration file. This joins the two tools, so it
+    # is only meaningful when the machine wants both; without this check, a
+    # machine declining either was warned about a file it would never read.
+    if want_config atuin && want_config nushell; then
+        if command -v atuin &>/dev/null; then
+            if [ "$DRY_RUN" = true ]; then
+                info "[DRY-RUN] Would generate: ~/.local/share/atuin/init.nu"
+            else
+                ensure_dir "$HOME/.local/share/atuin"
+                atuin init nu > "$HOME/.local/share/atuin/init.nu"
+                success "Generated: ~/.local/share/atuin/init.nu"
+            fi
         else
-            ensure_dir "$HOME/.local/share/atuin"
-            atuin init nu > "$HOME/.local/share/atuin/init.nu"
-            success "Generated: ~/.local/share/atuin/init.nu"
+            warning "atuin not found — skipping nushell init generation (run after installing atuin)"
         fi
-    else
-        warning "atuin not found — skipping nushell init generation (run after installing atuin)"
     fi
 
     # Python
@@ -481,7 +485,9 @@ install_symlinks_desktop() {
 install_symlinks() {
     info "Creating symlinks..."
 
-    ensure_dir "$HOME/.config/Code/User"
+    # Only make VS Code's config directory on a machine that wants VS Code:
+    # a headless box was having it created for a config it then declined.
+    want_config vscode && ensure_dir "$HOME/.config/Code/User"
 
     install_symlinks_common
     install_symlinks_desktop "$HOME/.config/Code/User"
@@ -494,7 +500,7 @@ install_symlinks_macos() {
     info "Creating symlinks (macOS)..."
 
     local code_user_dir="$HOME/Library/Application Support/Code/User"
-    ensure_dir "$code_user_dir"
+    want_config vscode && ensure_dir "$code_user_dir"
 
     install_symlinks_common
     install_symlinks_desktop "$code_user_dir"
