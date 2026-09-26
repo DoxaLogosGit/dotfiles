@@ -43,6 +43,9 @@ sudo dnf update -y
 # whenever any cargo: tool builds; a machine that declined it would fail deep
 # inside an unrelated crate with an unreadable error.
 sudo dnf install -y cmake make gcc-c++ curl wget perl-core clang-devel unzip
+# python3-pip is a prerequisite, not a preference: every pip: cell in the
+# table needs it, and python3-devel is needed to build anything against it.
+sudo dnf install -y python3-devel python3-pip
 
 # ── fn: handlers named by this OS's cells in tools.tsv ────────────────────────
 
@@ -117,6 +120,14 @@ eza_prebuilt() {
     _install_prebuilt_zip \
         "https://github.com/eza-community/eza/releases/download/v0.21.1/eza_x86_64-unknown-linux-gnu.zip" \
         "eza" eza
+}
+
+node_nvm() {
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    export NVM_DIR="$HOME/.nvm"
+    # shellcheck source=/dev/null
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    nvm install --lts && nvm use --lts
 }
 
 playwright_linux() {

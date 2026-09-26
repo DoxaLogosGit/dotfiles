@@ -55,18 +55,6 @@ starship_curl() {
     curl -sS https://starship.rs/install.sh | sh -s -- -y
 }
 
-node_nvm() {
-    local nvm_version
-    nvm_version=$(curl -s https://api.github.com/repos/nvm-sh/nvm/releases/latest |
-        grep '"tag_name"' | cut -d'"' -f4)
-    [ -n "$nvm_version" ] || nvm_version="v0.40.1"
-    curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/${nvm_version}/install.sh" | bash
-    export NVM_DIR="$HOME/.nvm"
-    # shellcheck source=/dev/null
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-    nvm install --lts && nvm use --lts
-}
-
 pi_npm() {
     # npm rather than bun: there is no bun build for this platform. The package
     # name matches every other OS — the old @mariozechner scope was frozen at
@@ -91,10 +79,6 @@ eza_raspbian() {
         warning "No eza prebuilt for $ARCH — set 'eza = no' on this machine, or install it with cargo."
         return 1
     fi
-}
-
-python_devel() {
-    sudo apt-get install -yy python3-dev python3-pip
 }
 
 python_lsp_pi() {
