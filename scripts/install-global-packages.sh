@@ -14,6 +14,17 @@ info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
 success() { echo -e "${GREEN}[OK]${NC} $1"; }
 warning() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 
+# The manifest decides which agents this machine installs. This file is sourced
+# by the package scripts, so load the manifest here if the caller has not: a
+# missing `want` would abort the run under set -e.
+if ! type want >/dev/null 2>&1; then
+    _igp_dir="$(dirname "${BASH_SOURCE[0]}")"
+    # shellcheck source=manifest.sh
+    . "$_igp_dir/manifest.sh"
+    manifest_load "${DOTFILES_OVERLAY:-$HOME/.dotfiles-local}/manifest.conf" \
+                  "$_igp_dir/tools.tsv" || exit 1
+fi
+
 # ── Node.js via nvm ───────────────────────────────────────────────────────────
 
 info "Installing Node.js via nvm..."
@@ -50,12 +61,19 @@ bun install -g opencode-ai
 bun install -g playwright
 
 # ── OS-specific global packages ──────────────────────────────────────────────
+# Claude Code availability is a per-machine matter, not a per-OS one: a work
+# machine may block Anthropic where a personal machine on the same OS does not.
+# The machine's manifest decides, and the comment on that line records why.
+if want claude; then
+    bun install -g @anthropic-ai/claude-code
+else
+    info "Skipping Claude Code (manifest)."
+fi
+
 if [ "$(uname -s)" = "Darwin" ]; then
-    # Claude Code is skipped on macOS: the company image blocks Anthropic.
     # Playwright bundles its own browser dependencies here, so no --with-deps.
     bunx playwright install
 else
-    bun install -g @anthropic-ai/claude-code
     # --with-deps shells out to apt/dnf for browser system libraries.
     bunx playwright install --with-deps
 fi
@@ -68,7 +86,7 @@ success "Global packages installed!"
 # pi agent packages. The tracked package list lives in install-pi-packages.sh;
 # ~/.pi/agent/settings.json is untracked machine state. Set DOTFILES_PERSONAL=1
 # to also install free-tier routing (personal machines only).
-if command -v pi &>/dev/null; then
+if want pi-packages && command -v pi &>/dev/null; then
     # shellcheck source=install-pi-packages.sh
     source "$(dirname "${BASH_SOURCE[0]}")/install-pi-packages.sh"
     if [ "${DOTFILES_PERSONAL:-0}" = "1" ]; then

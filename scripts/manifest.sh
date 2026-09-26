@@ -141,10 +141,12 @@ manifest_summary() {
         return 0
     fi
     local yes_n no_n cfg_n skipped
-    yes_n=$(printf '%s' "$MANIFEST_DATA" | grep -c '=yes$')
-    no_n=$(printf '%s' "$MANIFEST_DATA" | grep -c '=no$')
-    cfg_n=$(printf '%s' "$MANIFEST_DATA" | grep -c '=config-only$')
-    skipped=$(printf '%s' "$MANIFEST_DATA" | grep '=no$' | cut -d= -f1 | tr '\n' ' ')
+    # `grep -c` exits 1 on a zero count, which under `set -e` would abort the
+    # installer just as it reports its results. Every count needs `|| true`.
+    yes_n=$(printf '%s' "$MANIFEST_DATA" | grep -c '=yes$' || true)
+    no_n=$(printf '%s' "$MANIFEST_DATA" | grep -c '=no$' || true)
+    cfg_n=$(printf '%s' "$MANIFEST_DATA" | grep -c '=config-only$' || true)
+    skipped=$(printf '%s' "$MANIFEST_DATA" | grep '=no$' | cut -d= -f1 | tr '\n' ' ' || true)
     echo "Manifest: $MANIFEST_FILE ($yes_n yes, $no_n no, $cfg_n config-only)"
     [ -n "$skipped" ] && echo "  skipped: ${skipped% }"
     return 0

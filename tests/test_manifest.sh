@@ -80,6 +80,32 @@ assert_contains "$summary" "1 config-only" "summary counts config-only entries"
 manifest_load "$sandbox/nope.conf" "$TABLE" >/dev/null 2>&1
 assert_contains "$(manifest_summary)" "none" "summary says none when there is no manifest"
 
+# ── the summary must survive `set -e`, which install.sh enables ─────────
+# grep -c exits 1 on a zero count. Under set -e that aborted the installer at
+# the moment it reported results, after every skip line had already printed.
+#
+# The subshell must run as a standalone command, NOT inside an `if` condition:
+# bash suppresses errexit throughout a condition context, so a conditional
+# version of this test passes even when the bug is present. These test scripts
+# run under `set -u` only, so a failing subshell cannot abort the suite.
+for body in "zsh = yes" "zsh = no" "zsh = config-only"; do
+    printf '%s\n' "$body" > "$sandbox/sete.conf"
+    (
+        set -e
+        # shellcheck source=../scripts/manifest.sh
+        . "$HERE/../scripts/manifest.sh"
+        manifest_load "$sandbox/sete.conf" "$TABLE" >/dev/null 2>&1
+        manifest_summary >/dev/null
+        echo reached-the-end
+    ) > "$sandbox/sete.out" 2>&1
+    rc=$?
+    if [ "$rc" -eq 0 ] && grep -q reached-the-end "$sandbox/sete.out"; then
+        _pass "manifest_summary survives set -e with [$body]"
+    else
+        _fail "manifest_summary survives set -e with [$body]" "exit=$rc; summary aborted on a zero count"
+    fi
+done
+
 # ── table lookup ────────────────────────────────────────────────────────
 manifest_load "$sandbox/m.conf" "$TABLE" >/dev/null 2>&1
 assert_eq "brew:zellij" "$(tool_cell zellij macos)" "tool_cell reads the macos column"

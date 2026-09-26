@@ -734,20 +734,31 @@ main() {
     fi
 
     if [ "$DO_FONTS" = true ]; then
-        install_fonts
+        if want fonts; then
+            install_fonts
+        else
+            info "Skipping fonts (manifest)."
+        fi
     fi
 
     if [ "$DO_PLUGINS" = true ]; then
-        install_claude_plugins
+        if want claude-plugins; then
+            install_claude_plugins
+        else
+            info "Skipping Claude plugins (manifest)."
+        fi
     fi
 
     if [ "$DO_SYSTEMD" = true ]; then
-        if [ "$OS_TYPE" = "raspbian" ]; then
-            info "Skipping systemd units on Raspbian."
-        elif [ "$OS_TYPE" = "macos" ]; then
+        # macOS has no systemd at all — that is availability, not preference,
+        # so it stays an OS check. The Raspbian skip was a preference and is
+        # now 'systemd = no' in that machine's manifest.
+        if [ "$OS_TYPE" = "macos" ]; then
             info "Skipping systemd units on macOS (no systemd; zellij-snapshot scripts still symlinked for manual use)."
-        else
+        elif want systemd; then
             install_systemd_units
+        else
+            info "Skipping systemd units (manifest)."
         fi
     fi
 
