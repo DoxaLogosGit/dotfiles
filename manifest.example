@@ -1,0 +1,61 @@
+# Per-machine install manifest — copy to your overlay directory as
+# manifest.conf and edit the values for this machine.
+#
+#   yes          install the tool and link its config
+#   no           skip both
+#   config-only  link the config; the tool is installed some other way
+#
+# A tool left out of an existing manifest is treated as 'no' and named
+# in the run summary. A machine with no manifest at all installs
+# everything, exactly as before manifests existed.
+#
+# The trailing comment on each line lists the platforms that supply the
+# tool; a platform absent there needs no 'no' line on that machine.
+#
+# GENERATED from scripts/tools.tsv by scripts/gen-manifest-example.sh.
+# Do not hand-edit: add a row to the table instead.
+
+rust             = yes   # fedora debian raspbian macos
+bun              = yes   # fedora debian macos
+node             = yes   # raspbian
+zsh              = yes   # fedora debian raspbian macos
+bash             = yes   # fedora debian raspbian macos
+git              = yes   # fedora debian raspbian macos
+vim              = yes   # fedora debian raspbian macos
+nvim             = yes   # fedora debian raspbian macos
+tmux             = yes   # fedora debian raspbian macos
+zellij           = yes   # fedora debian macos
+starship         = yes   # fedora debian raspbian macos
+atuin            = yes   # fedora debian macos
+eza              = yes   # fedora debian raspbian macos
+zoxide           = yes   # fedora debian raspbian macos
+fzf              = yes   # fedora debian raspbian macos
+ripgrep          = yes   # fedora debian raspbian macos
+fd               = yes   # fedora debian raspbian macos
+bat              = yes   # fedora debian raspbian macos
+jq               = yes   # fedora debian raspbian macos
+glow             = yes   # fedora debian macos
+htop             = yes   # fedora debian raspbian macos
+btop             = yes   # fedora debian raspbian macos
+yazi             = yes   # fedora debian macos
+nushell          = yes   # fedora debian macos
+imagemagick      = yes   # fedora debian macos
+shellcheck       = yes   # fedora debian raspbian macos
+lua              = yes   # fedora debian raspbian macos
+clang            = yes   # fedora debian raspbian
+python           = yes   # fedora debian raspbian macos
+herdr            = yes   # fedora debian macos
+tudiff           = yes   # fedora debian macos
+tuicr            = yes   # fedora debian macos
+pi               = yes   # fedora debian raspbian macos
+opencode         = yes   # fedora debian raspbian macos
+claude           = yes   # fedora debian macos
+codex            = yes   # fedora debian macos
+playwright       = yes   # fedora debian macos
+ghostty          = yes   # macos
+vscode           = yes   # config/phase only
+scripts          = yes   # config/phase only
+fonts            = yes   # config/phase only
+systemd          = yes   # config/phase only
+claude-plugins   = yes   # config/phase only
+pi-packages      = yes   # config/phase only
