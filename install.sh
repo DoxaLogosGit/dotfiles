@@ -9,7 +9,9 @@
 
 set -e
 
-DOTFILES_DIR="$HOME/.dotfiles"
+# Overridable so the repo can be exercised from another path — a container, a
+# worktree — without being cloned to ~/.dotfiles first.
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d_%H%M%S)"
 
 # Colors for output
@@ -109,11 +111,11 @@ backup_file() {
         local rel="${file#"$HOME"/}"
         rel="${rel#/}"
         local backup_path="$BACKUP_DIR/$rel"
-        mkdir -p "$(dirname "$backup_path")"
         if [ "$DRY_RUN" = true ]; then
             info "[DRY-RUN] Would backup: $file -> $backup_path"
             return 0
         fi
+        mkdir -p "$(dirname "$backup_path")"
         # -a, not -P: targets like ~/.pi/agent and ~/.config/ghostty are
         # directories holding live agent state (auth.json, sessions/). A
         # non-recursive copy silently skipped them, and the caller then
@@ -211,7 +213,20 @@ ensure_real_dir() {
         info "Replaced stale directory symlink with a real directory: $dir"
     fi
 
+    if [ "$DRY_RUN" = true ]; then
+        [ -d "$dir" ] || info "[DRY-RUN] Would create directory: $dir"
+        return 0
+    fi
     mkdir -p "$dir"
+}
+
+# mkdir -p that honours DRY_RUN, so a preview run writes nothing.
+ensure_dir() {
+    if [ "$DRY_RUN" = true ]; then
+        [ -d "$1" ] || info "[DRY-RUN] Would create directory: $1"
+        return 0
+    fi
+    mkdir -p "$1"
 }
 
 # Copy a template into place only if the target does not exist. Used for
@@ -277,11 +292,14 @@ install_symlinks_common() {
         info "Using machine-local overlay: $DOTFILES_OVERLAY"
     fi
 
-    mkdir -p "$HOME/.vim-tmp"
-    mkdir -p "$HOME/.tmp"
-    mkdir -p "$HOME/.tmux/plugins"
-    mkdir -p "$HOME/.local/bin"
-    mkdir -p "$HOME/.pi"
+    # A dry run must not touch the filesystem at all: these ran unguarded, so
+    # --dry-run silently created directories in the real HOME and could not be
+    # trusted as a safety boundary when testing.
+    ensure_dir "$HOME/.vim-tmp"
+    ensure_dir "$HOME/.tmp"
+    ensure_dir "$HOME/.tmux/plugins"
+    ensure_dir "$HOME/.local/bin"
+    ensure_dir "$HOME/.pi"
 
     # Zsh (primary shell)
     if want_config zsh; then
@@ -325,7 +343,7 @@ install_symlinks_common() {
         # Older installs symlinked the whole directory; convert before linking into it.
         ensure_real_dir "$HOME/.config/zellij"
         create_symlink "$DOTFILES_DIR/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
-        mkdir -p "$HOME/.config/zellij/layouts"
+        ensure_dir "$HOME/.config/zellij/layouts"
         # Link each overlay layout individually rather than replacing the directory,
         # so layouts dumped on this machine by `zdump` are never destroyed.
         if overlay_active && [ -d "$DOTFILES_OVERLAY/zellij/layouts" ]; then
@@ -359,7 +377,7 @@ install_symlinks_common() {
         if [ "$DRY_RUN" = true ]; then
             info "[DRY-RUN] Would generate: ~/.local/share/atuin/init.nu"
         else
-            mkdir -p "$HOME/.local/share/atuin"
+            ensure_dir "$HOME/.local/share/atuin"
             atuin init nu > "$HOME/.local/share/atuin/init.nu"
             success "Generated: ~/.local/share/atuin/init.nu"
         fi
@@ -461,7 +479,7 @@ install_symlinks_desktop() {
 install_symlinks() {
     info "Creating symlinks..."
 
-    mkdir -p "$HOME/.config/Code/User"
+    ensure_dir "$HOME/.config/Code/User"
 
     install_symlinks_common "tmux.conf"
     install_symlinks_desktop "$HOME/.config/Code/User"
@@ -474,7 +492,7 @@ install_symlinks_macos() {
     info "Creating symlinks (macOS)..."
 
     local code_user_dir="$HOME/Library/Application Support/Code/User"
-    mkdir -p "$code_user_dir"
+    ensure_dir "$code_user_dir"
 
     install_symlinks_common "tmux.conf"
     install_symlinks_desktop "$code_user_dir"
