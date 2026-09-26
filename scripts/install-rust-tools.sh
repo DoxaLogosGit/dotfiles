@@ -9,8 +9,8 @@
 # instead of listing it here.
 
 # Fallbacks in case this is sourced without the caller's helpers.
-type info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
-type warning >/dev/null 2>&1 || warning() { echo -e "[WARN] $1"; }
+declare -f info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
+declare -f warning >/dev/null 2>&1 || warning() { echo -e "[WARN] $1"; }
 
 install_rust_tools() {
     local tool

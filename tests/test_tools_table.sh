@@ -35,7 +35,15 @@ while IFS= read -r line; do
 done < "$TABLE"
 assert_eq "" "$bad_cell" "every cell is '-' or method:name"
 
-# Only known install methods appear.
+# Every method in the table must be one pkg_install_one actually handles.
+# The allowlist is read out of pkg-runner.sh's case branches rather than
+# duplicated here, so the two cannot drift apart.
+RUNNER="$(dirname "$0")/../scripts/pkg-runner.sh"
+METHODS="$(sed -n '/^pkg_install_one()/,/^}/p' "$RUNNER" \
+    | grep -oE '^[[:space:]]+[a-z|]+\)' \
+    | tr -d ' )' | tr '|' '\n' | sort -u | tr '\n' ' ')"
+assert_ok "methods were extracted from pkg-runner.sh" test -n "$METHODS"
+
 bad_method=""
 while IFS= read -r line; do
     case "$line" in ''|\#*) continue ;; esac
@@ -43,9 +51,10 @@ while IFS= read -r line; do
     for col in 2 3 4 5; do
         cell=$(printf '%s' "$line" | cut -f"$col")
         [ "$cell" = "-" ] && continue
-        case "${cell%%:*}" in
-            dnf|apt|brew|cargo|bun|npm|fn) ;;
-            *) bad_method="$bad_method $tool:${cell%%:*}" ;;
+        m="${cell%%:*}"
+        case " $METHODS " in
+            *" $m "*) ;;
+            *) bad_method="$bad_method $tool:$m" ;;
         esac
     done
 done < "$TABLE"

@@ -12,9 +12,9 @@
 #   install_pi_packages --personal   # shared set + free-tier routing
 
 # Fallbacks in case this is sourced without the caller's helpers.
-type info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
-type warning >/dev/null 2>&1 || warning() { echo -e "[WARN] $1"; }
-type success >/dev/null 2>&1 || success() { echo -e "[OK] $1"; }
+declare -f info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
+declare -f warning >/dev/null 2>&1 || warning() { echo -e "[WARN] $1"; }
+declare -f success >/dev/null 2>&1 || success() { echo -e "[OK] $1"; }
 
 # Wanted everywhere.
 PI_PACKAGES_SHARED=(

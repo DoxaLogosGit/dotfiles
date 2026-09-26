@@ -23,7 +23,7 @@ MANIFEST_TABLE=""
 MANIFEST_FILE=""
 
 # Fallbacks so this file works when sourced without install.sh's helpers.
-type warning >/dev/null 2>&1 || warning() { echo "[WARN] $1" >&2; }
+declare -f warning >/dev/null 2>&1 || warning() { echo "[WARN] $1" >&2; }
 type error   >/dev/null 2>&1 || error()   { echo "[ERROR] $1" >&2; }
 
 # Echo the cell for <tool> in <os>, or nothing when the tool is unknown.

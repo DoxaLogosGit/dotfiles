@@ -8,9 +8,9 @@
 # at /usr/local. We do NOT hardcode either — the same dotfiles run on both.
 
 # Fallbacks in case this is sourced without the caller's helpers.
-type info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
-type success >/dev/null 2>&1 || success() { echo -e "[OK] $1"; }
-type warning >/dev/null 2>&1 || warning() { echo -e "[WARN] $1"; }
+declare -f info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
+declare -f success >/dev/null 2>&1 || success() { echo -e "[OK] $1"; }
+declare -f warning >/dev/null 2>&1 || warning() { echo -e "[WARN] $1"; }
 
 set_homebrew_prefix() {
     if [ "$(uname -m)" = "arm64" ]; then

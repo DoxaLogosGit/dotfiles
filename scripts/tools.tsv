@@ -1,45 +1,77 @@
 # Single source of truth for what each tool IS on each OS.
 #
 # Columns: tool  fedora  debian  raspbian  macos
-# Cells:   method:name   install via that method
+# Cells:   method:name   install via that method (dnf/apt/brew/cargo/bun/npm/pip)
 #          -             not available on this OS; no manifest line needed
-#          fn:name       shell function in that OS's package script
+#          fn:name       shell function in that OS's package script, for
+#                        installs a cell cannot express: versioned URL
+#                        downloads, arch checks, piped upstream installers,
+#                        third-party repos
+# A comma in a name installs several packages in one call (apt:rustc,cargo).
+#
 # Row order is install order: bootstrappers first, then their dependents.
 #
-# Adding a tool: add one row here. manifest.example is generated from
-# column 1 (scripts/gen-manifest-example.sh), and install.sh validates
-# every manifest key against it.
+# Build prerequisites (cmake, gcc-c++, make, perl-core, curl, wget, python3-dev)
+# are deliberately NOT rows: they are not preferences, and a machine that
+# declined one would fail deep inside an unrelated build.
+#
+# Adding a tool: add one row here, then run scripts/gen-manifest-example.sh.
+# install.sh validates every manifest key against this file.
 #
 # tool	fedora	debian	raspbian	macos
 rust	fn:rustup	fn:rustup	apt:rustc,cargo	fn:rustup
 bun	fn:bun_install	fn:bun_install	-	brew:oven-sh/bun/bun
-node	-	-	fn:node_nvm	-
+node	fn:node_nvm	fn:node_nvm	fn:node_nvm	fn:node_nvm
+mise	fn:mise_curl	fn:mise_curl	-	brew:mise
 zsh	dnf:zsh	apt:zsh	apt:zsh	brew:zsh
 bash	dnf:bash	apt:bash	apt:bash	brew:bash
-git	dnf:git	apt:git	apt:git	brew:git
-vim	dnf:vim	apt:vim	apt:vim	brew:vim
+nushell	fn:nushell_pkg	fn:nushell_pkg	-	brew:nushell
+vim	dnf:vim-enhanced	apt:vim-gtk	apt:vim	brew:vim
 nvim	dnf:neovim	apt:neovim	apt:neovim	brew:neovim
 tmux	dnf:tmux	apt:tmux	apt:tmux	brew:tmux
 zellij	cargo:zellij	cargo:zellij	-	brew:zellij
 starship	cargo:starship	cargo:starship	fn:starship_curl	brew:starship
 atuin	cargo:atuin	cargo:atuin	-	brew:atuin
-eza	dnf:eza	fn:eza_deb	fn:eza_raspbian	brew:eza
 zoxide	dnf:zoxide	apt:zoxide	apt:zoxide	brew:zoxide
-fzf	dnf:fzf	apt:fzf	apt:fzf	brew:fzf
-ripgrep	dnf:ripgrep	apt:ripgrep	apt:ripgrep	brew:ripgrep
-fd	dnf:fd-find	apt:fd-find	apt:fd-find	brew:fd
+eza	fn:eza_prebuilt	fn:eza_prebuilt	fn:eza_raspbian	brew:eza
 bat	dnf:bat	apt:bat	apt:bat	brew:bat
+fd	dnf:fd-find	apt:fd-find	apt:fd-find	brew:fd
+ripgrep	dnf:ripgrep	apt:ripgrep	apt:ripgrep	brew:ripgrep
+fzf	dnf:fzf	apt:fzf	apt:fzf	brew:fzf
 jq	dnf:jq	apt:jq	apt:jq	brew:jq
-glow	dnf:glow	fn:glow_deb	-	brew:glow
+yq	dnf:yq	-	-	brew:yq
+yazi	fn:yazi_prebuilt	fn:yazi_prebuilt	-	brew:yazi
+vifm	-	apt:vifm	-	-
+glow	dnf:glow	apt:glow	-	brew:glow
+moreutils	dnf:moreutils	-	-	brew:moreutils
+p7zip	dnf:7zip	apt:p7zip-full	-	brew:p7zip
+poppler	dnf:poppler	apt:poppler-utils	-	brew:poppler
 htop	dnf:htop	apt:htop	apt:htop	brew:htop
 btop	dnf:btop	apt:btop	apt:btop	brew:btop
-yazi	cargo:yazi-fm	cargo:yazi-fm	-	brew:yazi
-nushell	cargo:nu	cargo:nu	-	brew:nushell
+fastfetch	dnf:fastfetch	-	-	brew:fastfetch
+procs	dnf:procs	-	-	brew:procs
+progress	dnf:progress	-	-	brew:progress
+dstat	dnf:pcp-dstat	-	-	-
+iotop	dnf:iotop-c	-	-	-
+glances	pip:glances	pip:glances	-	brew:glances
+bpytop	pip:bpytop	pip:bpytop	-	-
+ncdu	dnf:ncdu	-	-	brew:ncdu
+duf	dnf:duf	-	-	brew:duf
+lshw	dnf:lshw	-	-	-
+mtr	dnf:mtr	-	-	brew:mtr
+ipcalc	dnf:ipcalc	-	-	brew:ipcalc
+wireshark	dnf:wireshark-cli	-	-	-
 imagemagick	dnf:ImageMagick	apt:imagemagick	-	brew:imagemagick
-shellcheck	dnf:ShellCheck	apt:shellcheck	apt:shellcheck	brew:shellcheck
+ffmpeg	fn:ffmpeg_fedora	apt:ffmpeg	-	brew:ffmpeg
+asciinema	dnf:asciinema	-	-	-
 lua	dnf:lua	apt:lua5.4	apt:lua5.4	brew:lua
 clang	dnf:clang	apt:clang	apt:clang	-
-python	fn:python_devel	fn:python_devel	fn:python_devel	fn:python_devel
+shellcheck	dnf:ShellCheck	apt:shellcheck	apt:shellcheck	brew:shellcheck
+lazydocker	fn:lazydocker_copr	-	-	brew:lazydocker
+uv	pip:uv	pip:uv	-	brew:uv
+tldr	pip:tldr	pip:tldr	-	brew:tldr
+vale	pip:vale	pip:vale	-	brew:vale
+python-lsp	pip:jedi_language_server,flake8	pip:jedi_language_server,flake8	fn:python_lsp_pi	-
 herdr	cargo:herdr	cargo:herdr	-	brew:herdr
 tudiff	cargo:tudiff	cargo:tudiff	-	cargo:tudiff
 tuicr	cargo:tuicr	cargo:tuicr	-	cargo:tuicr
@@ -48,10 +80,14 @@ opencode	bun:opencode-ai	bun:opencode-ai	fn:opencode_npm	bun:opencode-ai
 claude	bun:@anthropic-ai/claude-code	bun:@anthropic-ai/claude-code	-	bun:@anthropic-ai/claude-code
 codex	bun:@openai/codex	bun:@openai/codex	-	bun:@openai/codex
 playwright	fn:playwright_linux	fn:playwright_linux	-	fn:playwright_macos
-ghostty	-	-	-	brew:ghostty
-vscode	-	-	-	-
+ghostty	-	-	-	fn:ghostty_cask
+git	dnf:git	apt:git	apt:git	brew:git
+python	-	-	-	-
 scripts	-	-	-	-
+vscode	-	-	-	-
 fonts	-	-	-	-
 systemd	-	-	-	-
 claude-plugins	-	-	-	-
 pi-packages	-	-	-	-
+tpm	-	-	-	-
+oh-my-zsh	-	-	-	-

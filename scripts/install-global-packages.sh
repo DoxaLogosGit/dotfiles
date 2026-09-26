@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Install Node.js (via nvm), bun, and global coding-agent packages.
-# Sourced by packages-debian.sh, packages-fedora.sh and packages-macos.sh.
-# OS-specific package choices live in the guarded block below.
+# Global packages that belong to no single tool row, plus the pi package
+# phase. Sourced by packages-debian.sh, packages-fedora.sh and
+# packages-macos.sh, after pkg_run_table has installed the table's tools.
 #
 
 GREEN='\033[0;32m'
@@ -17,7 +17,7 @@ warning() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 # The manifest decides which agents this machine installs. This file is sourced
 # by the package scripts, so load the manifest here if the caller has not: a
 # missing `want` would abort the run under set -e.
-if ! type want >/dev/null 2>&1; then
+if ! declare -f want >/dev/null 2>&1; then
     _igp_dir="$(dirname "${BASH_SOURCE[0]}")"
     # shellcheck source=manifest.sh
     . "$_igp_dir/manifest.sh"
@@ -25,61 +25,18 @@ if ! type want >/dev/null 2>&1; then
                   "$_igp_dir/tools.tsv" || exit 1
 fi
 
-# ── Node.js via nvm ───────────────────────────────────────────────────────────
+# Node, bun, rust and every coding agent are tool rows in scripts/tools.tsv and
+# are installed by pkg_run_table before this file is sourced. What is left here
+# is the one package that belongs to no single tool, plus the pi package phase.
 
-info "Installing Node.js via nvm..."
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-nvm install --lts
-nvm use --lts
-
-# ── Bun ───────────────────────────────────────────────────────────────────────
-
-info "Installing bun..."
-curl -fsSL https://bun.sh/install | bash
-export PATH="$HOME/.bun/bin:$PATH"
-
-# ── Rust via rustup ──────────────────────────────────────────────────────────
-# Idempotent: the package scripts install rust earlier so cargo installs use
-# rustup's toolchain; this is a no-op (just an update) when already installed.
-
-# shellcheck source=install-rust.sh
-source "$(dirname "${BASH_SOURCE[0]}")/install-rust.sh"
-install_rust
-
-# ── Global packages ───────────────────────────────────────────────────────────
-
-info "Installing global packages via bun..."
-
-# Cross-platform packages.
-# pi was renamed from @mariozechner/* to @earendil-works/* at 0.74; the old
-# scope is frozen at 0.73.1.
-bun install -g @earendil-works/pi-coding-agent
-bun install -g @openai/codex
-bun install -g opencode-ai
-bun install -g playwright
-
-# ── OS-specific global packages ──────────────────────────────────────────────
-# Claude Code availability is a per-machine matter, not a per-OS one: a work
-# machine may block Anthropic where a personal machine on the same OS does not.
-# The machine's manifest decides, and the comment on that line records why.
-if want claude; then
-    bun install -g @anthropic-ai/claude-code
+# ── Playwright MCP server ─────────────────────────────────────────────────────
+# Not a tool row: it is an add-on to whichever agent uses it, and has no config
+# or binary of its own to gate.
+if want playwright; then
+    bun install -g @playwright/mcp
 else
-    info "Skipping Claude Code (manifest)."
+    info "Skipping the Playwright MCP server (manifest)."
 fi
-
-if [ "$(uname -s)" = "Darwin" ]; then
-    # Playwright bundles its own browser dependencies here, so no --with-deps.
-    bunx playwright install
-else
-    # --with-deps shells out to apt/dnf for browser system libraries.
-    bunx playwright install --with-deps
-fi
-
-bun install -g @playwright/mcp
-
 
 success "Global packages installed!"
 
