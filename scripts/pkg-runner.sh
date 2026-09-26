@@ -62,7 +62,11 @@ _pkg_uv_tool_install() {
         fi
     fi
     for pkg in "$@"; do
-        uv tool install "$pkg" || rc=1
+        # --force: uv refuses to overwrite an executable it does not own, and
+        # on any machine upgraded from the old `pip install` lines that is
+        # exactly what it finds. The installer has to converge, not stop at a
+        # shim left by its predecessor.
+        uv tool install --force "$pkg" || rc=1
     done
     return "$rc"
 }

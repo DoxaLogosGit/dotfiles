@@ -64,12 +64,29 @@ bun_install() {
     export PATH="$BUN_INSTALL/bin:$PATH"
 }
 
-node_nvm() {
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-    export NVM_DIR="$HOME/.nvm"
-    # shellcheck source=/dev/null
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-    nvm install --lts && nvm use --lts
+node_pkg() {
+    # The coding agents declare node >= 22.19, and Debian 13 ships 20.19, so
+    # "use the distro package" and "run pi" genuinely conflict here. Take the
+    # distro node when it is new enough and fall back to NodeSource when it is
+    # not, rather than silently installing an agent that cannot start.
+    local need_major=22 have
+    if sudo apt-get install -yy nodejs npm 2>/dev/null; then
+        have="$(node --version 2>/dev/null | sed 's/^v//' | cut -d. -f1)"
+        if [ -n "$have" ] && [ "$have" -ge "$need_major" ]; then
+            info "node $have from the distro package is new enough."
+            return 0
+        fi
+        info "distro node is ${have:-absent}; the agents need >= $need_major."
+    fi
+
+    info "Installing node $need_major from NodeSource..."
+    curl -fsSL "https://deb.nodesource.com/setup_${need_major}.x" | sudo -E bash - || {
+        warning "NodeSource setup failed — node stays at ${have:-none}. Agents needing >= $need_major will not run."
+        return 1
+    }
+    # NodeSource's nodejs bundles npm and conflicts with Debian's npm package;
+    # apt resolves that by replacing it.
+    sudo apt-get install -yy nodejs
 }
 
 mise_curl() {

@@ -112,15 +112,40 @@ glow_deb() {
     return 1
 }
 
+node_pkg() {
+    # The coding agents declare node >= 22.19, and Debian 13 ships 20.19, so
+    # "use the distro package" and "run pi" genuinely conflict here. Take the
+    # distro node when it is new enough and fall back to NodeSource when it is
+    # not, rather than silently installing an agent that cannot start.
+    local need_major=22 have
+    if sudo apt-get install -yy nodejs npm 2>/dev/null; then
+        have="$(node --version 2>/dev/null | sed 's/^v//' | cut -d. -f1)"
+        if [ -n "$have" ] && [ "$have" -ge "$need_major" ]; then
+            info "node $have from the distro package is new enough."
+            return 0
+        fi
+        info "distro node is ${have:-absent}; the agents need >= $need_major."
+    fi
+
+    info "Installing node $need_major from NodeSource..."
+    curl -fsSL "https://deb.nodesource.com/setup_${need_major}.x" | sudo -E bash - || {
+        warning "NodeSource setup failed — node stays at ${have:-none}. Agents needing >= $need_major will not run."
+        return 1
+    }
+    # NodeSource's nodejs bundles npm and conflicts with Debian's npm package;
+    # apt resolves that by replacing it.
+    sudo apt-get install -yy nodejs
+}
+
 pi_npm() {
     # npm rather than bun: there is no bun build for this platform. The package
     # name matches every other OS — the old @mariozechner scope was frozen at
     # 0.73.1 and this machine was the only one still installing from it.
-    npm install -g @earendil-works/pi-coding-agent
+    npm install -g --prefix "$HOME/.local" @earendil-works/pi-coding-agent
 }
 
 opencode_npm() {
-    npm install -g opencode-ai
+    npm install -g --prefix "$HOME/.local" opencode-ai
 }
 
 uv_install() {

@@ -21,7 +21,7 @@
 # tool	fedora	debian	raspbian	macos
 rust	fn:rustup	fn:rustup	apt:rustc,cargo	fn:rustup
 bun	fn:bun_install	fn:bun_install	-	brew:oven-sh/bun/bun
-node	fn:node_nvm	fn:node_nvm	apt:nodejs,npm	fn:node_nvm
+node	fn:node_nvm	fn:node_pkg	fn:node_pkg	fn:node_nvm
 mise	fn:mise_curl	fn:mise_curl	-	brew:mise
 uv	fn:uv_install	fn:uv_install	fn:uv_install	brew:uv
 zsh	dnf:zsh	apt:zsh	apt:zsh	brew:zsh
