@@ -74,6 +74,12 @@ path=(
 # ── Aliases & functions ──────────────────────────────────────────────────────
 alias ll="eza --icons=always --color=always --color-scale=all -l --git"
 
+# Debian and Raspbian install bat as `batcat`: the name `bat` already belongs
+# to bacula-console-qt there. Without this, `bat` simply does not exist on the
+# Pi. Guarded on batcat rather than on the OS, so it is a no-op wherever the
+# binary keeps its own name.
+command -v batcat >/dev/null 2>&1 && alias bat=batcat
+
 c()  { CLAUDE_CONFIG_DIR="$HOME/.claude"      "$HOME/.local/bin/claude" "$@"; }
 cw() { CLAUDE_CONFIG_DIR="$HOME/.claude-work" "$HOME/.local/bin/claude" "$@"; }
 
