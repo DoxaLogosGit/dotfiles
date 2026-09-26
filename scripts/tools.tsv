@@ -1,0 +1,57 @@
+# Single source of truth for what each tool IS on each OS.
+#
+# Columns: tool  fedora  debian  raspbian  macos
+# Cells:   method:name   install via that method
+#          -             not available on this OS; no manifest line needed
+#          fn:name       shell function in that OS's package script
+# Row order is install order: bootstrappers first, then their dependents.
+#
+# Adding a tool: add one row here. manifest.example is generated from
+# column 1 (scripts/gen-manifest-example.sh), and install.sh validates
+# every manifest key against it.
+#
+# tool	fedora	debian	raspbian	macos
+rust	fn:rustup	fn:rustup	apt:rustc,cargo	fn:rustup
+bun	fn:bun_install	fn:bun_install	-	brew:oven-sh/bun/bun
+node	-	-	fn:node_nvm	-
+zsh	dnf:zsh	apt:zsh	apt:zsh	brew:zsh
+bash	dnf:bash	apt:bash	apt:bash	brew:bash
+git	dnf:git	apt:git	apt:git	brew:git
+vim	dnf:vim	apt:vim	apt:vim	brew:vim
+nvim	dnf:neovim	apt:neovim	apt:neovim	brew:neovim
+tmux	dnf:tmux	apt:tmux	apt:tmux	brew:tmux
+zellij	cargo:zellij	cargo:zellij	-	brew:zellij
+starship	cargo:starship	cargo:starship	fn:starship_curl	brew:starship
+atuin	cargo:atuin	cargo:atuin	-	brew:atuin
+eza	dnf:eza	fn:eza_deb	fn:eza_raspbian	brew:eza
+zoxide	dnf:zoxide	apt:zoxide	apt:zoxide	brew:zoxide
+fzf	dnf:fzf	apt:fzf	apt:fzf	brew:fzf
+ripgrep	dnf:ripgrep	apt:ripgrep	apt:ripgrep	brew:ripgrep
+fd	dnf:fd-find	apt:fd-find	apt:fd-find	brew:fd
+bat	dnf:bat	apt:bat	apt:bat	brew:bat
+jq	dnf:jq	apt:jq	apt:jq	brew:jq
+glow	dnf:glow	fn:glow_deb	-	brew:glow
+htop	dnf:htop	apt:htop	apt:htop	brew:htop
+btop	dnf:btop	apt:btop	apt:btop	brew:btop
+yazi	cargo:yazi-fm	cargo:yazi-fm	-	brew:yazi
+nushell	cargo:nu	cargo:nu	-	brew:nushell
+imagemagick	dnf:ImageMagick	apt:imagemagick	-	brew:imagemagick
+shellcheck	dnf:ShellCheck	apt:shellcheck	apt:shellcheck	brew:shellcheck
+lua	dnf:lua	apt:lua5.4	apt:lua5.4	brew:lua
+clang	dnf:clang	apt:clang	apt:clang	-
+python	fn:python_devel	fn:python_devel	fn:python_devel	fn:python_devel
+herdr	cargo:herdr	cargo:herdr	-	brew:herdr
+tudiff	cargo:tudiff	cargo:tudiff	-	cargo:tudiff
+tuicr	cargo:tuicr	cargo:tuicr	-	cargo:tuicr
+pi	bun:@earendil-works/pi-coding-agent	bun:@earendil-works/pi-coding-agent	fn:pi_npm	bun:@earendil-works/pi-coding-agent
+opencode	bun:opencode-ai	bun:opencode-ai	fn:opencode_npm	bun:opencode-ai
+claude	bun:@anthropic-ai/claude-code	bun:@anthropic-ai/claude-code	-	bun:@anthropic-ai/claude-code
+codex	bun:@openai/codex	bun:@openai/codex	-	bun:@openai/codex
+playwright	fn:playwright_linux	fn:playwright_linux	-	fn:playwright_macos
+ghostty	-	-	-	brew:ghostty
+vscode	-	-	-	-
+scripts	-	-	-	-
+fonts	-	-	-	-
+systemd	-	-	-	-
+claude-plugins	-	-	-	-
+pi-packages	-	-	-	-
