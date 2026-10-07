@@ -143,16 +143,11 @@ uv_install() {
 }
 
 tuios_install() {
-    # Upstream installer: it detects OS and arch (including armv7, so the Pi
-    # can have it) and installs to /usr/local/bin when that is writable,
-    # otherwise ~/.local/bin, which is already on PATH here. Same pattern as
-    # the starship and mise handlers.
-    if command -v tuios >/dev/null 2>&1; then
-        info "tuios already installed ($(tuios --version 2>/dev/null | head -1))"
-        return 0
-    fi
-    curl -fsSL https://raw.githubusercontent.com/Gaurav-Gosain/tuios/main/install.sh | bash
+    # shellcheck source=install-tuios.sh
+    . "$SCRIPT_DIR/install-tuios.sh"
+    install_tuios
 }
+
 
 playwright_linux() {
     # --with-deps shells out to dnf for browser system libraries.
