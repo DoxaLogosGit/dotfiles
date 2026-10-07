@@ -69,6 +69,7 @@ tldr             = yes   # fedora debian macos
 vale             = yes   # fedora debian macos
 python-lsp       = yes   # fedora debian raspbian macos
 tuios            = yes   # fedora debian raspbian macos
+tuios-web        = yes   # fedora debian raspbian macos
 herdr            = yes   # fedora debian macos
 tudiff           = yes   # fedora debian macos
 tuicr            = yes   # fedora debian macos

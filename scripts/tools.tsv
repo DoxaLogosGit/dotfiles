@@ -73,6 +73,7 @@ tldr	uv:tldr	uv:tldr	-	brew:tldr
 vale	uv:vale	uv:vale	-	brew:vale
 python-lsp	uv:jedi-language-server,flake8	uv:jedi-language-server,flake8	uv:jedi-language-server,flake8	uv:jedi-language-server,flake8
 tuios	fn:tuios_install	fn:tuios_install	fn:tuios_install	brew:tuios
+tuios-web	fn:tuios_web_install	fn:tuios_web_install	fn:tuios_web_install	fn:tuios_web_install
 herdr	cargo:herdr	cargo:herdr	-	brew:herdr
 tudiff	cargo:tudiff	cargo:tudiff	-	cargo:tudiff
 tuicr	cargo:tuicr	cargo:tuicr	-	cargo:tuicr

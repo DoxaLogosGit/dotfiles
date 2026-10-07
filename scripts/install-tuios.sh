@@ -136,3 +136,54 @@ install_tuios() {
         warning "Run 'tuios kill-server' to pick this one up; sessions' layouts are saved."
     fi
 }
+
+# tuios-web is a separate binary from the same releases: it serves the session
+# to a browser. There is one build per platform — no ghostty flavour — and it
+# covers armv6 and armv7, so a Pi can serve it too.
+#
+# Note what it is before putting it anywhere reachable: every browser that
+# opens it gets a shell on this machine, and the session switcher reaches every
+# session. It refuses a non-loopback host without a password for that reason.
+install_tuios_web() {
+    local os arch asset url tmp dest
+    os="$(_tuios_os)" || { warning "tuios-web: unsupported OS $(uname -s)"; return 1; }
+    arch="$(_tuios_arch)" || { warning "tuios-web: unsupported arch $(uname -m)"; return 1; }
+
+    if command -v tuios-web >/dev/null 2>&1; then
+        info "tuios-web already installed ($(tuios-web --version 2>/dev/null | head -1))"
+        return 0
+    fi
+
+    asset="tuios-web_${TUIOS_VERSION}_${os}_${arch}.tar.gz"
+    url="https://github.com/$TUIOS_REPO/releases/download/v${TUIOS_VERSION}/${asset}"
+
+    info "Installing tuios-web $TUIOS_VERSION..."
+    tmp="$(mktemp -d)" || return 1
+    if ! curl -fsSL "$url" -o "$tmp/web.tar.gz"; then
+        warning "tuios-web: could not download $asset"
+        rm -rf "$tmp"; return 1
+    fi
+    if ! tar -xzf "$tmp/web.tar.gz" -C "$tmp"; then
+        warning "tuios-web: could not unpack $asset"
+        rm -rf "$tmp"; return 1
+    fi
+    if [ ! -f "$tmp/tuios-web" ]; then
+        warning "tuios-web: no tuios-web binary inside $asset"
+        rm -rf "$tmp"; return 1
+    fi
+
+    if [ -w /usr/local/bin ]; then
+        dest=/usr/local/bin
+    else
+        dest="$HOME/.local/bin"
+        mkdir -p "$dest"
+    fi
+
+    if ! mv "$tmp/tuios-web" "$dest/tuios-web"; then
+        warning "tuios-web: could not install into $dest"
+        rm -rf "$tmp"; return 1
+    fi
+    chmod +x "$dest/tuios-web"
+    rm -rf "$tmp"
+    success "tuios-web installed to $dest"
+}

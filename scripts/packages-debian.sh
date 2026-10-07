@@ -193,6 +193,12 @@ glow_deb() {
     return 1
 }
 
+tuios_web_install() {
+    # shellcheck source=install-tuios.sh
+    . "$SCRIPT_DIR/install-tuios.sh"
+    install_tuios_web
+}
+
 tuios_install() {
     # shellcheck source=install-tuios.sh
     . "$SCRIPT_DIR/install-tuios.sh"

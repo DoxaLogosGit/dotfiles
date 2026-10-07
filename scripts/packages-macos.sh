@@ -87,6 +87,12 @@ rustup() {
     install_rust
 }
 
+tuios_web_install() {
+    # shellcheck source=install-tuios.sh
+    . "$SCRIPT_DIR/install-tuios.sh"
+    install_tuios_web
+}
+
 ghostty_cask() {
     brew_install_cask ghostty
 }
