@@ -429,6 +429,12 @@ install_symlinks_common() {
             create_symlink "$DOTFILES_DIR/herdr/config.toml" "$HOME/.config/herdr/config.toml"
     fi
 
+    # Tuios (symlink config file only; web-password stays local). Shared on
+    # every machine so keybindings match everywhere.
+    if want_config tuios; then
+        create_symlink "$DOTFILES_DIR/tuios/config.toml" "$HOME/.config/tuios/config.toml"
+    fi
+
     # Scripts
     if want_config scripts; then
         create_symlink "$DOTFILES_DIR/scripts/reset_last_tmux_resurrect.sh" "$HOME/.local/bin/reset_last_tmux_resurrect.sh"

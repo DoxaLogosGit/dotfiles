@@ -73,7 +73,7 @@ assert_ok "bun row precedes first bun: cell" test "$bun_line" -lt "$first_bun"
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 missing_rows=""
 for tool in zsh bash git vim nvim tmux zellij starship atuin yazi htop btop \
-            nushell python scripts ghostty claude vscode opencode pi herdr; do
+            nushell python scripts ghostty claude vscode opencode pi herdr tuios; do
     grep -q "^$tool	" "$TABLE" || missing_rows="$missing_rows $tool"
 done
 assert_eq "" "$missing_rows" "every config-linked tool has a table row"
