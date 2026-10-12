@@ -52,6 +52,7 @@ Or run interactively:
 - **codex** - OpenAI Codex CLI configuration
 - **pi** - Pi coding agent configuration (`~/.pi/agent`)
 - **herdr** - Herdr terminal multiplexer settings
+- **tuios** - Shared tuios keybindings, as a `config.d` drop-in (Alt+H / Alt+L switch workspace)
 - **ollama** - Local model files and Modelfiles for Ollama (omnicoder, qwen3.5:9b)
 
 ### Other Configs
@@ -95,6 +96,10 @@ Or run interactively:
 │   └── tmux.conf                 # → ~/.tmux.conf
 ├── ghostty/                      # → ~/.config/ghostty/
 ├── yazi/                         # → ~/.config/yazi/
+├── tuios/
+│   └── config.d/dotfiles.toml    # → <tuios config dir>/config.d/dotfiles.toml
+│                                 #   (~/.config/tuios on Linux,
+│                                 #    ~/Library/Application Support/tuios on macOS)
 ├── git/
 │   ├── gitconfig                 # → ~/.gitconfig (portable settings)
 │   └── gitconfig.local.example   # → ~/.gitconfig.local (per-machine, untracked)

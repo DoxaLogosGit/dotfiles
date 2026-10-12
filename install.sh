@@ -432,6 +432,23 @@ install_symlinks_common() {
             create_symlink "$DOTFILES_DIR/herdr/config.toml" "$HOME/.config/herdr/config.toml"
     fi
 
+    # tuios writes its own config.toml (the settings page saves there), so the
+    # shared settings go in a config.d drop-in, which tuios merges underneath
+    # config.toml. tuios finds its config through XDG: ~/.config on Linux,
+    # ~/Library/Application Support on macOS, unless XDG_CONFIG_HOME is set.
+    # Asks uname, not OS_TYPE: the tests call this without running detect_os.
+    if want_config tuios; then
+        local tuios_dir
+        if [ -n "${XDG_CONFIG_HOME:-}" ]; then
+            tuios_dir="$XDG_CONFIG_HOME/tuios"
+        elif [ "$(uname -s)" = "Darwin" ]; then
+            tuios_dir="$HOME/Library/Application Support/tuios"
+        else
+            tuios_dir="$HOME/.config/tuios"
+        fi
+        create_symlink "$DOTFILES_DIR/tuios/config.d/dotfiles.toml" "$tuios_dir/config.d/dotfiles.toml"
+    fi
+
     # Scripts
     if want_config scripts; then
         create_symlink "$DOTFILES_DIR/scripts/reset_last_tmux_resurrect.sh" "$HOME/.local/bin/reset_last_tmux_resurrect.sh"
