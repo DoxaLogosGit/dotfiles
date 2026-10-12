@@ -13,12 +13,37 @@
 # `tuios config origin <key>` to see which file sets it, and
 # `tuios config prune` to drop keys from config.toml that only hold defaults.
 #
-# Needs tuios 0.8.5 or later: next_workspace and prev_workspace do not exist
-# before that.
+# Needs tuios 0.9.0 or later. Older versions do not read config.d at all, so
+# every setting here is silently ignored. Check with `tuios --version` and
+# `tuios config files` (that command is also new in 0.9.0).
+#
+# On a new machine, start tuios once before you check anything. Until the
+# first start writes config.toml, tuios ignores config.d too, so
+# `tuios keybinds` reports the defaults (leader ctrl+b) and looks broken.
+#
+# Goal: the same keys on every machine. Keybindings live here; appearance
+# (theme, glyphs) stays per machine in config.toml.
 
 # Spell Alt as "alt", not "opt". tuios reads opt+ as alt+ on macOS, but alt+
 # is the spelling that works on every platform. On the MacBook, Option sends
 # Alt because ghostty/config sets macos-option-as-alt.
+
+# Leader for prefix commands. The tuios default is ctrl+b.
+[keybindings]
+leader_key = 'ctrl+space'
+
+# Spotlight on plain b. The default is B (shift+b).
+[keybindings.system]
+toggle_spotlight = ['b']
+
+# tuios gives macOS and Linux different defaults here. macOS adds Option+Tab
+# and Option+Shift+Tab to cycle windows. Pinned to one list so both match.
+# Windows and most Linux desktops grab Alt+Tab before it reaches the terminal,
+# so use Alt+N / Alt+P there.
+[keybindings.terminal_mode]
+terminal_exit_mode = ['alt+esc']
+terminal_next_window = ['alt+tab', 'alt+n']
+terminal_prev_window = ['alt+shift+tab', 'alt+p']
 
 # Alt+H / Alt+L go to the previous / next workspace that has panes, and wrap.
 # They also work in terminal mode (while typing in a pane), so the shell no

@@ -52,7 +52,7 @@ Or run interactively:
 - **codex** - OpenAI Codex CLI configuration
 - **pi** - Pi coding agent configuration (`~/.pi/agent`)
 - **herdr** - Herdr terminal multiplexer settings (Linux only; macOS uses tuios)
-- **tuios** - Shared tuios keybindings, as a `config.d` drop-in (Alt+H / Alt+L switch workspace)
+- **tuios** - Shared tuios keybindings, as a `config.d` drop-in: the same keys on macOS and Linux (leader Ctrl+Space, Alt+H / Alt+L switch workspace). Needs tuios 0.9.0+
 - **ollama** - Local model files and Modelfiles for Ollama (omnicoder, qwen3.5:9b)
 
 ### Other Configs
