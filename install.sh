@@ -427,7 +427,9 @@ install_symlinks_common() {
 
     # Herdr (herdr manages ~/.config/herdr/ logs + sessions — symlink config file
     # only). An overlay copy wins, so a machine can diverge its keybinds.
-    if want_config herdr; then
+    # Not on macOS: tuios replaced it there, and the table's '-' cell only stops
+    # the package, so without this a Mac with no manifest still got the config.
+    if want_config herdr && [ "$(uname -s)" != "Darwin" ]; then
         link_from_overlay "herdr/config.toml" "$HOME/.config/herdr/config.toml" ||
             create_symlink "$DOTFILES_DIR/herdr/config.toml" "$HOME/.config/herdr/config.toml"
     fi

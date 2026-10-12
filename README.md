@@ -51,7 +51,7 @@ Or run interactively:
 - **opencode** - OpenCode CLI configuration
 - **codex** - OpenAI Codex CLI configuration
 - **pi** - Pi coding agent configuration (`~/.pi/agent`)
-- **herdr** - Herdr terminal multiplexer settings
+- **herdr** - Herdr terminal multiplexer settings (Linux only; macOS uses tuios)
 - **tuios** - Shared tuios keybindings, as a `config.d` drop-in (Alt+H / Alt+L switch workspace)
 - **ollama** - Local model files and Modelfiles for Ollama (omnicoder, qwen3.5:9b)
 
@@ -121,7 +121,7 @@ Or run interactively:
 │   └── (models.json,             #   per-machine: internal endpoints and
 │        settings.json untracked) #   model access; see install-pi-packages.sh
 ├── herdr/
-│   └── config.toml               # → ~/.config/herdr/config.toml
+│   └── config.toml               # → ~/.config/herdr/config.toml (Linux only)
 ├── vscode/
 │   └── settings.json             # → ~/.config/Code/User/settings.json
 ├── opencode/                     # untracked: internal endpoints + model access

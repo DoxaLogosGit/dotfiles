@@ -112,8 +112,8 @@ playwright_macos() {
 
 # ── Everything else comes from the table ──────────────────────────────────────
 #
-# herdr is a brew cell rather than a cargo one: it fails to compile from source
-# on macOS. tudiff and tuicr have no formula and stay cargo cells.
+# herdr is '-' on macOS: tuios is the multiplexer here. tudiff and tuicr have no
+# formula and stay cargo cells.
 
 pkg_run_table macos
 
