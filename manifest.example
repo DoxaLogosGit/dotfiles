@@ -25,6 +25,7 @@ bash             = yes   # fedora debian raspbian macos
 nushell          = yes   # fedora debian macos
 vim              = yes   # fedora debian raspbian macos
 nvim             = yes   # fedora debian raspbian macos
+tree-sitter      = yes   # fedora debian macos
 tmux             = yes   # fedora debian raspbian macos
 zellij           = yes   # fedora debian macos
 starship         = yes   # fedora debian raspbian macos

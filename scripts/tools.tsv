@@ -29,6 +29,7 @@ bash	dnf:bash	apt:bash	apt:bash	brew:bash
 nushell	fn:nushell_pkg	fn:nushell_pkg	-	brew:nushell
 vim	dnf:vim-enhanced	apt:vim-gtk	apt:vim	brew:vim
 nvim	dnf:neovim	apt:neovim	apt:neovim	brew:neovim
+tree-sitter	cargo:tree-sitter-cli	cargo:tree-sitter-cli	-	brew:tree-sitter-cli
 tmux	dnf:tmux	apt:tmux	apt:tmux	brew:tmux
 zellij	cargo:zellij	cargo:zellij	-	brew:zellij
 starship	cargo:starship	fn:starship_pkg	fn:starship_pkg	brew:starship
