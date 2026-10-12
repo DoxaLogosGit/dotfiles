@@ -414,25 +414,41 @@ install_symlinks_common() {
 
     # Pi coding agent
     # models.json and settings.json are untracked (internal endpoints,
-    # per-machine model access). An overlay copy is linked in when present;
-    # otherwise seed models.json from the example as before.
+    # per-machine model access). Overlay copies are linked in when present;
+    # otherwise seed models.json from the example as before, and leave
+    # settings.json for pi to create. pi writes settings.json in place
+    # (writeFileSync), so its updates land in the overlay through the link.
     if want_config pi; then
         create_symlink "$DOTFILES_DIR/pi" "$HOME/.pi/agent"
         link_from_overlay "pi/models.json" "$DOTFILES_DIR/pi/models.json" ||
             copy_template "$DOTFILES_DIR/pi/models.json.example" "$DOTFILES_DIR/pi/models.json"
+        link_from_overlay "pi/settings.json" "$DOTFILES_DIR/pi/settings.json" || true
     fi
 
     # Herdr (herdr manages ~/.config/herdr/ logs + sessions — symlink config file
     # only). An overlay copy wins, so a machine can diverge its keybinds.
-    if want_config herdr; then
+    # Not on macOS: tuios replaced it there, and the table's '-' cell only stops
+    # the package, so without this a Mac with no manifest still got the config.
+    if want_config herdr && [ "$(uname -s)" != "Darwin" ]; then
         link_from_overlay "herdr/config.toml" "$HOME/.config/herdr/config.toml" ||
             create_symlink "$DOTFILES_DIR/herdr/config.toml" "$HOME/.config/herdr/config.toml"
     fi
 
-    # Tuios (symlink config file only; web-password stays local). Shared on
-    # every machine so keybindings match everywhere.
+    # tuios writes its own config.toml (the settings page saves there), so the
+    # shared settings go in a config.d drop-in, which tuios merges underneath
+    # config.toml. tuios finds its config through XDG: ~/.config on Linux,
+    # ~/Library/Application Support on macOS, unless XDG_CONFIG_HOME is set.
+    # Asks uname, not OS_TYPE: the tests call this without running detect_os.
     if want_config tuios; then
-        create_symlink "$DOTFILES_DIR/tuios/config.toml" "$HOME/.config/tuios/config.toml"
+        local tuios_dir
+        if [ -n "${XDG_CONFIG_HOME:-}" ]; then
+            tuios_dir="$XDG_CONFIG_HOME/tuios"
+        elif [ "$(uname -s)" = "Darwin" ]; then
+            tuios_dir="$HOME/Library/Application Support/tuios"
+        else
+            tuios_dir="$HOME/.config/tuios"
+        fi
+        create_symlink "$DOTFILES_DIR/tuios/config.d/dotfiles.toml" "$tuios_dir/config.d/dotfiles.toml"
     fi
 
     # Scripts

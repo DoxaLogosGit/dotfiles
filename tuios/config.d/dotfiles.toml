@@ -1,0 +1,59 @@
+# tuios settings shared by every machine, macOS and Linux alike.
+#
+# install.sh links this file into tuios's config.d directory:
+#   macOS  ~/Library/Application Support/tuios/config.d/dotfiles.toml
+#   Linux  ~/.config/tuios/config.d/dotfiles.toml
+#
+# Only settings that differ from tuios's defaults belong here. Anything left
+# out keeps the default for that platform.
+#
+# config.toml beside it wins over this file, key by key. tuios writes
+# config.toml itself (the settings page saves there), so keep personal tweaks
+# there and shared ones here. If a setting here seems ignored, run
+# `tuios config origin <key>` to see which file sets it, and
+# `tuios config prune` to drop keys from config.toml that only hold defaults.
+#
+# Needs tuios 0.9.0 or later. Older versions do not read config.d at all, so
+# every setting here is silently ignored. Check with `tuios --version` and
+# `tuios config files` (that command is also new in 0.9.0).
+#
+# On a new machine, start tuios once before you check anything. Until the
+# first start writes config.toml, tuios ignores config.d too, so
+# `tuios keybinds` reports the defaults (leader ctrl+b) and looks broken.
+#
+# Goal: the same keys on every machine. Keybindings live here; appearance
+# (theme, glyphs) stays per machine in config.toml.
+
+# Spell Alt as "alt", not "opt". tuios reads opt+ as alt+ on macOS, but alt+
+# is the spelling that works on every platform. On the MacBook, Option sends
+# Alt because ghostty/config sets macos-option-as-alt.
+
+# Leader for prefix commands. The tuios default is ctrl+b.
+[keybindings]
+leader_key = 'ctrl+space'
+
+# Spotlight on plain b. The default is B (shift+b).
+[keybindings.system]
+toggle_spotlight = ['b']
+
+# tuios gives macOS and Linux different defaults here. macOS adds Option+Tab
+# and Option+Shift+Tab to cycle windows. Pinned to one list so both match.
+# Windows and most Linux desktops grab Alt+Tab before it reaches the terminal,
+# so use Alt+N / Alt+P there.
+[keybindings.terminal_mode]
+terminal_exit_mode = ['alt+esc']
+terminal_next_window = ['alt+tab', 'alt+n']
+terminal_prev_window = ['alt+shift+tab', 'alt+p']
+
+# Alt+H / Alt+L go to the previous / next workspace that has panes, and wrap.
+# They also work in terminal mode (while typing in a pane), so the shell no
+# longer receives Alt+H or Alt+L.
+[keybindings.workspaces]
+next_workspace = ['alt+l']
+prev_workspace = ['alt+h']
+
+# These two held Alt+H and Alt+L by default ("open the next window on the
+# left/right"). Preselect up/down keep Alt+K and Alt+J.
+[keybindings.layout]
+preselect_left = []
+preselect_right = []

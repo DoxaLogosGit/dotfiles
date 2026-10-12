@@ -73,7 +73,10 @@ assert_contains "$out" "ghostty_cask" "the ghostty cask handler is reached"
 # handler: uv tool install gives the same isolated environments on every OS.
 assert_contains "$out" "jedi-language-server" "the python LSP tools install via uv"
 assert_contains "$out" "cargo install tudiff" "cargo-only tools still use cargo on macOS"
-assert_contains "$out" "brew_install herdr" "herdr comes from brew on macOS, not cargo"
+case "$out" in
+    *"herdr"*) _fail "herdr is not installed on macOS" "herdr appeared in the run" ;;
+    *) _pass "herdr is not installed on macOS" ;;
+esac
 
 # No handler may be missing: that warning means a cell names something undefined.
 case "$out" in

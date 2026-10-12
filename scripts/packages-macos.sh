@@ -79,9 +79,13 @@ brew_install wget curl
 
 # ── fn: handlers named by this OS's cells in tools.tsv ────────────────────────
 
-rustup() {
+rustup_install() {
     # macOS-safe rustup install; must precede any cargo: cell, which is why
     # tools.tsv puts the rust row first.
+    #
+    # Never name this "rustup": a function shadows the binary of the same name,
+    # so install_rust's own `rustup update` re-entered this handler and looped
+    # forever on any machine that already had rustup.
     # shellcheck source=install-rust.sh
     . "$SCRIPT_DIR/install-rust.sh"
     install_rust
@@ -112,8 +116,8 @@ playwright_macos() {
 
 # ── Everything else comes from the table ──────────────────────────────────────
 #
-# herdr is a brew cell rather than a cargo one: it fails to compile from source
-# on macOS. tudiff and tuicr have no formula and stay cargo cells.
+# herdr is '-' on macOS: tuios is the multiplexer here. tudiff and tuicr have no
+# formula and stay cargo cells.
 
 pkg_run_table macos
 

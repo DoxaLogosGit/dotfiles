@@ -17,9 +17,16 @@ declare -f info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
 declare -f success >/dev/null 2>&1 || success() { echo -e "[OK] $1"; }
 
 install_rust() {
+    # `command rustup` runs the rustup binary even if a shell function of the
+    # same name exists. A package script once named its handler rustup(), and
+    # every bare `rustup` below then called the handler again, forever.
     if command -v rustup >/dev/null 2>&1 || [ -x "$HOME/.cargo/bin/rustup" ]; then
         info "rustup already installed, updating toolchain..."
-        "$HOME/.cargo/bin/rustup" update || rustup update || true
+        if [ -x "$HOME/.cargo/bin/rustup" ]; then
+            "$HOME/.cargo/bin/rustup" update || true
+        else
+            command rustup update || true
+        fi
     else
         info "Installing Rust via rustup..."
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -31,7 +38,7 @@ install_rust() {
 
     # rust-analyzer via rustup stays version-matched to the active toolchain
     # (nvim's rustaceanvim config relies on this rather than a Mason install).
-    rustup component add rust-analyzer clippy rustfmt
+    command rustup component add rust-analyzer clippy rustfmt
 
     success "Rust toolchain ready ($(rustc --version 2>/dev/null || echo 'rustc not on PATH'))"
 }

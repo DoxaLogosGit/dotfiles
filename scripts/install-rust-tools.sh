@@ -5,8 +5,7 @@
 #
 # Callers pass the tool list explicitly (e.g. `install_rust_tools tudiff
 # tuicr`) since not every tool builds everywhere — herdr fails to compile
-# on macOS, so packages-macos.sh installs it via `brew install herdr`
-# instead of listing it here.
+# on macOS, which is one reason macOS does not install it at all.
 
 # Fallbacks in case this is sourced without the caller's helpers.
 declare -f info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }

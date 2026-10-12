@@ -51,7 +51,8 @@ Or run interactively:
 - **opencode** - OpenCode CLI configuration
 - **codex** - OpenAI Codex CLI configuration
 - **pi** - Pi coding agent configuration (`~/.pi/agent`)
-- **herdr** - Herdr terminal multiplexer settings
+- **herdr** - Herdr terminal multiplexer settings (Linux only; macOS uses tuios)
+- **tuios** - Shared tuios keybindings, as a `config.d` drop-in: the same keys on macOS and Linux (leader Ctrl+Space, Alt+H / Alt+L switch workspace). Needs tuios 0.9.0+
 - **ollama** - Local model files and Modelfiles for Ollama (omnicoder, qwen3.5:9b)
 
 ### Other Configs
@@ -95,6 +96,10 @@ Or run interactively:
 │   └── tmux.conf                 # → ~/.tmux.conf
 ├── ghostty/                      # → ~/.config/ghostty/
 ├── yazi/                         # → ~/.config/yazi/
+├── tuios/
+│   └── config.d/dotfiles.toml    # → <tuios config dir>/config.d/dotfiles.toml
+│                                 #   (~/.config/tuios on Linux,
+│                                 #    ~/Library/Application Support/tuios on macOS)
 ├── git/
 │   ├── gitconfig                 # → ~/.gitconfig (portable settings)
 │   └── gitconfig.local.example   # → ~/.gitconfig.local (per-machine, untracked)
@@ -116,7 +121,7 @@ Or run interactively:
 │   └── (models.json,             #   per-machine: internal endpoints and
 │        settings.json untracked) #   model access; see install-pi-packages.sh
 ├── herdr/
-│   └── config.toml               # → ~/.config/herdr/config.toml
+│   └── config.toml               # → ~/.config/herdr/config.toml (Linux only)
 ├── vscode/
 │   └── settings.json             # → ~/.config/Code/User/settings.json
 ├── opencode/                     # untracked: internal endpoints + model access

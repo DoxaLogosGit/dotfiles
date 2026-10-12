@@ -73,4 +73,40 @@ for os in fedora debian raspbian macos; do
     assert_eq "" "$orphans" "$os defines no handler that nothing names"
 done
 
+# No handler may share its name with a command. A shell function shadows the
+# binary of the same name for the whole script, and the scripts the handlers
+# source call those binaries by bare name. The rust row's handler was once
+# called rustup(): install_rust's `rustup update` then re-entered the handler,
+# which updated and re-entered again, forever, on every machine that already
+# had rustup. A fresh machine took the curl branch instead, so it never showed
+# up there.
+#
+# Checked two ways. PATH alone is not enough: this test runs on machines that
+# lack apt, rustup or bun, and a name missing here is still a command on the
+# machine that runs the installer. So every tool a package script invokes, and
+# every method in the table, is also listed by name.
+KNOWN_COMMANDS="apt apt-get dnf brew rustup rustc cargo bun bunx node npm npx nvm
+uv uvx pip pip3 python3 pi curl wget tar git sudo flatpak snap mise starship
+atuin eza yazi glow tuios tuios-web herdr zellij nushell nu playwright opencode"
+for method in $(cut -f2-5 "$TABLE" | tr '\t' '\n' | grep -v '^#' | cut -d: -f1 | sort -u); do
+    KNOWN_COMMANDS="$KNOWN_COMMANDS $method"
+done
+
+for os in fedora debian raspbian macos; do
+    script="$REPO/scripts/packages-$os.sh"
+    defined="$(grep -oE '^[a-z_]+\(\)' "$script" | tr -d '()' | sort -u)"
+
+    shadows=""
+    for fn in $defined; do
+        case "$fn" in info|success|warning|error) continue ;; esac
+        case " $(echo $KNOWN_COMMANDS) " in
+            *" $fn "*) shadows="$shadows $fn"; continue ;;
+        esac
+        if command -v "$fn" >/dev/null 2>&1 && [ -n "$(type -P "$fn" 2>/dev/null)" ]; then
+            shadows="$shadows $fn"
+        fi
+    done
+    assert_eq "" "$shadows" "$os defines no handler named after a command it would shadow"
+done
+
 finish_tests

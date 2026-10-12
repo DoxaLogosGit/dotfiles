@@ -45,10 +45,14 @@ sudo apt-get install -yy \
 
 # ── fn: handlers named by this OS's cells in tools.tsv ────────────────────────
 
-rustup() {
+rustup_install() {
     # Not the distro rustc/cargo package: it conflicts with rustup, lags
     # behind, and some crates need a newer compiler. tools.tsv puts the rust
     # row first so this runs before any cargo: cell.
+    #
+    # Never name this "rustup": a function shadows the binary of the same name,
+    # so install_rust's own `rustup update` re-entered this handler and looped
+    # forever on any machine that already had rustup.
     # shellcheck source=install-rust.sh
     . "$SCRIPT_DIR/install-rust.sh"
     install_rust

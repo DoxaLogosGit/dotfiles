@@ -18,7 +18,7 @@
 # the asset names at
 # https://github.com/Gaurav-Gosain/tuios/releases
 
-TUIOS_VERSION="${TUIOS_VERSION:-0.8.5}"
+TUIOS_VERSION="${TUIOS_VERSION:-0.9.2}"
 TUIOS_REPO="Gaurav-Gosain/tuios"
 
 declare -f info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
@@ -66,14 +66,25 @@ _tuios_installed_variant() {
     esac
 }
 
+# Echo the version of the tuios already on PATH ("0.9.2"), or nothing.
+# `tuios --version` prints "tuios version 0.9.2 [pure-Go backend]".
+_tuios_installed_version() {
+    command -v tuios >/dev/null 2>&1 || return 1
+    tuios --version 2>/dev/null | head -1 | awk '{print $3}'
+}
+
 install_tuios() {
-    local os arch want have asset url tmp dest
+    local os arch want have have_ver asset url tmp dest
     os="$(_tuios_os)" || { warning "tuios: unsupported OS $(uname -s)"; return 1; }
     arch="$(_tuios_arch)" || { warning "tuios: unsupported arch $(uname -m)"; return 1; }
     want="$(_tuios_variant)"
     have="$(_tuios_installed_variant || true)"
+    have_ver="$(_tuios_installed_version || true)"
 
-    if [ -n "$have" ] && [ "$have" = "$want" ]; then
+    # Both the backend and the version have to match. Checking the backend
+    # alone left every machine on whatever version it first installed, because
+    # bumping TUIOS_VERSION never got past this test.
+    if [ -n "$have" ] && [ "$have" = "$want" ] && [ "$have_ver" = "$TUIOS_VERSION" ]; then
         info "tuios already installed, $have backend ($(tuios --version 2>/dev/null | head -1))"
         return 0
     fi
@@ -85,8 +96,10 @@ install_tuios() {
     fi
     url="https://github.com/$TUIOS_REPO/releases/download/v${TUIOS_VERSION}/${asset}"
 
-    if [ -n "$have" ]; then
+    if [ -n "$have" ] && [ "$have" != "$want" ]; then
         info "Replacing the tuios $have backend with $want..."
+    elif [ -n "$have" ]; then
+        info "Upgrading tuios ${have_ver:-unknown} to $TUIOS_VERSION ($want backend)..."
     else
         info "Installing tuios $TUIOS_VERSION ($want backend)..."
     fi
@@ -145,19 +158,26 @@ install_tuios() {
 # opens it gets a shell on this machine, and the session switcher reaches every
 # session. It refuses a non-loopback host without a password for that reason.
 install_tuios_web() {
-    local os arch asset url tmp dest
+    local os arch asset url tmp dest have_ver
     os="$(_tuios_os)" || { warning "tuios-web: unsupported OS $(uname -s)"; return 1; }
     arch="$(_tuios_arch)" || { warning "tuios-web: unsupported arch $(uname -m)"; return 1; }
 
+    # `tuios-web --version` prints "tuios-web version 0.9.2". Match the version,
+    # not just presence, so bumping TUIOS_VERSION upgrades it with tuios.
     if command -v tuios-web >/dev/null 2>&1; then
-        info "tuios-web already installed ($(tuios-web --version 2>/dev/null | head -1))"
-        return 0
+        have_ver="$(tuios-web --version 2>/dev/null | head -1 | awk '{print $3}')"
+        if [ "$have_ver" = "$TUIOS_VERSION" ]; then
+            info "tuios-web already installed ($have_ver)"
+            return 0
+        fi
+        info "Upgrading tuios-web ${have_ver:-unknown} to $TUIOS_VERSION..."
+    else
+        info "Installing tuios-web $TUIOS_VERSION..."
     fi
 
     asset="tuios-web_${TUIOS_VERSION}_${os}_${arch}.tar.gz"
     url="https://github.com/$TUIOS_REPO/releases/download/v${TUIOS_VERSION}/${asset}"
 
-    info "Installing tuios-web $TUIOS_VERSION..."
     tmp="$(mktemp -d)" || return 1
     if ! curl -fsSL "$url" -o "$tmp/web.tar.gz"; then
         warning "tuios-web: could not download $asset"
