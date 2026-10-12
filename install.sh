@@ -414,12 +414,15 @@ install_symlinks_common() {
 
     # Pi coding agent
     # models.json and settings.json are untracked (internal endpoints,
-    # per-machine model access). An overlay copy is linked in when present;
-    # otherwise seed models.json from the example as before.
+    # per-machine model access). Overlay copies are linked in when present;
+    # otherwise seed models.json from the example as before, and leave
+    # settings.json for pi to create. pi writes settings.json in place
+    # (writeFileSync), so its updates land in the overlay through the link.
     if want_config pi; then
         create_symlink "$DOTFILES_DIR/pi" "$HOME/.pi/agent"
         link_from_overlay "pi/models.json" "$DOTFILES_DIR/pi/models.json" ||
             copy_template "$DOTFILES_DIR/pi/models.json.example" "$DOTFILES_DIR/pi/models.json"
+        link_from_overlay "pi/settings.json" "$DOTFILES_DIR/pi/settings.json" || true
     fi
 
     # Herdr (herdr manages ~/.config/herdr/ logs + sessions — symlink config file

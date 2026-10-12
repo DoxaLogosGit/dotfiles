@@ -6,6 +6,9 @@ sessions/
 pi-hermes-memory/
 projects-memory/
 
+# pi-subagents runtime state (last-seen version for its changelog prompt)
+pi-subagents/
+
 # Generated model catalog — pi rebuilds it; ~360KB of churn per refresh
 models-store.json
 
