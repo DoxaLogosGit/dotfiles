@@ -194,6 +194,10 @@ case "$(uname -s)" in
             export NODE_EXTRA_CA_CERTS="$HOME/.config/certs/system-ca.pem"
             export AWS_CA_BUNDLE="$NODE_EXTRA_CA_CERTS"
             export REQUESTS_CA_BUNDLE="$NODE_EXTRA_CA_CERTS"
+            # Python's stdlib (urllib/ssl) ignores REQUESTS_CA_BUNDLE and reads
+            # OpenSSL's SSL_CERT_FILE instead. Needed by e.g. lazy.nvim's
+            # hererocks bootstrap, which downloads Lua/LuaRocks via urllib.
+            export SSL_CERT_FILE="$NODE_EXTRA_CA_CERTS"
         fi
         ;;
     Linux)
