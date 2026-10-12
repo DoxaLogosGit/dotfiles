@@ -19,7 +19,7 @@
 # install.sh validates every manifest key against this file.
 #
 # tool	fedora	debian	raspbian	macos
-rust	fn:rustup	fn:rustup	apt:rustc,cargo	fn:rustup
+rust	fn:rustup_install	fn:rustup_install	apt:rustc,cargo	fn:rustup_install
 bun	fn:bun_install	fn:bun_install	-	brew:oven-sh/bun/bun
 node	fn:node_nvm	fn:node_pkg	fn:node_pkg	fn:node_nvm
 mise	fn:mise_curl	fn:mise_curl	-	brew:mise
