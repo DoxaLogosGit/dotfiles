@@ -423,6 +423,9 @@ install_symlinks_common() {
         link_from_overlay "pi/models.json" "$DOTFILES_DIR/pi/models.json" ||
             copy_template "$DOTFILES_DIR/pi/models.json.example" "$DOTFILES_DIR/pi/models.json"
         link_from_overlay "pi/settings.json" "$DOTFILES_DIR/pi/settings.json" || true
+        link_from_overlay "pi/open-tui.json" "$DOTFILES_DIR/pi/open-tui.json" || true
+        # tuios's pi extension, only on machines whose overlay carries it.
+        link_from_overlay "pi/extensions/tuios-agent-state.ts" "$DOTFILES_DIR/pi/extensions/tuios-agent-state.ts" || true
     fi
 
     # Herdr (herdr manages ~/.config/herdr/ logs + sessions — symlink config file
@@ -478,12 +481,14 @@ install_symlinks_desktop() {
     fi
 
     # Claude (Claude Code manages ~/.claude/ — symlink scripts dir and settings
-    # file). settings.json routes through the overlay: Claude cannot be installed
-    # on every machine, so each one decides whether to supply a config at all.
+    # file). settings.json is machine-local: take the overlay copy when there is
+    # one, otherwise seed the untracked repo copy from the template.
     if want_config claude; then
         create_symlink "$DOTFILES_DIR/claude/scripts" "$HOME/.claude/scripts"
-        link_from_overlay "claude/settings.json" "$HOME/.claude/settings.json" ||
+        if ! link_from_overlay "claude/settings.json" "$HOME/.claude/settings.json"; then
+            copy_template "$DOTFILES_DIR/claude/settings.json.example" "$DOTFILES_DIR/claude/settings.json"
             create_symlink "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
+        fi
     fi
 
     # VS Code (Code/User is tool-managed — symlink settings file only)

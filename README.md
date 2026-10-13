@@ -116,10 +116,9 @@ Or run interactively:
 │   └── modelfiles/               # Ollama Modelfiles for local models
 ├── pi/                           # → ~/.pi/agent/ (pi coding agent)
 │   ├── models.json.example       #   template for the untracked models.json
-│   ├── open-tui.json             #   UI preferences
 │   ├── extensions/, skills/      #   tracked extensions and skills
-│   └── (models.json,             #   per-machine: internal endpoints and
-│        settings.json untracked) #   model access; see install-pi-packages.sh
+│   └── (models.json, settings.json, #   per-machine: endpoints, model access,
+│        open-tui.json untracked)    #   UI prefs; see install-pi-packages.sh
 ├── herdr/
 │   └── config.toml               # → ~/.config/herdr/config.toml (Linux only)
 ├── vscode/
@@ -127,7 +126,7 @@ Or run interactively:
 ├── opencode/                     # untracked: internal endpoints + model access
 │   └── (opencode.json)           # → ~/.config/opencode/opencode.json
 └── claude/
-    ├── settings.json             # → ~/.claude/settings.json
+    ├── settings.json.example     # template for the untracked settings.json
     └── scripts/
         └── context-bar.sh        # → ~/.claude/scripts/context-bar.sh
 ```
@@ -218,14 +217,16 @@ copies win:
   vim/vimrc.local         # employer, work email
   pi/models.json          # this machine's model catalogue
   opencode/opencode.json  # gateway URL, model catalogue, permissions
+  pi/open-tui.json        # pi UI preferences
   claude/settings.json    # omit on machines where Claude cannot be installed
   herdr/config.toml       # per-machine keybinds, overrides the shared config
   zellij/layouts/*.kdl    # layouts dumped on this machine
 ```
 
-`claude/settings.json` is tracked and shared by default, since it holds only
-portable preferences. An overlay copy wins where a machine needs to diverge —
-useful where Claude Code cannot be installed at all.
+Agent settings are machine-local: `claude/settings.json` and `pi/open-tui.json`
+are untracked, and hooks such as a terminal's agent integration belong only on
+the machines that run it. Without an overlay copy, `claude/settings.json` is
+seeded from `claude/settings.json.example`.
 
 `install.sh` links whatever it finds and falls back to the tracked defaults for
 everything else, so a partial overlay is fine. Override the location with

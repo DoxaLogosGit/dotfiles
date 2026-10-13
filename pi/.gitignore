@@ -29,3 +29,8 @@ settings.json
 # with no include mechanism, so the live file cannot be split into a portable
 # half. See models.json.example for the shape.
 models.json
+
+# Machine-local, linked from the overlay: UI preferences and the tuios
+# integration extension
+open-tui.json
+extensions/tuios-agent-state.ts

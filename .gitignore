@@ -28,6 +28,11 @@ credentials*
 opencode/*
 !opencode/opencode.json.example
 
+# Agent settings are machine-local: they live in the overlay, and
+# install.sh links them in. claude/settings.json.example seeds machines
+# without an overlay copy.
+claude/settings.json
+
 # Superpowers specs/plans (kept local, not committed)
 docs/superpowers/
 
