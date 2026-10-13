@@ -177,7 +177,9 @@ if want tmux; then
     TPM_DIR="$HOME/.tmux/plugins/tpm"
     if [ -d "$TPM_DIR" ]; then
         info "TPM already installed, updating..."
-        git -C "$TPM_DIR" pull
+        # A failed update (detached HEAD, no network) must not abort the run under set -e.
+        git -C "$TPM_DIR" pull --ff-only ||
+            warning "TPM update failed (detached HEAD or no network); keeping the current checkout"
     else
         info "Installing TPM (Tmux Plugin Manager)..."
         mkdir -p "$HOME/.tmux/plugins"
