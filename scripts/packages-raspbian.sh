@@ -44,7 +44,7 @@ sudo apt-get update
 
 # ── Build prerequisites (never manifest-gated) ────────────────────────────────
 sudo apt-get install -yy \
-    build-essential cmake unzip tar wget curl git \
+    build-essential cmake unzip tar wget curl git perl libssl-dev pkg-config \
     python3-dev python3-pip python3-venv
 
 # ── fn: handlers named by this OS's cells in tools.tsv ────────────────────────

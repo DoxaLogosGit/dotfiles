@@ -11,9 +11,9 @@
 #
 # Row order is install order: bootstrappers first, then their dependents.
 #
-# Build prerequisites (cmake, gcc-c++, make, perl-core, curl, wget, python3-dev)
-# are deliberately NOT rows: they are not preferences, and a machine that
-# declined one would fail deep inside an unrelated build.
+# Build prerequisites (compilers, OpenSSL headers, pkg-config, perl, curl, wget,
+# and python3-dev) are deliberately NOT rows: they are not preferences, and a
+# machine that declined one would fail deep inside an unrelated build.
 #
 # Adding a tool: add one row here, then run scripts/gen-manifest-example.sh.
 # install.sh validates every manifest key against this file.

@@ -37,10 +37,11 @@ info "Installing packages for Debian/Ubuntu..."
 sudo apt-get update
 
 # ── Build prerequisites (never manifest-gated) ────────────────────────────────
-# perl is needed by openssl-sys whenever a cargo: tool builds; python3-pip and
-# python3-venv back the uv installer and anything that still wants pip.
+# libssl-dev, pkg-config, and perl are needed by openssl-sys whenever a cargo:
+# tool builds. python3-pip and python3-venv back the uv installer and anything
+# that still wants pip.
 sudo apt-get install -yy \
-    build-essential cmake unzip tar wget curl perl \
+    build-essential cmake unzip tar wget curl perl libssl-dev pkg-config \
     python3-dev python3-pip python3-venv
 
 # ── fn: handlers named by this OS's cells in tools.tsv ────────────────────────

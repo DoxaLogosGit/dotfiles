@@ -39,10 +39,12 @@ info "Installing packages for Fedora/RHEL..."
 sudo dnf update -y
 
 # ── Build prerequisites (never manifest-gated) ────────────────────────────────
-# These are not preferences. perl-core, for instance, is needed by openssl-sys
-# whenever any cargo: tool builds; a machine that declined it would fail deep
-# inside an unrelated crate with an unreadable error.
-sudo dnf install -y cmake make gcc-c++ curl wget perl-core clang-devel unzip
+# These are not preferences. openssl-devel, pkgconf-pkg-config, and perl-core
+# are needed by openssl-sys whenever any cargo: tool builds. Without them, a
+# build fails deep inside an unrelated crate with an unreadable error.
+sudo dnf install -y \
+    cmake make gcc-c++ curl wget perl-core clang-devel unzip \
+    openssl-devel pkgconf-pkg-config
 # python3-pip is a prerequisite, not a preference: every pip: cell in the
 # table needs it, and python3-devel is needed to build anything against it.
 sudo dnf install -y python3-devel python3-pip

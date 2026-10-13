@@ -9,8 +9,9 @@
 # toolchain instead, and every `cargo install` in the package scripts must run
 # AFTER this so the crates build with rustup's toolchain.
 #
-# Note: install perl (Fedora: perl-core) BEFORE calling this — several crates'
-# build scripts (e.g. openssl-sys) need perl to compile.
+# Note: install the OpenSSL headers, pkg-config, and perl (Fedora: perl-core)
+# BEFORE calling this. Several crates' build scripts (e.g. openssl-sys) need
+# them to compile.
 
 # Fallbacks in case this is sourced without the caller's helpers.
 declare -f info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
