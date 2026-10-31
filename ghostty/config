@@ -3,3 +3,7 @@ theme = dark:Firefly Traditional,light:Galaxy
 font-family = JetBrainsMono Nerd Font
 confirm-close-surface = false
 macos-option-as-alt = true
+
+# Machine-local overrides, linked from the overlay by install.sh. Loaded after
+# this file, so anything set there wins. The ? makes it optional.
+config-file = ?config.local

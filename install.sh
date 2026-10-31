@@ -478,6 +478,7 @@ install_symlinks_desktop() {
     # Ghostty (themes/ is tool-managed, gitignored)
     if want_config ghostty; then
         create_symlink "$DOTFILES_DIR/ghostty" "$HOME/.config/ghostty"
+        link_from_overlay "ghostty/config.local" "$DOTFILES_DIR/ghostty/config.local" || true
     fi
 
     # Claude (Claude Code manages ~/.claude/ — symlink scripts dir and settings
