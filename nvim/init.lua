@@ -119,6 +119,7 @@ require("lazy").setup({
       vim.lsp.enable('jedi_language_server')
       vim.lsp.enable('clangd')
       vim.lsp.enable('ols')
+      vim.lsp.enable('mojo')
     end
   },
 
