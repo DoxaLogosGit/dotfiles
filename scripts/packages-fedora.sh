@@ -148,6 +148,14 @@ uv_install() {
     export PATH="$HOME/.local/bin:$PATH"
 }
 
+mojo_install() {
+    # The `mojo` command ships in the mojo-compiler dependency, and uv tool
+    # only links the named package's own executables, so the uv: cell cannot
+    # express this.
+    command -v uv >/dev/null 2>&1 || PATH="$HOME/.local/bin:$PATH"
+    uv tool install --force mojo --with-executables-from mojo-compiler
+}
+
 tuios_web_install() {
     # shellcheck source=install-tuios.sh
     . "$SCRIPT_DIR/install-tuios.sh"
