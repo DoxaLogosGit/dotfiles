@@ -148,6 +148,12 @@ uv_install() {
     export PATH="$HOME/.local/bin:$PATH"
 }
 
+pixi_install() {
+    # Not packaged for Fedora. PIXI_NO_PATH_UPDATE keeps the installer out of
+    # the shell rc files; zshrc puts ~/.pixi/bin on PATH itself.
+    curl -fsSL https://pixi.sh/install.sh | PIXI_NO_PATH_UPDATE=1 sh
+}
+
 mojo_install() {
     # The `mojo` command ships in the mojo-compiler dependency, and uv tool
     # only links the named package's own executables, so the uv: cell cannot

@@ -61,6 +61,7 @@ path=(
     "$HOME/.cargo/bin"
     "$HOME/.local/bin"
     "$HOME/.local/bin/yubico-authenticator"
+    "$HOME/.pixi/bin"
     "$BUN_INSTALL/bin"
     "$HOME/projects/Odin"
     "$HOME/projects/ols"
