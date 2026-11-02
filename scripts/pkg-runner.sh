@@ -91,7 +91,7 @@ pkg_install_one() {
         dnf)   _pkg_do sudo dnf install -y "$@" ;;
         apt)   _pkg_do sudo apt-get install -yy "$@" ;;
         brew)  _pkg_do brew_install "$@" ;;
-        cargo) _pkg_do cargo install "$@" ;;
+        cargo) _pkg_do cargo install --locked "$@" ;;
         bun)   _pkg_do bun install -g "$@" ;;
         npm)   _pkg_do npm install -g "$@" ;;
         pip)   _pkg_do _pkg_pip_install "$@" ;;

@@ -41,7 +41,7 @@ run_table() {
 # ── no manifest: everything available for the OS installs ───────────────
 out="$(run_table "" fedora)"
 assert_contains "$out" "dnf install -y alpha-pkg" "dnf cell becomes a dnf install"
-assert_contains "$out" "cargo install beta" "cargo cell becomes a cargo install"
+assert_contains "$out" "cargo install --locked beta" "cargo cell uses locked dependencies"
 assert_contains "$out" "[DRY-RUN] gamma_custom" "fn cell resolves to its handler"
 assert_contains "$out" "d-one d-two" "a comma cell installs several packages"
 
@@ -70,7 +70,7 @@ case "$out" in
     *) _pass "manifest no skips the install" ;;
 esac
 assert_contains "$out" "Skipping alpha" "the skip is reported, not silent"
-assert_contains "$out" "cargo install beta" "other tools still install"
+assert_contains "$out" "cargo install --locked beta" "other tools still install"
 
 # ── config-only installs nothing ────────────────────────────────────────
 out="$(run_table "alpha = config-only" fedora)"
@@ -82,7 +82,7 @@ esac
 # ── row order is install order ──────────────────────────────────────────
 out="$(run_table "" fedora)"
 alpha_at=$(printf '%s' "$out" | grep -n 'alpha-pkg' | head -1 | cut -d: -f1)
-beta_at=$(printf '%s' "$out" | grep -n 'cargo install beta' | head -1 | cut -d: -f1)
+beta_at=$(printf '%s' "$out" | grep -n 'cargo install --locked beta' | head -1 | cut -d: -f1)
 assert_ok "table rows run top to bottom" test "$alpha_at" -lt "$beta_at"
 
 # ── with PKG_DRY_RUN off, an fn: handler actually runs ──────────────────

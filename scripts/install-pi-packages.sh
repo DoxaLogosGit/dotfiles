@@ -35,7 +35,7 @@ PI_PACKAGES_PERSONAL=(
 )
 
 install_pi_packages() {
-    local pkg
+    local pkg node_bin node_dir
     local -a packages=("${PI_PACKAGES_SHARED[@]}")
 
     if [ "${1:-}" = "--personal" ]; then
@@ -45,6 +45,17 @@ install_pi_packages() {
     if ! command -v pi &>/dev/null; then
         warning "pi not found — skipping pi packages (run again after installing pi)"
         return
+    fi
+
+    # Native packages use node-gyp. NVM includes matching headers with Node, so
+    # use them instead of downloading headers through a TLS-inspecting proxy.
+    if [ -z "${npm_config_nodedir:-}" ]; then
+        node_bin="$(node -p 'process.execPath' 2>/dev/null)"
+        node_dir="$(dirname "$(dirname "$node_bin")")"
+        if [ -f "$node_dir/include/node/node.h" ]; then
+            export npm_config_nodedir="$node_dir"
+            info "Using local Node headers for pi packages."
+        fi
     fi
 
     info "Installing pi packages (${#packages[@]})..."

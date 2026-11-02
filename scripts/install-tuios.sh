@@ -14,11 +14,9 @@
 # thing that can say which one is present. This converges on the backend this
 # platform should have rather than stopping at "some tuios exists".
 #
-# Bumping the version: set TUIOS_VERSION, or edit the default below and check
-# the asset names at
-# https://github.com/Gaurav-Gosain/tuios/releases
-
-TUIOS_VERSION="${TUIOS_VERSION:-0.9.2}"
+# The default is GitHub's latest stable release. Set TUIOS_VERSION to install a
+# specific release instead.
+TUIOS_VERSION="${TUIOS_VERSION:-}"
 TUIOS_REPO="Gaurav-Gosain/tuios"
 
 declare -f info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
@@ -55,6 +53,21 @@ _tuios_variant() {
     esac
 }
 
+# Set TUIOS_VERSION from GitHub's latest stable release redirect. This avoids an
+# API token and excludes prereleases, which GitHub does not mark as latest.
+_tuios_resolve_version() {
+    local url tag
+    [ -n "$TUIOS_VERSION" ] && return 0
+
+    url="$(curl -fsSIL -o /dev/null -w '%{url_effective}' \
+        "https://github.com/$TUIOS_REPO/releases/latest")" || return 1
+    tag="${url##*/}"
+    case "$tag" in
+        v[0-9]*) TUIOS_VERSION="${tag#v}" ;;
+        *) return 1 ;;
+    esac
+}
+
 # Echo the backend of the tuios already on PATH: "ghostty", "pure", or nothing.
 _tuios_installed_variant() {
     command -v tuios >/dev/null 2>&1 || return 1
@@ -66,8 +79,8 @@ _tuios_installed_variant() {
     esac
 }
 
-# Echo the version of the tuios already on PATH ("0.9.2"), or nothing.
-# `tuios --version` prints "tuios version 0.9.2 [pure-Go backend]".
+# Echo the version of the tuios already on PATH, or nothing.
+# `tuios --version` prints the version as its third field.
 _tuios_installed_version() {
     command -v tuios >/dev/null 2>&1 || return 1
     tuios --version 2>/dev/null | head -1 | awk '{print $3}'
@@ -80,6 +93,15 @@ install_tuios() {
     want="$(_tuios_variant)"
     have="$(_tuios_installed_variant || true)"
     have_ver="$(_tuios_installed_version || true)"
+
+    if ! _tuios_resolve_version; then
+        if [ -n "$have" ]; then
+            warning "tuios: could not get the latest release; keeping $have_ver"
+            return 0
+        fi
+        warning "tuios: could not get the latest release"
+        return 1
+    fi
 
     # Both the backend and the version have to match. Checking the backend
     # alone left every machine on whatever version it first installed, because
@@ -162,8 +184,16 @@ install_tuios_web() {
     os="$(_tuios_os)" || { warning "tuios-web: unsupported OS $(uname -s)"; return 1; }
     arch="$(_tuios_arch)" || { warning "tuios-web: unsupported arch $(uname -m)"; return 1; }
 
-    # `tuios-web --version` prints "tuios-web version 0.9.2". Match the version,
-    # not just presence, so bumping TUIOS_VERSION upgrades it with tuios.
+    if ! _tuios_resolve_version; then
+        if command -v tuios-web >/dev/null 2>&1; then
+            warning "tuios-web: could not get the latest release; keeping the installed binary"
+            return 0
+        fi
+        warning "tuios-web: could not get the latest release"
+        return 1
+    fi
+
+    # Match the version, not just presence, so each install updates tuios-web.
     if command -v tuios-web >/dev/null 2>&1; then
         have_ver="$(tuios-web --version 2>/dev/null | head -1 | awk '{print $3}')"
         if [ "$have_ver" = "$TUIOS_VERSION" ]; then

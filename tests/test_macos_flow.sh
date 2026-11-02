@@ -72,7 +72,7 @@ assert_contains "$out" "ghostty_cask" "the ghostty cask handler is reached"
 # The python LSP tools come through the table's uv cell now, not a macOS-only
 # handler: uv tool install gives the same isolated environments on every OS.
 assert_contains "$out" "jedi-language-server" "the python LSP tools install via uv"
-assert_contains "$out" "cargo install tudiff" "cargo-only tools still use cargo on macOS"
+assert_contains "$out" "cargo install --locked tudiff" "cargo-only tools use locked dependencies on macOS"
 case "$out" in
     *"herdr"*) _fail "herdr is not installed on macOS" "herdr appeared in the run" ;;
     *) _pass "herdr is not installed on macOS" ;;

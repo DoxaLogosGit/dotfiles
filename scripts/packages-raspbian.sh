@@ -74,7 +74,7 @@ atuin_pkg() {
     sudo apt-get install -yy atuin 2>/dev/null && return 0
     if command -v cargo >/dev/null 2>&1; then
         info "atuin not in this release's repos — building with cargo."
-        cargo install atuin
+        cargo install --locked atuin
     else
         warning "atuin needs either the distro package or a Rust toolchain — skipping."
         return 1
