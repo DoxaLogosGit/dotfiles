@@ -71,6 +71,37 @@ _pkg_uv_tool_install() {
     return "$rc"
 }
 
+# Upgrade uv-managed tools without taking ownership of another installer's shim.
+_pkg_uv_tool_upgrade() {
+    if ! command -v uv >/dev/null 2>&1; then
+        if [ -x "$HOME/.local/bin/uv" ]; then
+            PATH="$HOME/.local/bin:$PATH"
+            export PATH
+        else
+            warning "uv is not installed — skipping: $*"
+            return 1
+        fi
+    fi
+    uv tool upgrade "$@"
+}
+
+# Cargo has no update command for installed binaries. Reinstall only crates that
+# cargo already owns, so an update does not add a tool missing from this machine.
+_pkg_cargo_update() {
+    local pkg
+    if ! command -v cargo >/dev/null 2>&1; then
+        warning "cargo is not installed — skipping: $*"
+        return 1
+    fi
+    for pkg in "$@"; do
+        if cargo install --list | grep -q "^$pkg v"; then
+            cargo install --locked --force "$pkg"
+        else
+            info "$pkg is not installed by cargo — skipping update"
+        fi
+    done
+}
+
 # pkg_install_one <tool> <cell>
 # Cell is method:name; a comma-separated name means several packages.
 pkg_install_one() {
@@ -111,6 +142,48 @@ pkg_install_one() {
     esac
 }
 
+# pkg_update_one <tool> <cell>
+# Update the package source that owns the tool. OS package updates happen once
+# per platform, so apt, dnf, and brew cells do nothing here.
+pkg_update_one() {
+    local tool="$1" cell="$2" method name oldifs updater
+    method="${cell%%:*}"
+    name="${cell#*:}"
+
+    oldifs="$IFS"
+    IFS=','
+    # shellcheck disable=SC2086  # splitting on commas is the intent
+    set -- $name
+    IFS="$oldifs"
+
+    case "$method" in
+        apt|dnf|brew) return 0 ;;
+        cargo)
+            if [ "$PKG_DRY_RUN" = true ]; then
+                echo "[DRY-RUN] cargo install --locked --force $*"
+            else
+                _pkg_cargo_update "$@"
+            fi
+            ;;
+        bun)   _pkg_do bun update -g --latest "$@" ;;
+        npm)   _pkg_do npm update -g "$@" ;;
+        pip)   _pkg_do _pkg_pip_install --upgrade "$@" ;;
+        uv)    _pkg_do _pkg_uv_tool_upgrade "$@" ;;
+        fn)
+            updater="${1}_update"
+            if declare -f "$updater" >/dev/null 2>&1; then
+                _pkg_do "$updater"
+            else
+                info "Skipping $tool (no update action)."
+            fi
+            ;;
+        *)
+            warning "$tool: unknown update method '$method'"
+            return 1
+            ;;
+    esac
+}
+
 # pkg_run_table <os>
 # Walks the table in row order — which is install order, so rust and bun come
 # before the tools that need them.
@@ -146,5 +219,40 @@ pkg_run_table() {
 
         info "Installing $tool ($cell)..."
         pkg_install_one "$tool" "$cell" || warning "$tool install failed"
+    done < "$MANIFEST_TABLE"
+}
+
+# pkg_update_table <os>
+# Walk the same manifest-gated table as installation, but only run update
+# actions for sources outside the operating system package manager.
+pkg_update_table() {
+    local os="$1" line tool cell col
+
+    case "$os" in
+        fedora)   col=2 ;;
+        debian)   col=3 ;;
+        raspbian) col=4 ;;
+        macos)    col=5 ;;
+        *) warning "pkg_update_table: unknown OS '$os'"; return 1 ;;
+    esac
+
+    if [ ! -f "${MANIFEST_TABLE:-}" ]; then
+        warning "pkg_update_table: no tool table loaded (call manifest_load first)"
+        return 1
+    fi
+
+    while IFS= read -r line; do
+        case "$line" in ''|\#*) continue ;; esac
+
+        tool=$(printf '%s' "$line" | cut -f1)
+        cell=$(printf '%s' "$line" | cut -f"$col")
+        [ "$cell" = "-" ] && continue
+
+        if ! want "$tool"; then
+            continue
+        fi
+
+        info "Updating $tool ($cell)..."
+        pkg_update_one "$tool" "$cell" || warning "$tool update failed"
     done < "$MANIFEST_TABLE"
 }

@@ -38,14 +38,7 @@ if [ -z "${MANIFEST_TABLE:-}" ]; then
 fi
 
 ARCH=$(uname -m)
-info "Installing packages for Raspbian Trixie (arch: $ARCH)..."
-
-sudo apt-get update
-
-# ── Build prerequisites (never manifest-gated) ────────────────────────────────
-sudo apt-get install -yy \
-    build-essential cmake unzip tar wget curl git perl libssl-dev pkg-config \
-    python3-dev python3-pip python3-venv
+info "Preparing packages for Raspbian Trixie (arch: $ARCH)..."
 
 # ── fn: handlers named by this OS's cells in tools.tsv ────────────────────────
 
@@ -67,6 +60,12 @@ starship_pkg() {
     curl -sS https://starship.rs/install.sh | sh -s -- -y
 }
 
+starship_pkg_update() {
+    dpkg-query -W -f='${db:Status-Status}' starship 2>/dev/null | grep -qx installed && return 0
+    command -v starship >/dev/null 2>&1 || { info "starship is not installed — skipping update"; return 0; }
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+}
+
 atuin_pkg() {
     # Debian 13 ships atuin 18.6. Without a package the only route is a cargo
     # build, which is minutes on a desktop and far worse on a Pi, so a machine
@@ -79,6 +78,12 @@ atuin_pkg() {
         warning "atuin needs either the distro package or a Rust toolchain — skipping."
         return 1
     fi
+}
+
+atuin_pkg_update() {
+    dpkg-query -W -f='${db:Status-Status}' atuin 2>/dev/null | grep -qx installed && return 0
+    command -v atuin >/dev/null 2>&1 || { info "atuin is not installed — skipping update"; return 0; }
+    cargo install --locked --force atuin
 }
 
 eza_pkg() {
@@ -162,6 +167,24 @@ tuios_install() {
     install_tuios
 }
 
+tuios_install_update() {
+    command -v tuios >/dev/null 2>&1 || { info "tuios is not installed — skipping update"; return 0; }
+    tuios_install
+}
+
+tuios_web_install_update() {
+    command -v tuios-web >/dev/null 2>&1 || { info "tuios-web is not installed — skipping update"; return 0; }
+    tuios_web_install
+}
+
+pi_npm_update() {
+    npm update -g --prefix "$HOME/.local" @earendil-works/pi-coding-agent
+}
+
+opencode_npm_update() {
+    npm update -g --prefix "$HOME/.local" opencode-ai
+}
+
 
 pi_npm() {
     # npm rather than bun: there is no bun build for this platform. The package
@@ -185,6 +208,28 @@ uv_install() {
     curl -LsSf https://astral.sh/uv/install.sh | sh
     export PATH="$HOME/.local/bin:$PATH"
 }
+
+uv_install_update() {
+    command -v uv >/dev/null 2>&1 || { info "uv is not installed — skipping update"; return 0; }
+    uv self update
+}
+
+if [ "${PACKAGE_ACTION:-install}" = "update" ]; then
+    info "Updating Raspbian packages..."
+    _pkg_do sudo apt-get update
+    _pkg_do sudo apt-get upgrade -yy
+    pkg_update_table raspbian
+    # shellcheck source=install-global-packages.sh
+    . "$SCRIPT_DIR/install-global-packages.sh"
+    success "Package update complete!"
+    exit 0
+fi
+
+# ── Build prerequisites (never manifest-gated) ────────────────────────────────
+sudo apt-get update
+sudo apt-get install -yy \
+    build-essential cmake unzip tar wget curl git perl libssl-dev pkg-config \
+    python3-dev python3-pip python3-venv
 
 # ── Everything else comes from the table ──────────────────────────────────────
 

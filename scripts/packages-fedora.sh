@@ -34,20 +34,7 @@ if [ -z "${MANIFEST_TABLE:-}" ]; then
                   "$DOTFILES_DIR/scripts/tools.tsv" || exit 1
 fi
 
-info "Installing packages for Fedora/RHEL..."
-
-sudo dnf update -y
-
-# ── Build prerequisites (never manifest-gated) ────────────────────────────────
-# These are not preferences. openssl-devel, pkgconf-pkg-config, and perl-core
-# are needed by openssl-sys whenever any cargo: tool builds. Without them, a
-# build fails deep inside an unrelated crate with an unreadable error.
-sudo dnf install -y \
-    cmake make gcc-c++ curl wget perl-core clang-devel unzip \
-    openssl-devel pkgconf-pkg-config
-# python3-pip is a prerequisite, not a preference: every pip: cell in the
-# table needs it, and python3-devel is needed to build anything against it.
-sudo dnf install -y python3-devel python3-pip
+info "Preparing packages for Fedora/RHEL..."
 
 # ── fn: handlers named by this OS's cells in tools.tsv ────────────────────────
 
@@ -64,6 +51,12 @@ rustup_install() {
     install_rust
 }
 
+rustup_install_update() {
+    # shellcheck source=install-rust.sh
+    . "$SCRIPT_DIR/install-rust.sh"
+    update_rust
+}
+
 bun_install() {
     if command -v bun >/dev/null 2>&1; then
         info "bun already installed"
@@ -74,8 +67,18 @@ bun_install() {
     export PATH="$BUN_INSTALL/bin:$PATH"
 }
 
+bun_install_update() {
+    command -v bun >/dev/null 2>&1 || { info "bun is not installed — skipping update"; return 0; }
+    bun upgrade
+}
+
 mise_curl() {
     curl https://mise.run | sh
+}
+
+mise_curl_update() {
+    command -v mise >/dev/null 2>&1 || { info "mise is not installed — skipping update"; return 0; }
+    mise self-update
 }
 
 nushell_pkg() {
@@ -116,9 +119,26 @@ _install_prebuilt_zip() {
     rm -rf "$tmp" "/tmp/${name:?}"*
 }
 
+_github_latest_tag() {
+    local url tag
+    url="$(curl -fsSIL -o /dev/null -w '%{url_effective}' \
+        "https://github.com/$1/releases/latest")" || return 1
+    tag="${url##*/}"
+    case "$tag" in v[0-9]*) printf '%s' "$tag" ;; *) return 1 ;; esac
+}
+
 yazi_prebuilt() {
     _install_prebuilt_zip \
         "https://github.com/sxyazi/yazi/releases/download/v25.4.8/yazi-x86_64-unknown-linux-gnu.zip" \
+        "yazi-x86_64-unknown-linux-gnu/yazi" yazi
+}
+
+yazi_prebuilt_update() {
+    local tag
+    command -v yazi >/dev/null 2>&1 || { info "yazi is not installed — skipping update"; return 0; }
+    tag="$(_github_latest_tag sxyazi/yazi)" || { warning "could not get the latest yazi release"; return 1; }
+    _install_prebuilt_zip \
+        "https://github.com/sxyazi/yazi/releases/download/$tag/yazi-x86_64-unknown-linux-gnu.zip" \
         "yazi-x86_64-unknown-linux-gnu/yazi" yazi
 }
 
@@ -128,11 +148,28 @@ eza_prebuilt() {
         "eza" eza
 }
 
+eza_prebuilt_update() {
+    local tag
+    command -v eza >/dev/null 2>&1 || { info "eza is not installed — skipping update"; return 0; }
+    tag="$(_github_latest_tag eza-community/eza)" || { warning "could not get the latest eza release"; return 1; }
+    _install_prebuilt_zip \
+        "https://github.com/eza-community/eza/releases/download/$tag/eza_x86_64-unknown-linux-gnu.zip" \
+        "eza" eza
+}
+
 node_nvm() {
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
     export NVM_DIR="$HOME/.nvm"
     # shellcheck source=/dev/null
     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    nvm install --lts && nvm use --lts
+}
+
+node_nvm_update() {
+    export NVM_DIR="$HOME/.nvm"
+    # shellcheck source=/dev/null
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    command -v nvm >/dev/null 2>&1 || { info "nvm is not installed — skipping Node update"; return 0; }
     nvm install --lts && nvm use --lts
 }
 
@@ -148,10 +185,20 @@ uv_install() {
     export PATH="$HOME/.local/bin:$PATH"
 }
 
+uv_install_update() {
+    command -v uv >/dev/null 2>&1 || { info "uv is not installed — skipping update"; return 0; }
+    uv self update
+}
+
 pixi_install() {
     # Not packaged for Fedora. PIXI_NO_PATH_UPDATE keeps the installer out of
     # the shell rc files; zshrc puts ~/.pixi/bin on PATH itself.
     curl -fsSL https://pixi.sh/install.sh | PIXI_NO_PATH_UPDATE=1 sh
+}
+
+pixi_install_update() {
+    command -v pixi >/dev/null 2>&1 || { info "pixi is not installed — skipping update"; return 0; }
+    pixi self-update
 }
 
 mojo_install() {
@@ -160,6 +207,11 @@ mojo_install() {
     # express this.
     command -v uv >/dev/null 2>&1 || PATH="$HOME/.local/bin:$PATH"
     uv tool install --force mojo --with-executables-from mojo-compiler
+}
+
+mojo_install_update() {
+    command -v uv >/dev/null 2>&1 || { info "uv is not installed — skipping mojo update"; return 0; }
+    uv tool upgrade mojo
 }
 
 tuios_web_install() {
@@ -174,11 +226,47 @@ tuios_install() {
     install_tuios
 }
 
+tuios_install_update() {
+    command -v tuios >/dev/null 2>&1 || { info "tuios is not installed — skipping update"; return 0; }
+    tuios_install
+}
+
+tuios_web_install_update() {
+    command -v tuios-web >/dev/null 2>&1 || { info "tuios-web is not installed — skipping update"; return 0; }
+    tuios_web_install
+}
+
 
 playwright_linux() {
     # --with-deps shells out to dnf for browser system libraries.
     bunx playwright install --with-deps
 }
+
+playwright_linux_update() {
+    playwright_linux
+}
+
+if [ "${PACKAGE_ACTION:-install}" = "update" ]; then
+    info "Updating Fedora/RHEL packages..."
+    _pkg_do sudo dnf upgrade --refresh -y
+    pkg_update_table fedora
+    # shellcheck source=install-global-packages.sh
+    . "$SCRIPT_DIR/install-global-packages.sh"
+    success "Package update complete!"
+    exit 0
+fi
+
+# ── Build prerequisites (never manifest-gated) ────────────────────────────────
+# These are not preferences. openssl-devel, pkgconf-pkg-config, and perl-core
+# are needed by openssl-sys whenever any cargo: tool builds. Without them, a
+# build fails deep inside an unrelated crate with an unreadable error.
+sudo dnf update -y
+sudo dnf install -y \
+    cmake make gcc-c++ curl wget perl-core clang-devel unzip \
+    openssl-devel pkgconf-pkg-config
+# python3-pip is a prerequisite, not a preference: every pip: cell in the
+# table needs it, and python3-devel is needed to build anything against it.
+sudo dnf install -y python3-devel python3-pip
 
 # ── Everything else comes from the table ──────────────────────────────────────
 

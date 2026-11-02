@@ -37,14 +37,7 @@ if [ -z "${MANIFEST_TABLE:-}" ]; then
                   "$DOTFILES_DIR/scripts/tools.tsv" || exit 1
 fi
 
-info "Installing packages for macOS..."
-
-# Homebrew must exist and be on PATH before any brew call.
-# shellcheck source=install-homebrew.sh
-. "$SCRIPT_DIR/install-homebrew.sh"
-install_homebrew
-
-brew update
+info "Preparing packages for macOS..."
 
 # Guarded brew install: skip if already present so re-runs don't trip set -e.
 # pkg_install_one's brew method calls this, so it must be defined before
@@ -74,11 +67,6 @@ brew_install_cask() {
     done
 }
 
-# ── Prerequisites (never manifest-gated) ──────────────────────────────────────
-brew_install wget curl
-
-# ── fn: handlers named by this OS's cells in tools.tsv ────────────────────────
-
 rustup_install() {
     # macOS-safe rustup install; must precede any cargo: cell, which is why
     # tools.tsv puts the rust row first.
@@ -89,6 +77,12 @@ rustup_install() {
     # shellcheck source=install-rust.sh
     . "$SCRIPT_DIR/install-rust.sh"
     install_rust
+}
+
+rustup_install_update() {
+    # shellcheck source=install-rust.sh
+    . "$SCRIPT_DIR/install-rust.sh"
+    update_rust
 }
 
 tuios_web_install() {
@@ -109,10 +103,54 @@ node_nvm() {
     nvm install --lts && nvm use --lts
 }
 
+node_nvm_update() {
+    export NVM_DIR="$HOME/.nvm"
+    # shellcheck source=/dev/null
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    command -v nvm >/dev/null 2>&1 || { info "nvm is not installed — skipping Node update"; return 0; }
+    nvm install --lts && nvm use --lts
+}
+
 playwright_macos() {
     # Playwright bundles its own browser dependencies on macOS, so no --with-deps.
     bunx playwright install
 }
+
+playwright_macos_update() {
+    playwright_macos
+}
+
+tuios_web_install_update() {
+    command -v tuios-web >/dev/null 2>&1 || { info "tuios-web is not installed — skipping update"; return 0; }
+    tuios_web_install
+}
+
+if [ "${PACKAGE_ACTION:-install}" = "update" ]; then
+    info "Updating Homebrew packages..."
+    if ! command -v brew >/dev/null 2>&1; then
+        warning "Homebrew is not installed — skipping package update"
+        exit 0
+    fi
+    eval "$("$(command -v brew)" shellenv)"
+    _pkg_do brew update
+    _pkg_do brew upgrade
+    pkg_update_table macos
+    # shellcheck source=install-global-packages.sh
+    . "$SCRIPT_DIR/install-global-packages.sh"
+    success "Package update complete!"
+    exit 0
+fi
+
+# Homebrew must exist and be on PATH before any install action.
+# shellcheck source=install-homebrew.sh
+. "$SCRIPT_DIR/install-homebrew.sh"
+install_homebrew
+
+# ── Prerequisites (never manifest-gated) ──────────────────────────────────────
+brew_install wget curl
+
+# ── fn: handlers named by this OS's cells in tools.tsv ────────────────────────
+brew update
 
 # ── Everything else comes from the table ──────────────────────────────────────
 #

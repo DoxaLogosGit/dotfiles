@@ -43,3 +43,13 @@ install_rust() {
 
     success "Rust toolchain ready ($(rustc --version 2>/dev/null || echo 'rustc not on PATH'))"
 }
+
+update_rust() {
+    if [ -x "$HOME/.cargo/bin/rustup" ]; then
+        "$HOME/.cargo/bin/rustup" update
+    elif command -v rustup >/dev/null 2>&1; then
+        command rustup update
+    else
+        info "rustup is not installed — skipping Rust update"
+    fi
+}

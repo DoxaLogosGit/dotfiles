@@ -52,6 +52,26 @@ case "$out" in
     *) _pass "dash cell is skipped on that OS" ;;
 esac
 
+# ── updates use the package source that owns the tool ─────────────────────
+out=$(
+    (
+        # shellcheck source=../scripts/manifest.sh
+        . "$REPO/scripts/manifest.sh"
+        # shellcheck source=../scripts/pkg-runner.sh
+        . "$REPO/scripts/pkg-runner.sh"
+        PKG_DRY_RUN=true
+        printf '%s\n' 'alpha = yes' 'beta = yes' 'gamma = yes' 'delta = yes' > "$sandbox/update.conf"
+        manifest_load "$sandbox/update.conf" "$sandbox/table.tsv" >/dev/null 2>&1
+        pkg_update_table fedora 2>&1
+    )
+)
+assert_contains "$out" "cargo install --locked --force beta" "cargo updates force a locked reinstall"
+assert_contains "$out" "Skipping gamma (no update action)" "fn cells need an explicit update action"
+case "$out" in
+    *"dnf install"*) _fail "OS package cells do not reinstall during updates" "dnf install appeared" ;;
+    *) _pass "OS package cells do not reinstall during updates" ;;
+esac
+
 # ── the right column is read per OS ─────────────────────────────────────
 out="$(run_table "" debian)"
 assert_contains "$out" "apt-get install" "debian reads the apt column"

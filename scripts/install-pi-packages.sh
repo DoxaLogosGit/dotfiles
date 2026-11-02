@@ -34,8 +34,22 @@ PI_PACKAGES_PERSONAL=(
     pi-free
 )
 
+# Native packages use node-gyp. NVM includes matching headers with Node, so use
+# them instead of downloading headers through a TLS-inspecting proxy.
+pi_use_local_node_headers() {
+    local node_bin node_dir
+    [ -n "${npm_config_nodedir:-}" ] && return 0
+
+    node_bin="$(node -p 'process.execPath' 2>/dev/null)"
+    node_dir="$(dirname "$(dirname "$node_bin")")"
+    if [ -f "$node_dir/include/node/node.h" ]; then
+        export npm_config_nodedir="$node_dir"
+        info "Using local Node headers for pi packages."
+    fi
+}
+
 install_pi_packages() {
-    local pkg node_bin node_dir
+    local pkg
     local -a packages=("${PI_PACKAGES_SHARED[@]}")
 
     if [ "${1:-}" = "--personal" ]; then
@@ -47,16 +61,7 @@ install_pi_packages() {
         return
     fi
 
-    # Native packages use node-gyp. NVM includes matching headers with Node, so
-    # use them instead of downloading headers through a TLS-inspecting proxy.
-    if [ -z "${npm_config_nodedir:-}" ]; then
-        node_bin="$(node -p 'process.execPath' 2>/dev/null)"
-        node_dir="$(dirname "$(dirname "$node_bin")")"
-        if [ -f "$node_dir/include/node/node.h" ]; then
-            export npm_config_nodedir="$node_dir"
-            info "Using local Node headers for pi packages."
-        fi
-    fi
+    pi_use_local_node_headers
 
     info "Installing pi packages (${#packages[@]})..."
     for pkg in "${packages[@]}"; do

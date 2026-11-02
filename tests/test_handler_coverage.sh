@@ -65,7 +65,7 @@ for os in fedora debian raspbian macos; do
     orphans=""
     for fn in $defined; do
         case "$fn" in
-            info|success|warning|error|_*) continue ;;
+            info|success|warning|error|_*|*_update) continue ;;
             brew_install|brew_install_cask) continue ;;  # the brew method's implementation
         esac
         echo "$required" | grep -qx "$fn" || orphans="$orphans $fn"

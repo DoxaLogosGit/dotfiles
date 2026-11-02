@@ -16,6 +16,7 @@ The installer supports several modes:
 ```bash
 ./install.sh --all          # Full installation (packages + symlinks + fonts)
 ./install.sh --packages     # Install system packages only
+./install.sh --update       # Update system packages and enabled tools
 ./install.sh --symlinks     # Create config symlinks only
 ./install.sh --fonts        # Install nerd fonts only
 ./install.sh --dry-run      # Preview changes without making them

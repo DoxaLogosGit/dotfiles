@@ -14,6 +14,14 @@ info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
 success() { echo -e "${GREEN}[OK]${NC} $1"; }
 warning() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 
+_global_do() {
+    if [ "${PKG_DRY_RUN:-false}" = true ]; then
+        echo "[DRY-RUN] $*"
+        return 0
+    fi
+    "$@"
+}
+
 # The manifest decides which agents this machine installs. This file is sourced
 # by the package scripts, so load the manifest here if the caller has not: a
 # missing `want` would abort the run under set -e.
@@ -33,24 +41,79 @@ fi
 # Not a tool row: it is an add-on to whichever agent uses it, and has no config
 # or binary of its own to gate.
 if want playwright; then
-    bun install -g @playwright/mcp
+    if ! command -v bun >/dev/null 2>&1; then
+        warning "bun is not installed — skipping the Playwright MCP server"
+    elif [ "${PACKAGE_ACTION:-install}" = "update" ]; then
+        _global_do bun update -g --latest @playwright/mcp
+    else
+        bun install -g @playwright/mcp
+    fi
 else
     info "Skipping the Playwright MCP server (manifest)."
 fi
 
-success "Global packages installed!"
+if [ "${PACKAGE_ACTION:-install}" = "update" ]; then
+    success "Global packages updated!"
+else
+    success "Global packages installed!"
+fi
 
 # pi agent packages. The tracked package list lives in install-pi-packages.sh;
 # ~/.pi/agent/settings.json is untracked machine state. Set DOTFILES_PERSONAL=1
 # to also install free-tier routing (personal machines only).
-if want pi-packages && command -v pi &>/dev/null; then
-    # shellcheck source=install-pi-packages.sh
-    source "$(dirname "${BASH_SOURCE[0]}")/install-pi-packages.sh"
-    if [ "${DOTFILES_PERSONAL:-0}" = "1" ]; then
-        install_pi_packages --personal
+if [ "${PACKAGE_ACTION:-install}" != "update" ]; then
+    if want pi-packages && command -v pi &>/dev/null; then
+        # shellcheck source=install-pi-packages.sh
+        source "$(dirname "${BASH_SOURCE[0]}")/install-pi-packages.sh"
+        if [ "${DOTFILES_PERSONAL:-0}" = "1" ]; then
+            install_pi_packages --personal
+        else
+            install_pi_packages
+        fi
     else
-        install_pi_packages
+        info "pi not installed — skipping pi packages"
     fi
-else
-    info "pi not installed — skipping pi packages"
+fi
+
+# pi owns extension update behavior and reads the extension list from its
+# settings. This refreshes only packages that pi already manages.
+if [ "${PACKAGE_ACTION:-install}" = "update" ]; then
+    if want pi-packages && command -v pi &>/dev/null; then
+        # shellcheck source=install-pi-packages.sh
+        . "$(dirname "${BASH_SOURCE[0]}")/install-pi-packages.sh"
+        pi_use_local_node_headers
+        _global_do pi update || warning "pi package update failed"
+    else
+        info "pi not installed — skipping pi package update"
+    fi
+
+    if want claude-plugins && command -v claude &>/dev/null; then
+        _global_do claude plugin update --all || warning "Claude plugin update failed"
+    fi
+
+    if want tmux; then
+        tpm_dir="$HOME/.tmux/plugins/tpm"
+        if [ -d "$tpm_dir" ]; then
+            _global_do git -C "$tpm_dir" pull --ff-only ||
+                warning "TPM update failed; keeping the current checkout"
+        else
+            info "TPM not installed — skipping update"
+        fi
+    fi
+
+    if want oh-my-zsh; then
+        if [ -d "$HOME/.oh-my-zsh" ]; then
+            _global_do git -C "$HOME/.oh-my-zsh" pull --ff-only ||
+                warning "oh-my-zsh update failed; keeping the current checkout"
+            for plugin in zsh-autosuggestions zsh-syntax-highlighting; do
+                plugin_dir="$HOME/.oh-my-zsh/custom/plugins/$plugin"
+                if [ -d "$plugin_dir" ]; then
+                    _global_do git -C "$plugin_dir" pull --ff-only ||
+                        warning "$plugin update failed; keeping the current checkout"
+                fi
+            done
+        else
+            info "oh-my-zsh not installed — skipping update"
+        fi
+    fi
 fi

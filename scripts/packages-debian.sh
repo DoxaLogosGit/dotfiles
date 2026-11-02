@@ -32,17 +32,7 @@ if [ -z "${MANIFEST_TABLE:-}" ]; then
                   "$DOTFILES_DIR/scripts/tools.tsv" || exit 1
 fi
 
-info "Installing packages for Debian/Ubuntu..."
-
-sudo apt-get update
-
-# ── Build prerequisites (never manifest-gated) ────────────────────────────────
-# libssl-dev, pkg-config, and perl are needed by openssl-sys whenever a cargo:
-# tool builds. python3-pip and python3-venv back the uv installer and anything
-# that still wants pip.
-sudo apt-get install -yy \
-    build-essential cmake unzip tar wget curl perl libssl-dev pkg-config \
-    python3-dev python3-pip python3-venv
+info "Preparing packages for Debian/Ubuntu..."
 
 # ── fn: handlers named by this OS's cells in tools.tsv ────────────────────────
 
@@ -59,6 +49,12 @@ rustup_install() {
     install_rust
 }
 
+rustup_install_update() {
+    # shellcheck source=install-rust.sh
+    . "$SCRIPT_DIR/install-rust.sh"
+    update_rust
+}
+
 bun_install() {
     if command -v bun >/dev/null 2>&1; then
         info "bun already installed"
@@ -67,6 +63,11 @@ bun_install() {
     curl -fsSL https://bun.sh/install | bash
     export BUN_INSTALL="$HOME/.bun"
     export PATH="$BUN_INSTALL/bin:$PATH"
+}
+
+bun_install_update() {
+    command -v bun >/dev/null 2>&1 || { info "bun is not installed — skipping update"; return 0; }
+    bun upgrade
 }
 
 node_pkg() {
@@ -111,6 +112,11 @@ mise_curl() {
     curl https://mise.run | sh
 }
 
+mise_curl_update() {
+    command -v mise >/dev/null 2>&1 || { info "mise is not installed — skipping update"; return 0; }
+    mise self-update
+}
+
 uv_install() {
     # Standalone installer rather than pip: it needs no Python of its own and
     # sidesteps PEP 668, which makes Debian refuse system-wide pip installs.
@@ -120,6 +126,11 @@ uv_install() {
     fi
     curl -LsSf https://astral.sh/uv/install.sh | sh
     export PATH="$HOME/.local/bin:$PATH"
+}
+
+uv_install_update() {
+    command -v uv >/dev/null 2>&1 || { info "uv is not installed — skipping update"; return 0; }
+    uv self update
 }
 
 nushell_pkg() {
@@ -138,9 +149,26 @@ _install_prebuilt_zip() {
     rm -rf "$tmp" "/tmp/${name:?}"*
 }
 
+_github_latest_tag() {
+    local url tag
+    url="$(curl -fsSIL -o /dev/null -w '%{url_effective}' \
+        "https://github.com/$1/releases/latest")" || return 1
+    tag="${url##*/}"
+    case "$tag" in v[0-9]*) printf '%s' "$tag" ;; *) return 1 ;; esac
+}
+
 yazi_prebuilt() {
     _install_prebuilt_zip \
         "https://github.com/sxyazi/yazi/releases/download/v25.4.8/yazi-x86_64-unknown-linux-gnu.zip" \
+        "yazi-x86_64-unknown-linux-gnu/yazi" yazi
+}
+
+yazi_prebuilt_update() {
+    local tag
+    command -v yazi >/dev/null 2>&1 || { info "yazi is not installed — skipping update"; return 0; }
+    tag="$(_github_latest_tag sxyazi/yazi)" || { warning "could not get the latest yazi release"; return 1; }
+    _install_prebuilt_zip \
+        "https://github.com/sxyazi/yazi/releases/download/$tag/yazi-x86_64-unknown-linux-gnu.zip" \
         "yazi-x86_64-unknown-linux-gnu/yazi" yazi
 }
 
@@ -150,6 +178,12 @@ starship_pkg() {
     # upstream installer, which publishes prebuilt ARM binaries.
     sudo apt-get install -yy starship 2>/dev/null && return 0
     info "starship not in this release's repos — using the upstream installer."
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+}
+
+starship_pkg_update() {
+    dpkg-query -W -f='${db:Status-Status}' starship 2>/dev/null | grep -qx installed && return 0
+    command -v starship >/dev/null 2>&1 || { info "starship is not installed — skipping update"; return 0; }
     curl -sS https://starship.rs/install.sh | sh -s -- -y
 }
 
@@ -165,6 +199,12 @@ atuin_pkg() {
         warning "atuin needs either the distro package or a Rust toolchain — skipping."
         return 1
     fi
+}
+
+atuin_pkg_update() {
+    dpkg-query -W -f='${db:Status-Status}' atuin 2>/dev/null | grep -qx installed && return 0
+    command -v atuin >/dev/null 2>&1 || { info "atuin is not installed — skipping update"; return 0; }
+    cargo install --locked --force atuin
 }
 
 eza_pkg() {
@@ -190,6 +230,16 @@ _eza_from_release() {
         "eza" eza
 }
 
+eza_pkg_update() {
+    local tag
+    dpkg-query -W -f='${db:Status-Status}' eza 2>/dev/null | grep -qx installed && return 0
+    command -v eza >/dev/null 2>&1 || { info "eza is not installed — skipping update"; return 0; }
+    tag="$(_github_latest_tag eza-community/eza)" || { warning "could not get the latest eza release"; return 1; }
+    _install_prebuilt_zip \
+        "https://github.com/eza-community/eza/releases/download/$tag/eza_x86_64-unknown-linux-gnu.zip" \
+        "eza" eza
+}
+
 glow_deb() {
     # Debian 13 (trixie) carries glow 2.0; bookworm and the older Ubuntu
     # releases do not, and there is no upstream .deb worth wiring up for it.
@@ -210,10 +260,44 @@ tuios_install() {
     install_tuios
 }
 
+tuios_install_update() {
+    command -v tuios >/dev/null 2>&1 || { info "tuios is not installed — skipping update"; return 0; }
+    tuios_install
+}
+
+tuios_web_install_update() {
+    command -v tuios-web >/dev/null 2>&1 || { info "tuios-web is not installed — skipping update"; return 0; }
+    tuios_web_install
+}
+
 
 playwright_linux() {
     bunx playwright install --with-deps
 }
+
+playwright_linux_update() {
+    playwright_linux
+}
+
+if [ "${PACKAGE_ACTION:-install}" = "update" ]; then
+    info "Updating Debian/Ubuntu packages..."
+    _pkg_do sudo apt-get update
+    _pkg_do sudo apt-get upgrade -yy
+    pkg_update_table debian
+    # shellcheck source=install-global-packages.sh
+    . "$SCRIPT_DIR/install-global-packages.sh"
+    success "Package update complete!"
+    exit 0
+fi
+
+# ── Build prerequisites (never manifest-gated) ────────────────────────────────
+# libssl-dev, pkg-config, and perl are needed by openssl-sys whenever a cargo:
+# tool builds. python3-pip and python3-venv back the uv installer and anything
+# that still wants pip.
+sudo apt-get update
+sudo apt-get install -yy \
+    build-essential cmake unzip tar wget curl perl libssl-dev pkg-config \
+    python3-dev python3-pip python3-venv
 
 # ── Everything else comes from the table ──────────────────────────────────────
 

@@ -84,6 +84,7 @@ Usage: $(basename "$0") [OPTIONS]
 
 Options:
     --packages      Install system packages
+    --update        Update system packages and enabled tools
     --symlinks      Create config symlinks
     --fonts         Install nerd fonts
     --plugins       Install Claude Code plugins
@@ -94,6 +95,7 @@ Options:
 
 Examples:
     $(basename "$0") --all              # Full installation
+    $(basename "$0") --update           # Update system packages and enabled tools
     $(basename "$0") --symlinks         # Only create symlinks
     $(basename "$0") --dry-run --all    # Preview full installation
 
@@ -582,6 +584,28 @@ install_packages() {
     fi
 }
 
+# Update operating-system packages and the enabled tools that their own package
+# managers maintain. This does not create symlinks or bootstrap missing tools.
+update_packages() {
+    local script
+    case "$OS_TYPE" in
+        raspbian) script="packages-raspbian.sh" ;;
+        debian)   script="packages-debian.sh" ;;
+        fedora)   script="packages-fedora.sh" ;;
+        macos)    script="packages-macos.sh" ;;
+        *)
+            error "Unsupported OS type: $OS_TYPE"
+            exit 1
+            ;;
+    esac
+
+    if [ "$DRY_RUN" = true ]; then
+        PACKAGE_ACTION=update PKG_DRY_RUN=true bash "$DOTFILES_DIR/scripts/$script"
+    else
+        PACKAGE_ACTION=update bash "$DOTFILES_DIR/scripts/$script"
+    fi
+}
+
 # Install fonts
 install_fonts() {
     if [ "$OS_TYPE" = "macos" ]; then
@@ -655,6 +679,7 @@ install_systemd_units() {
 # Main
 main() {
     local DO_PACKAGES=false
+    local DO_UPDATE=false
     local DO_SYMLINKS=false
     local DO_FONTS=false
     local DO_PLUGINS=false
@@ -666,6 +691,10 @@ main() {
         case "$1" in
             --packages)
                 DO_PACKAGES=true
+                shift
+                ;;
+            --update)
+                DO_UPDATE=true
                 shift
                 ;;
             --symlinks)
@@ -709,7 +738,7 @@ main() {
     done
 
     # If no options specified, show menu
-    if [ "$DO_PACKAGES" = false ] && [ "$DO_SYMLINKS" = false ] && [ "$DO_FONTS" = false ] && [ "$DO_PLUGINS" = false ]; then
+    if [ "$DO_PACKAGES" = false ] && [ "$DO_UPDATE" = false ] && [ "$DO_SYMLINKS" = false ] && [ "$DO_FONTS" = false ] && [ "$DO_PLUGINS" = false ]; then
         echo ""
         echo "Dotfiles Installer"
         echo "=================="
@@ -722,9 +751,10 @@ main() {
         echo "  4) Install fonts only"
         echo "  5) Install Claude plugins only"
         echo "  6) Enable systemd user units (snapshot timer)"
-        echo "  7) Exit"
+        echo "  7) Update system packages and enabled tools"
+        echo "  8) Exit"
         echo ""
-        read -p "Enter choice [1-7]: " choice
+        read -p "Enter choice [1-8]: " choice
 
         case "$choice" in
             1)
@@ -750,6 +780,9 @@ main() {
                 DO_SYSTEMD=true
                 ;;
             7)
+                DO_UPDATE=true
+                ;;
+            8)
                 echo "Bye!"
                 exit 0
                 ;;
@@ -777,6 +810,10 @@ main() {
 
     if [ "$DO_PACKAGES" = true ]; then
         install_packages
+    fi
+
+    if [ "$DO_UPDATE" = true ]; then
+        update_packages
     fi
 
     if [ "$DO_SYMLINKS" = true ]; then
