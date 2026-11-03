@@ -154,8 +154,7 @@ brew update
 
 # ── Everything else comes from the table ──────────────────────────────────────
 #
-# herdr is '-' on macOS: tuios is the multiplexer here. tudiff and tuicr have no
-# formula and stay cargo cells.
+# tudiff and tuicr have no formula and stay cargo cells.
 
 pkg_run_table macos
 

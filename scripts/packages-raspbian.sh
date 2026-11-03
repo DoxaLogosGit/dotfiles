@@ -7,8 +7,8 @@
 # installed by pkg_run_table, gated by this machine's manifest. What stays here
 # is bootstrap, build prerequisites, and the fn: handlers this OS's cells name.
 #
-# The Pi runs tmux, not zellij, and needs no Rust toolchain: see the raspbian
-# column of tools.tsv, where zellij, atuin, herdr, tudiff and tuicr are all '-'
+# The Pi runs tmux and needs no Rust toolchain: see the raspbian column of
+# tools.tsv, where tree-sitter, tudiff and tuicr are all '-'
 # because Raspbian ships none of them and building them from source costs
 # 20-30 minutes on this hardware.
 #

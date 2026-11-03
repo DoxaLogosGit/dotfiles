@@ -89,7 +89,7 @@ Options:
     --fonts         Install nerd fonts
     --plugins       Install Claude Code plugins
     --all           Do everything (packages + symlinks + fonts + plugins)
-    --systemd      Enable systemd user units (snapshot + vault backup timers)
+    --systemd      Enable systemd user units (vault backup timer)
     --dry-run       Show what would be done without making changes
     -h, --help      Show this help message
 
@@ -107,7 +107,7 @@ backup_file() {
     local file="$1"
     if [ -e "$file" ] || [ -L "$file" ]; then
         # Mirror the target's path under $BACKUP_DIR instead of flattening to
-        # a basename: atuin/herdr both ship config.toml, and ~/.claude and VS
+        # a basename: atuin/tuios both ship config.toml, and ~/.claude and VS
         # Code both ship settings.json, so a flat name let one backup silently
         # overwrite another within a single run.
         local rel="${file#"$HOME"/}"
@@ -135,8 +135,8 @@ backup_file() {
 # ── Machine-local overlay ─────────────────────────────────────────────────────
 #
 # Some config is per-machine and cannot be shared: pi/models.json mixes local
-# ollama models with per-network gateways, zellij layouts embed absolute paths,
-# and herdr may be tuned differently on each box.
+# ollama models with per-network gateways, and ghostty may be tuned differently
+# on each box.
 #
 # An overlay is an optional, separately-hosted directory holding those files for
 # *this* machine. It is deliberately anonymous: this script only asks whether one
@@ -145,15 +145,14 @@ backup_file() {
 # equipment in whatever that employer hosts) with no repo referencing another.
 #
 # Layout mirrors this repo, so an overlay holding pi/models.json and
-# herdr/config.toml shadows exactly those files:
+# ghostty/config.local shadows exactly those files:
 #
 #     ~/.dotfiles-local/
 #       zsh/zshrc.local
 #       git/gitconfig.local
 #       vim/vimrc.local
 #       pi/models.json
-#       herdr/config.toml
-#       zellij/layouts/*.kdl
+#       ghostty/config.local
 #
 # Note that zshrc.local can hold real credentials. An overlay is a backup, not a
 # vault: whatever hosts it must be at least as private as the values inside it.
@@ -192,34 +191,6 @@ link_from_overlay() {
     src="$(overlay_path "$rel")" || return 1
     create_symlink "$src" "$target"
     return 0
-}
-
-# Replace a directory symlink left behind by an older layout with a real
-# directory. ~/.config/zellij used to be a symlink to the repo's zellij/, so
-# linking a file *inside* it resolved back into the repo: the installer
-# overwrote the tracked zellij/config.kdl with a symlink pointing at itself,
-# and zellij then failed with "Too many levels of symbolic links".
-ensure_real_dir() {
-    local dir="$1"
-
-    if [ -L "$dir" ]; then
-        if [ "$DRY_RUN" = true ]; then
-            info "[DRY-RUN] Would replace stale directory symlink: $dir"
-            return 0
-        fi
-        if ! backup_file "$dir"; then
-            warning "Skipped: $dir (could not back up the stale symlink)"
-            return 1
-        fi
-        rm -f "$dir"
-        info "Replaced stale directory symlink with a real directory: $dir"
-    fi
-
-    if [ "$DRY_RUN" = true ]; then
-        [ -d "$dir" ] || info "[DRY-RUN] Would create directory: $dir"
-        return 0
-    fi
-    mkdir -p "$dir"
 }
 
 # mkdir -p that honours DRY_RUN, so a preview run writes nothing.
@@ -341,24 +312,6 @@ install_symlinks_common() {
         create_symlink "$DOTFILES_DIR/yazi" "$HOME/.config/yazi"
     fi
 
-    # Zellij (layouts/ are machine-local — they embed absolute cwd paths and
-    # per-machine commands — so symlink the config file only)
-    if want_config zellij; then
-        # Older installs symlinked the whole directory; convert before linking into it.
-        ensure_real_dir "$HOME/.config/zellij"
-        create_symlink "$DOTFILES_DIR/zellij/config.kdl" "$HOME/.config/zellij/config.kdl"
-        ensure_dir "$HOME/.config/zellij/layouts"
-        # Link each overlay layout individually rather than replacing the directory,
-        # so layouts dumped on this machine by `zdump` are never destroyed.
-        if overlay_active && [ -d "$DOTFILES_OVERLAY/zellij/layouts" ]; then
-            local layout
-            for layout in "$DOTFILES_OVERLAY"/zellij/layouts/*.kdl; do
-                [ -e "$layout" ] || continue
-                create_symlink "$layout" "$HOME/.config/zellij/layouts/$(basename "$layout")"
-            done
-        fi
-    fi
-
     # Git (identity/credentials are per-machine — see gitconfig.local.example)
     if want_config git; then
         create_symlink "$DOTFILES_DIR/git/gitconfig" "$HOME/.gitconfig"
@@ -430,15 +383,6 @@ install_symlinks_common() {
         link_from_overlay "pi/extensions/tuios-agent-state.ts" "$DOTFILES_DIR/pi/extensions/tuios-agent-state.ts" || true
     fi
 
-    # Herdr (herdr manages ~/.config/herdr/ logs + sessions — symlink config file
-    # only). An overlay copy wins, so a machine can diverge its keybinds.
-    # Not on macOS: tuios replaced it there, and the table's '-' cell only stops
-    # the package, so without this a Mac with no manifest still got the config.
-    if want_config herdr && [ "$(uname -s)" != "Darwin" ]; then
-        link_from_overlay "herdr/config.toml" "$HOME/.config/herdr/config.toml" ||
-            create_symlink "$DOTFILES_DIR/herdr/config.toml" "$HOME/.config/herdr/config.toml"
-    fi
-
     # tuios writes its own config.toml (the settings page saves there), so the
     # shared settings go in a config.d drop-in, which tuios merges underneath
     # config.toml. tuios finds its config through XDG: ~/.config on Linux,
@@ -462,13 +406,6 @@ install_symlinks_common() {
 
         # Obsidian vault backup (replaces the Obsidian Git plugin)
         create_symlink "$DOTFILES_DIR/scripts/vault-backup" "$HOME/.local/bin/vault-backup"
-    fi
-
-    # Zellij snapshot tool (rotating session-state backups). Part of zellij:
-    # a machine without it has nothing for these to drive.
-    if want_config zellij; then
-        create_symlink "$DOTFILES_DIR/scripts/zellij-snapshot" "$HOME/.local/bin/zellij-snapshot"
-        create_symlink "$DOTFILES_DIR/scripts/zellij-restore" "$HOME/.local/bin/zellij-restore"
     fi
 }
 
@@ -650,13 +587,6 @@ install_systemd_units() {
         return 0
     fi
 
-    create_symlink "$DOTFILES_DIR/scripts/zellij-snapshot.service" \
-        "$HOME/.config/systemd/user/zellij-snapshot.service"
-    create_symlink "$DOTFILES_DIR/scripts/zellij-snapshot.timer" \
-        "$HOME/.config/systemd/user/zellij-snapshot.timer"
-    create_symlink "$DOTFILES_DIR/scripts/zellij-snapshot-shutdown.service" \
-        "$HOME/.config/systemd/user/zellij-snapshot-shutdown.service"
-
     create_symlink "$DOTFILES_DIR/scripts/vault-backup.service" \
         "$HOME/.config/systemd/user/vault-backup.service"
     create_symlink "$DOTFILES_DIR/scripts/vault-backup.timer" \
@@ -664,13 +594,9 @@ install_systemd_units() {
 
     if [ "$DRY_RUN" = true ]; then
         info "[DRY-RUN] Would run: systemctl --user daemon-reload"
-        info "[DRY-RUN] Would run: systemctl --user enable --now zellij-snapshot.timer"
-        info "[DRY-RUN] Would run: systemctl --user enable zellij-snapshot-shutdown.service"
         info "[DRY-RUN] Would run: systemctl --user enable --now vault-backup.timer"
     else
         systemctl --user daemon-reload
-        systemctl --user enable --now zellij-snapshot.timer
-        systemctl --user enable zellij-snapshot-shutdown.service
         systemctl --user enable --now vault-backup.timer
         success "Systemd units enabled."
     fi
@@ -750,7 +676,7 @@ main() {
         echo "  3) Install packages only"
         echo "  4) Install fonts only"
         echo "  5) Install Claude plugins only"
-        echo "  6) Enable systemd user units (snapshot timer)"
+        echo "  6) Enable systemd user units (vault backup timer)"
         echo "  7) Update system packages and enabled tools"
         echo "  8) Exit"
         echo ""
@@ -845,7 +771,7 @@ main() {
         # so it stays an OS check. The Raspbian skip was a preference and is
         # now 'systemd = no' in that machine's manifest.
         if [ "$OS_TYPE" = "macos" ]; then
-            info "Skipping systemd units on macOS (no systemd; zellij-snapshot scripts still symlinked for manual use)."
+            info "Skipping systemd units on macOS (no systemd)."
         elif want systemd; then
             install_systemd_units
         else

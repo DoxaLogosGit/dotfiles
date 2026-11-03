@@ -21,7 +21,7 @@ run_update() {
 }
 
 manifest="rust = yes
-zellij = yes
+tree-sitter = yes
 pi = no
 playwright = no
 tpm = no
@@ -32,7 +32,7 @@ claude-plugins = no"
 out="$(run_update debian "$manifest")"
 assert_contains "$out" "apt-get update" "Debian updates the package index"
 assert_contains "$out" "apt-get upgrade -yy" "Debian upgrades installed packages"
-assert_contains "$out" "cargo install --locked --force zellij" "Debian refreshes enabled Cargo tools"
+assert_contains "$out" "cargo install --locked --force tree-sitter-cli" "Debian refreshes enabled Cargo tools"
 case "$out" in
     *"build-essential"*) _fail "Debian update skips bootstrap prerequisites" "build prerequisites appeared" ;;
     *) _pass "Debian update skips bootstrap prerequisites" ;;
@@ -40,7 +40,7 @@ esac
 
 out="$(run_update fedora "$manifest")"
 assert_contains "$out" "dnf upgrade --refresh -y" "Fedora refreshes and upgrades installed packages"
-assert_contains "$out" "cargo install --locked --force zellij" "Fedora refreshes enabled Cargo tools"
+assert_contains "$out" "cargo install --locked --force tree-sitter-cli" "Fedora refreshes enabled Cargo tools"
 case "$out" in
     *"dnf install"*) _fail "Fedora update skips bootstrap prerequisites" "dnf install appeared" ;;
     *) _pass "Fedora update skips bootstrap prerequisites" ;;
@@ -62,8 +62,8 @@ out=$(PATH="$stub_bin:$PATH" run_update macos "$manifest")
 assert_contains "$out" "[DRY-RUN] brew update" "macOS updates Homebrew metadata"
 assert_contains "$out" "[DRY-RUN] brew upgrade" "macOS upgrades installed Homebrew packages"
 case "$out" in
-    *"cargo install"*) _fail "macOS leaves Homebrew-managed zellij to Homebrew" "cargo appeared" ;;
-    *) _pass "macOS leaves Homebrew-managed zellij to Homebrew" ;;
+    *"cargo install"*) _fail "macOS leaves Homebrew-managed tree-sitter to Homebrew" "cargo appeared" ;;
+    *) _pass "macOS leaves Homebrew-managed tree-sitter to Homebrew" ;;
 esac
 
 cleanup_sandbox "$sandbox"

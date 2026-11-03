@@ -40,7 +40,6 @@ Or run interactively:
 - **Vim** - Classic configuration
 
 ### Terminal Tools
-- **zellij** - Terminal multiplexer with custom layouts and keybindings
 - **tmux** - Terminal multiplexer with TPM for plugins
 - **yazi** - Terminal file manager
 - **starship** - Cross-shell prompt
@@ -52,8 +51,7 @@ Or run interactively:
 - **opencode** - OpenCode CLI configuration
 - **codex** - OpenAI Codex CLI configuration
 - **pi** - Pi coding agent configuration (`~/.pi/agent`)
-- **herdr** - Herdr terminal multiplexer settings (Linux only; macOS uses tuios)
-- **tuios** - Shared tuios keybindings, as a `config.d` drop-in: the same keys on macOS and Linux (leader Ctrl+Space, Alt+H / Alt+L switch workspace). Needs tuios 0.9.0+
+- **tuios** - The terminal multiplexer and agent manager. Shared tuios keybindings, as a `config.d` drop-in: the same keys on macOS and Linux (leader Ctrl+Space, Alt+H / Alt+L switch workspace). Needs tuios 0.9.0+
 - **ollama** - Local model files and Modelfiles for Ollama (omnicoder, qwen3.5:9b)
 
 ### Other Configs
@@ -79,11 +77,6 @@ Or run interactively:
 ├── zsh/
 │   ├── zshrc                     # → ~/.zshrc  (primary shell config)
 │   └── zshrc.local.example       # → ~/.zshrc.local (per-machine, untracked)
-├── zellij/
-│   ├── config.kdl                # → ~/.config/zellij/config.kdl
-│   └── layouts/
-│       ├── main.kdl              #   default layout
-│       └── work.kdl              #   work layout
 ├── starship/
 │   └── starship.toml             # → ~/.config/starship.toml
 ├── nvim/
@@ -120,8 +113,6 @@ Or run interactively:
 │   ├── extensions/, skills/      #   tracked extensions and skills
 │   └── (models.json, settings.json, #   per-machine: endpoints, model access,
 │        open-tui.json untracked)    #   UI prefs; see install-pi-packages.sh
-├── herdr/
-│   └── config.toml               # → ~/.config/herdr/config.toml (Linux only)
 ├── vscode/
 │   └── settings.json             # → ~/.config/Code/User/settings.json
 ├── opencode/                     # untracked: internal endpoints + model access
@@ -141,8 +132,7 @@ chsh -s /usr/bin/zsh
 macOS already defaults to zsh — nothing to do there.
 
 Shell helpers defined in `zsh/zshrc`: `ll`, `c` / `cw` (Claude personal/work
-config dirs), `y` (yazi, cd on exit), `zm` (attach the MAIN zellij session),
-`zdump` (dump the attached session's layout).
+config dirs), `y` (yazi, cd on exit).
 
 Machine-local additions that shouldn't be committed go in `~/.zshrc.local`,
 which `zshrc` sources last if present — see
@@ -191,10 +181,6 @@ Two more untracked paths that need no seeding:
   The package list that matters lives in `scripts/install-pi-packages.sh`; run
   it with `--personal` (or set `DOTFILES_PERSONAL=1`) to also install free-tier
   routing, which work machines should skip.
-- `~/.config/zellij/layouts/` — zellij layouts embed absolute `cwd` paths and
-  per-machine commands, so they do not survive a move between machines. Only
-  `zellij/config.kdl` is shared and symlinked; the layouts directory is real and
-  local. `zdump` writes the attached session's layout there.
 
 **Why `pi/models.json` and `opencode.json` are fully local rather than split:**
 pi reads exactly one `models.json` and has no include mechanism, so a portable
@@ -220,8 +206,7 @@ copies win:
   opencode/opencode.json  # gateway URL, model catalogue, permissions
   pi/open-tui.json        # pi UI preferences
   claude/settings.json    # omit on machines where Claude cannot be installed
-  herdr/config.toml       # per-machine keybinds, overrides the shared config
-  zellij/layouts/*.kdl    # layouts dumped on this machine
+  ghostty/config.local    # per-machine Ghostty overrides, loaded after the shared config
 ```
 
 Agent settings are machine-local: `claude/settings.json` and `pi/open-tui.json`
@@ -247,8 +232,8 @@ isolation you do not already have, and the shared files drift apart.
 ~/.dotfiles-<overlay-repo>/
   common/gitconfig.local        # personal email + helper, stored once
   common/vimrc.local
-  laptop/  zsh/ git/ vim/ pi/ herdr/ zellij/layouts/
-  nas/     zsh/ git/ vim/ zellij/layouts/
+  laptop/  zsh/ git/ vim/ pi/ ghostty/
+  nas/     zsh/ git/ vim/
   pihole/  zsh/ git/
 ```
 
@@ -315,7 +300,7 @@ Which machine gets which tools is data, not code. Each machine directory in the
 overlay carries a `manifest.conf` naming every tool and what to do with it:
 
 ```ini
-zellij = no          # skip the package and the config
+tree-sitter = no     # skip the package and the config
 nvim   = config-only # link the config; installed some other way
 tmux   = yes         # install and link
 ```
@@ -324,8 +309,8 @@ An entry covers everything belonging to that tool, not just its package:
 `tmux = no` also skips the TPM clone and the `tmux.conf` symlink.
 
 You name the **tool**, never the mechanism. `scripts/tools.tsv` holds what each
-tool *is* on each OS — `cargo:zellij` on Fedora, `brew:zellij` on macOS, `-` on
-Raspbian, which ships no such package — so `zellij = no` reads the same
+tool *is* on each OS — `cargo:tree-sitter-cli` on Fedora, `brew:tree-sitter-cli`
+on macOS, `-` on Raspbian, which ships no such package — so `tree-sitter = no` reads the same
 everywhere and a `-` needs no line at all.
 
 **The rules:**
@@ -340,12 +325,12 @@ Every run ends with what happened:
 
 ```
 Manifest: ~/.dotfiles-local/manifest.conf (53 yes, 19 no, 0 config-only)
-  skipped: zellij rust herdr tudiff tuicr atuin ...
+  skipped: tree-sitter rust tudiff tuicr atuin ...
 ```
 
 **Availability versus policy.** A tool can be absent for two different reasons,
 and they live in different files. *Availability* is a `-` in the table: Raspbian
-has no `zellij` package, and no machine should have to say so. *Policy* is a
+has no `tree-sitter-cli` package, and no machine should have to say so. *Policy* is a
 `no` in a manifest: the work MacBook declines Claude Code because the company
 image blocks Anthropic — a fact about that machine, not about macOS, since a
 personal Mac would install it fine.
@@ -356,7 +341,7 @@ for naming tools rather than branching on OS:
 | | Pi | MacBook |
 |---|---|---|
 | `tmux` | `yes` | `no` |
-| `zellij` | `no` | `yes` |
+| `tuios` | `no` | `yes` |
 
 Same mechanism, opposite answers, no code branch for either. Under the previous
 design each would have needed its own hardcoded symlink function.
@@ -418,9 +403,8 @@ Plugins are managed by lazy.nvim and will auto-install on first launch.
 - **Raspberry Pi OS (Raspbian)**
 - **macOS** (Apple Silicon or Intel) — installs everything via Homebrew.
   Differences from the Linux installs: shell setup targets zsh (already the
-  macOS default) with oh-my-zsh and does not install nushell, the
-  `zellij-snapshot` timer is not set up (macOS has no systemd; the
-  snapshot/restore scripts are still linked for manual use), and GUI apps
+  macOS default) with oh-my-zsh and does not install nushell, no
+  systemd user units are set up (macOS has no systemd), and GUI apps
   install as Homebrew casks (Ghostty, Nerd Fonts) except VS Code, which is
   assumed installed separately — only its config is linked.
 

@@ -73,10 +73,6 @@ assert_contains "$out" "ghostty_cask" "the ghostty cask handler is reached"
 # handler: uv tool install gives the same isolated environments on every OS.
 assert_contains "$out" "jedi-language-server" "the python LSP tools install via uv"
 assert_contains "$out" "cargo install --locked tudiff" "cargo-only tools use locked dependencies on macOS"
-case "$out" in
-    *"herdr"*) _fail "herdr is not installed on macOS" "herdr appeared in the run" ;;
-    *) _pass "herdr is not installed on macOS" ;;
-esac
 
 # No handler may be missing: that warning means a cell names something undefined.
 case "$out" in
@@ -93,7 +89,7 @@ case "$out" in
 esac
 
 # ── the MacBook's actual manifest: no tmux, no claude ───────────────────────
-out="$(run_macos "$(printf 'zsh = yes\nnvim = yes\nzellij = yes\ntmux = no\nclaude = no\n')")"
+out="$(run_macos "$(printf 'zsh = yes\nnvim = yes\ntree-sitter = yes\ntmux = no\nclaude = no\n')")"
 assert_contains "$out" "Skipping tmux (manifest)" "tmux = no skips the package"
 case "$out" in
     *"prefix + I"*) _fail "tmux = no suppresses the TPM hint" "the hint was printed anyway" ;;
@@ -103,7 +99,7 @@ case "$out" in
     *"tmux/plugins/tpm"*) _fail "tmux = no skips the TPM clone" "TPM was cloned" ;;
     *) _pass "tmux = no skips the TPM clone" ;;
 esac
-assert_contains "$out" "brew_install zellij" "zellij is still installed on the MacBook"
+assert_contains "$out" "brew_install tree-sitter-cli" "tree-sitter is still installed on the MacBook"
 
 cleanup_sandbox "$sandbox"
 finish_tests

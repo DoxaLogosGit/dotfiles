@@ -31,7 +31,6 @@ vim	dnf:vim-enhanced	apt:vim-gtk	apt:vim	brew:vim
 nvim	dnf:neovim	apt:neovim	apt:neovim	brew:neovim
 tree-sitter	cargo:tree-sitter-cli	cargo:tree-sitter-cli	-	brew:tree-sitter-cli
 tmux	dnf:tmux	apt:tmux	apt:tmux	brew:tmux
-zellij	cargo:zellij	cargo:zellij	-	brew:zellij
 starship	cargo:starship	fn:starship_pkg	fn:starship_pkg	brew:starship
 atuin	cargo:atuin	fn:atuin_pkg	fn:atuin_pkg	brew:atuin
 zoxide	dnf:zoxide	apt:zoxide	apt:zoxide	brew:zoxide
@@ -77,7 +76,6 @@ pixi	fn:pixi_install	-	-	brew:pixi
 mojo	fn:mojo_install	-	-	-
 tuios	fn:tuios_install	fn:tuios_install	fn:tuios_install	brew:tuios
 tuios-web	fn:tuios_web_install	fn:tuios_web_install	fn:tuios_web_install	fn:tuios_web_install
-herdr	cargo:herdr	cargo:herdr	-	-
 tudiff	cargo:tudiff	cargo:tudiff	-	cargo:tudiff
 tuicr	cargo:tuicr	cargo:tuicr	-	cargo:tuicr
 pi	bun:@earendil-works/pi-coding-agent	bun:@earendil-works/pi-coding-agent	fn:pi_npm	bun:@earendil-works/pi-coding-agent

@@ -87,7 +87,7 @@ done
 # every method in the table, is also listed by name.
 KNOWN_COMMANDS="apt apt-get dnf brew rustup rustc cargo bun bunx node npm npx nvm
 uv uvx pip pip3 python3 pi curl wget tar git sudo flatpak snap mise starship
-atuin eza yazi glow tuios tuios-web herdr zellij nushell nu playwright opencode"
+atuin eza yazi glow tuios tuios-web nushell nu playwright opencode"
 for method in $(cut -f2-5 "$TABLE" | tr '\t' '\n' | grep -v '^#' | cut -d: -f1 | sort -u); do
     KNOWN_COMMANDS="$KNOWN_COMMANDS $method"
 done

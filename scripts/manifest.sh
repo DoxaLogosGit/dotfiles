@@ -9,7 +9,7 @@
 #
 # Format (see manifest.example, generated from scripts/tools.tsv):
 #
-#     zellij = no          # skip the package and the config
+#     tree-sitter = no     # skip the package and the config
 #     nvim   = config-only # link the config; installed some other way
 #     tmux   = yes         # install and link
 #
@@ -27,7 +27,7 @@ declare -f warning >/dev/null 2>&1 || warning() { echo "[WARN] $1" >&2; }
 type error   >/dev/null 2>&1 || error()   { echo "[ERROR] $1" >&2; }
 
 # Echo the cell for <tool> in <os>, or nothing when the tool is unknown.
-# Usage: tool_cell zellij macos
+# Usage: tool_cell tree-sitter macos
 tool_cell() {
     local tool="$1" os="$2" col
     case "$os" in

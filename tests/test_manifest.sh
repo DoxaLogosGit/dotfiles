@@ -14,14 +14,14 @@ sandbox="$(make_sandbox)"
 assert_ok "load succeeds with no manifest" manifest_load "$sandbox/nope.conf" "$TABLE"
 manifest_load "$sandbox/nope.conf" "$TABLE"
 assert_eq "false" "$MANIFEST_ACTIVE" "MANIFEST_ACTIVE is false with no manifest"
-assert_ok "want is true with no manifest" want zellij
+assert_ok "want is true with no manifest" want tree-sitter
 assert_ok "want_config is true with no manifest" want_config ghostty
 assert_ok "want is true for a tool nobody named" want imagemagick
 
 # ── a real manifest ─────────────────────────────────────────────────────
 cat > "$sandbox/m.conf" <<'EOF'
 # a comment
-zellij = no
+tree-sitter = no
 
 tmux   = yes
 nvim = config-only
@@ -31,17 +31,17 @@ EOF
 assert_ok "load succeeds on a valid manifest" manifest_load "$sandbox/m.conf" "$TABLE"
 manifest_load "$sandbox/m.conf" "$TABLE"
 assert_eq "true" "$MANIFEST_ACTIVE" "MANIFEST_ACTIVE is true"
-assert_eq "no" "$(manifest_value zellij)" "reads a no value"
+assert_eq "no" "$(manifest_value tree-sitter)" "reads a no value"
 assert_eq "yes" "$(manifest_value tmux)" "reads a yes value"
 assert_eq "config-only" "$(manifest_value nvim)" "reads config-only"
 assert_eq "yes" "$(manifest_value btop)" "tolerates tabs and leading spaces"
 
-assert_fail "want is false for no" want zellij
+assert_fail "want is false for no" want tree-sitter
 assert_ok   "want is true for yes" want tmux
 assert_fail "want is false for config-only" want nvim
 assert_ok   "want_config is true for config-only" want_config nvim
 assert_ok   "want_config is true for yes" want_config tmux
-assert_fail "want_config is false for no" want_config zellij
+assert_fail "want_config is false for no" want_config tree-sitter
 
 # opt-in: a tool absent from an ACTIVE manifest is skipped
 assert_fail "absent tool is skipped when manifest is active" want ghostty
@@ -72,7 +72,7 @@ assert_eq "false" "$MANIFEST_ACTIVE" "a failed load does not activate the manife
 # ── summary ─────────────────────────────────────────────────────────────
 manifest_load "$sandbox/m.conf" "$TABLE" >/dev/null 2>&1
 summary="$(manifest_summary)"
-assert_contains "$summary" "zellij" "summary lists a skipped tool"
+assert_contains "$summary" "tree-sitter" "summary lists a skipped tool"
 assert_contains "$summary" "2 yes" "summary counts yes entries"
 assert_contains "$summary" "1 no" "summary counts no entries"
 assert_contains "$summary" "1 config-only" "summary counts config-only entries"
@@ -131,8 +131,8 @@ done
 
 # ── table lookup ────────────────────────────────────────────────────────
 manifest_load "$sandbox/m.conf" "$TABLE" >/dev/null 2>&1
-assert_eq "brew:zellij" "$(tool_cell zellij macos)" "tool_cell reads the macos column"
-assert_eq "-" "$(tool_cell zellij raspbian)" "tool_cell reads a dash cell"
+assert_eq "brew:tree-sitter-cli" "$(tool_cell tree-sitter macos)" "tool_cell reads the macos column"
+assert_eq "-" "$(tool_cell tree-sitter raspbian)" "tool_cell reads a dash cell"
 assert_eq "apt:zsh" "$(tool_cell zsh debian)" "tool_cell reads the debian column"
 assert_eq "dnf:neovim" "$(tool_cell nvim fedora)" "tool_cell reads the fedora column"
 

@@ -41,11 +41,11 @@ run_pi() {
 # The Pi's real manifest, as committed to its overlay directory.
 pi_manifest="$(printf '%s\n' \
     'zsh = yes' 'bash = yes' 'git = yes' 'vim = yes' 'nvim = yes' \
-    'tmux = yes' 'zellij = no' 'rust = no' 'node = yes' \
+    'tmux = yes' 'rust = no' 'node = yes' \
     'starship = yes' 'atuin = no' 'eza = yes' 'bat = yes' 'fd = yes' \
     'ripgrep = yes' 'fzf = yes' 'jq = yes' 'zoxide = yes' 'htop = yes' \
     'btop = yes' 'lua = yes' 'clang = yes' 'shellcheck = yes' \
-    'herdr = no' 'tudiff = no' 'tuicr = no' \
+    'tudiff = no' 'tuicr = no' \
     'pi = yes' 'opencode = yes' 'claude = no' 'codex = no' \
     'python-lsp = yes' 'pi-packages = yes' 'oh-my-zsh = yes' \
     'fonts = no' 'systemd = no' 'claude-plugins = no')"
@@ -61,11 +61,11 @@ case "$out" in
     *) _pass "nothing is built with cargo on the Pi" ;;
 esac
 assert_contains "$out" "Skipping rust (manifest)" "the Rust toolchain is declined"
-# zellij prints no skip line: its raspbian cell is '-', so the table skips it
-# before the manifest is consulted. Assert the outcome instead of the message.
+# tree-sitter prints no skip line: its raspbian cell is '-', so the table skips
+# it before the manifest is consulted. Assert the outcome instead of the message.
 case "$out" in
-    *zellij*) _fail "zellij is never installed on the Pi" "zellij appeared in the run" ;;
-    *) _pass "zellij is never installed on the Pi" ;;
+    *tree-sitter*) _fail "tree-sitter is never installed on the Pi" "tree-sitter appeared in the run" ;;
+    *) _pass "tree-sitter is never installed on the Pi" ;;
 esac
 assert_contains "$out" "Installing tmux" "tmux is the multiplexer here"
 

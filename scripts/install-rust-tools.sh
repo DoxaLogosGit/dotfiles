@@ -4,8 +4,7 @@
 # PATH (install-rust.sh) — sourced by packages-*.sh.
 #
 # Callers pass the tool list explicitly (e.g. `install_rust_tools tudiff
-# tuicr`) since not every tool builds everywhere — herdr fails to compile
-# on macOS, which is one reason macOS does not install it at all.
+# tuicr`) since not every tool builds everywhere.
 
 # Fallbacks in case this is sourced without the caller's helpers.
 declare -f info >/dev/null 2>&1    || info()    { echo -e "[INFO] $1"; }
